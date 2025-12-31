@@ -4,7 +4,7 @@ A comprehensive personal finance and business management application.
 
 ## 🌐 Live Demo
 
-**https://planmyfuture.onrender.com**
+**https://planmyfuture.org**
 
 ## Features
 
