@@ -1,46 +1,63 @@
-# MittBolag - Bokföringssystem
+# Plan My Future
 
-Ett svenskt bokföringssystem byggt med .NET 8 och React.
+A comprehensive personal finance and business management application.
 
-## Funktioner
+## 🌐 Live Demo
 
-- **Autentisering** - Enkel inloggning med email och lösenord (JWT-baserad)
-- **Företagsprofil** - Hantera företagsuppgifter
-- **Kontoplan** - Fördefinierad BAS-kontoplan med möjlighet att lägga till egna konton
-- **Fakturering** - Skapa och hantera kundfakturor
-- **Bokföring** - Manuella verifikationer med dubbel bokföring
-- **Lönehantering** - Registrera anställda och kör lön
-- **Rapporter** - Resultaträkning, balansräkning och momsrapport
+**https://planmyfuture.onrender.com**
 
-## Teknisk Stack
+## Features
 
-| Komponent | Teknologi |
-|-----------|-----------|
+### Personal Finance (My Finances)
+- **Dashboard** - Track your net worth over time
+- **Assets** - Manage bank accounts and investments
+- **Debts** - Track loans and mortgages with equity calculations
+- **Budget** - Plan and monitor your monthly spending
+- **Tax & Pension** - Swedish tax calculations and pension projections
+
+### Business Management (My Business)
+- **Company Profile** - Manage company details
+- **Invoicing** - Create and manage customer invoices
+- **Expenses** - Track business expenses
+- **Employees** - Manage employees and payroll
+- **VAT Reports** - Generate VAT reports
+- **Year-End** - Annual accounting reports
+
+### Gig Economy (My Gig)
+- **Browse Gigs** - Find freelance opportunities
+- **Post Gigs** - Create gig listings
+- **Profile** - Manage your consultant profile
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
 | Frontend | React 18 + TypeScript + Vite |
 | UI | Tailwind CSS |
 | Backend | .NET 8 Web API |
-| Databas | SQLite |
+| Database | SQLite |
 | ORM | Entity Framework Core |
 | Auth | JWT Bearer tokens |
+| Hosting | Render (Free tier) |
 
-## Kom igång
+## Local Development
 
-### Förutsättningar
+### Prerequisites
 
 - .NET 8 SDK
 - Node.js 18+
 - npm
 
-### Starta backend
+### Start Backend
 
 ```bash
-cd backend/MittBolag.Api
+cd backend/MyFuture.Api
 dotnet run
 ```
 
-Backend startar på http://localhost:5157
+Backend runs on http://localhost:5157
 
-### Starta frontend
+### Start Frontend
 
 ```bash
 cd frontend
@@ -48,28 +65,24 @@ npm install
 npm run dev
 ```
 
-Frontend startar på http://localhost:5173
+Frontend runs on http://localhost:5173
 
-## Användning
+## Deployment
 
-1. Öppna http://localhost:5173 i webbläsaren
-2. Registrera ett nytt konto
-3. Skapa ditt företag
-4. Börja använda systemet!
+The app is deployed on Render using Docker. Push to `main` branch triggers automatic deployment.
 
-## API-dokumentation
+### Manual Deployment
 
-Swagger UI finns tillgänglig på http://localhost:5157/swagger när backend körs.
+```bash
+git add .
+git commit -m "Your changes"
+git push origin main
+```
 
-## Framtida utveckling
+## API Documentation
 
-- BankID-inloggning
-- Bankintegration (SIE-filer)
-- Skatteverket-koppling
-- Automatisk momsdeklaration
-- PDF-generering av fakturor
+Swagger UI available at http://localhost:5157/swagger (development mode only).
 
-## Licens
+## License
 
-Privat projekt - alla rättigheter förbehållna.
-
+Private project - all rights reserved.
