@@ -11,7 +11,7 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: ConnectionStrings__DefaultConnection
-        value: Data Source=MyFuture.db
+        sync: false  # Set Neon PostgreSQL connection string in Render dashboard
       - key: Jwt__Key
         sync: false  # You'll set this in Render dashboard
       - key: Jwt__Issuer
