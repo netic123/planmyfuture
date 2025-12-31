@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.vs
+.vscode
+.idea
+*.swp
+*.swo
+
+# Build outputs
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/publish
+
+# Database files (will be created fresh in container)
+*.db
+*.db-shm
+*.db-wal
+
+# Documentation
+*.md
+LICENSE
+
+# Test files
+**/tests
+**/*.Tests
+
+# Local settings (secrets)
+appsettings.Development.json
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log
+
