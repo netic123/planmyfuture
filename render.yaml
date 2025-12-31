@@ -1,0 +1,27 @@
+# Render Blueprint - Plan My Future
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: planmyfuture
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        value: Data Source=/app/data/MyFuture.db
+      - key: Jwt__Key
+        sync: false  # You'll set this in Render dashboard
+      - key: Jwt__Issuer
+        value: PlanMyFuture
+      - key: Jwt__Audience
+        value: PlanMyFutureUsers
+      - key: App__FrontendUrl
+        value: https://planmyfuture.onrender.com
+    disk:
+      name: planmyfuture-data
+      mountPath: /app/data
+      sizeGB: 1
+

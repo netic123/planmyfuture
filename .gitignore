@@ -1,0 +1,40 @@
+# Build outputs
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+publish/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+logs.zip
+
+# Secrets (keep appsettings.Development.json out of repo)
+appsettings.Development.json
+
+# Deploy artifacts
+*.zip
+deploy.zip
+myfuture-deploy.zip
+
+# Azure specific
+azure-deploy.ps1
+AZURE_DEPLOYMENT.md
