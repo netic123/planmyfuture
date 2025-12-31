@@ -6,7 +6,22 @@ using Microsoft.OpenApi.Models;
 using MyFuture.Api.Data;
 using MyFuture.Api.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    // Disable file watching to avoid inotify limits on Render free tier
+    // https://render.com/docs/troubleshooting-deploys
+});
+
+// Disable configuration file watching in production
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Configuration.Sources.Clear();
+    builder.Configuration
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+        .AddEnvironmentVariables();
+}
 
 // Add services to the container.
 builder.Services.AddControllers();
