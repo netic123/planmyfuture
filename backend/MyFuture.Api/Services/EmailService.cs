@@ -130,7 +130,14 @@ public class EmailService : IEmailService
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
+            // Set longer timeout for cloud environments (2 minutes instead of default 30 seconds)
+            client.Timeout = 120000;
+            
+            // Try SSL on port 465 first if port is 587, otherwise use configured settings
+            var useSSL = smtpPort == 465;
+            var secureOption = useSSL ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+            
+            await client.ConnectAsync(smtpHost, smtpPort, secureOption);
             await client.AuthenticateAsync(smtpUser, smtpPassword);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
@@ -215,7 +222,12 @@ public class EmailService : IEmailService
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
+            // Set longer timeout for cloud environments
+            client.Timeout = 120000;
+            var useSSL = smtpPort == 465;
+            var secureOption = useSSL ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+            
+            await client.ConnectAsync(smtpHost, smtpPort, secureOption);
             await client.AuthenticateAsync(smtpUser, smtpPassword);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
@@ -298,7 +310,12 @@ public class EmailService : IEmailService
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
+            // Set longer timeout for cloud environments
+            client.Timeout = 120000;
+            var useSSL = smtpPort == 465;
+            var secureOption = useSSL ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+            
+            await client.ConnectAsync(smtpHost, smtpPort, secureOption);
             await client.AuthenticateAsync(smtpUser, smtpPassword);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
@@ -368,7 +385,12 @@ public class EmailService : IEmailService
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
+            // Set longer timeout for cloud environments
+            client.Timeout = 120000;
+            var useSSL = smtpPort == 465;
+            var secureOption = useSSL ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+            
+            await client.ConnectAsync(smtpHost, smtpPort, secureOption);
             await client.AuthenticateAsync(smtpUser, smtpPassword);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
