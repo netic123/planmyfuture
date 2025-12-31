@@ -60,11 +60,11 @@ public class AuthService : IAuthService
                 .ToListAsync();
         }
         
-        // Send notification to admin
-        await _emailService.SendNewAccountNotificationAsync(user.Email, user.FirstName, user.LastName, ipAddress, totalUsers, duplicateIpAccounts);
+        // Send notification to admin (fire and forget - don't block registration)
+        _ = Task.Run(() => _emailService.SendNewAccountNotificationAsync(user.Email, user.FirstName, user.LastName, ipAddress, totalUsers, duplicateIpAccounts));
         
-        // Send welcome email to the new user
-        await _emailService.SendWelcomeEmailAsync(user.Email, user.FirstName);
+        // Send welcome email to the new user (fire and forget)
+        _ = Task.Run(() => _emailService.SendWelcomeEmailAsync(user.Email, user.FirstName));
 
         var token = _jwtService.GenerateToken(user);
 
@@ -96,15 +96,15 @@ public class AuthService : IAuthService
         user.LastLoginIp = ipAddress;
         await _context.SaveChangesAsync();
 
-        // Send login notification email
-        await _emailService.SendLoginNotificationAsync(
+        // Send login notification email (fire and forget - don't block login)
+        _ = Task.Run(() => _emailService.SendLoginNotificationAsync(
             user.Email, 
             user.FirstName, 
             user.LastName, 
             ipAddress, 
             user.LoginCount,
             previousLoginAt
-        );
+        ));
 
         var token = _jwtService.GenerateToken(user);
 
@@ -168,8 +168,8 @@ public class AuthService : IAuthService
         user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1); // Token valid for 1 hour
         await _context.SaveChangesAsync();
 
-        // Send the reset email
-        await _emailService.SendPasswordResetEmailAsync(user.Email, user.FirstName, token);
+        // Send the reset email (fire and forget - don't block request)
+        _ = Task.Run(() => _emailService.SendPasswordResetEmailAsync(user.Email, user.FirstName, token));
 
         return true;
     }
