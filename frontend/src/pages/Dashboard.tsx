@@ -81,16 +81,16 @@ export default function Dashboard() {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   
-  // Expanded sections
-  const [expandedSection, setExpandedSection] = useState<'income' | 'expenses' | 'debts' | 'assets' | null>(null);
+  // Expanded sections (allows multiple to be open)
+  const [expandedSections, setExpandedSections] = useState<Set<'income' | 'expenses' | 'debts' | 'assets'>>(new Set());
   
   // Edit states
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValue, setEditValue] = useState<number>(0);
   const [saving, setSaving] = useState(false);
   
-  // Add new item states
-  const [showAddForm, setShowAddForm] = useState(false);
+  // Add new item states (tracks which section's form is showing)
+  const [showAddFormFor, setShowAddFormFor] = useState<'income' | 'expenses' | 'debts' | 'assets' | null>(null);
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState<number>(0);
   const [newItemRate, setNewItemRate] = useState<number>(0);
@@ -174,8 +174,19 @@ export default function Dashboard() {
   };
 
   const toggleSection = (section: 'income' | 'expenses' | 'debts' | 'assets') => {
-    setExpandedSection(expandedSection === section ? null : section);
-    setShowAddForm(false);
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(section)) {
+        newSet.delete(section);
+        // Close add form if this section is being closed
+        if (showAddFormFor === section) {
+          setShowAddFormFor(null);
+        }
+      } else {
+        newSet.add(section);
+      }
+      return newSet;
+    });
     setEditingId(null);
   };
 
@@ -185,7 +196,7 @@ export default function Dashboard() {
   };
 
   const resetAddForm = () => {
-    setShowAddForm(false);
+    setShowAddFormFor(null);
     setNewItemName('');
     setNewItemAmount(0);
     setNewItemRate(0);
@@ -448,7 +459,7 @@ export default function Dashboard() {
     onAdd: () => void,
     addLabel: string
   ) => {
-    const isExpanded = expandedSection === section;
+    const isExpanded = expandedSections.has(section);
     
     return (
       <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
@@ -480,7 +491,7 @@ export default function Dashboard() {
               items.map(renderItem)
             )}
             
-            {showAddForm ? (
+            {showAddFormFor === section ? (
               <div className="mt-3 p-3 bg-neutral-50 rounded-lg space-y-2">
                 <input
                   type="text"
@@ -523,7 +534,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <button
-                onClick={() => setShowAddForm(true)}
+                onClick={() => setShowAddFormFor(section)}
                 className="w-full py-2 mt-2 text-sm text-neutral-500 hover:text-neutral-700 flex items-center justify-center gap-1 border border-dashed border-neutral-200 rounded-lg hover:border-neutral-400"
               >
                 <Plus className="h-4 w-4" />
