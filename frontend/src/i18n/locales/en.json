@@ -328,8 +328,26 @@
       "emailPlaceholder": "your@email.com",
       "password": "Password",
       "passwordPlaceholder": "At least 6 characters",
-      "createAccount": "Create account"
+      "createAccount": "Create account",
+      "gdprNotice": "We support GDPR – you can delete all your data anytime after login."
     }
+  },
+  "gdpr": {
+    "deleteAccount": "Delete account",
+    "deleteAccountTitle": "Delete account?",
+    "deleteAccountWarning": "This will permanently delete your account and all your data. This action cannot be undone.",
+    "deleteAccountConfirm": "Are you absolutely sure you want to delete your account?",
+    "whatWillBeDeleted": "What will be deleted:",
+    "accountInfo": "Account information (email, name)",
+    "budgetItems": "All budget items (income and expenses)",
+    "allAssets": "All assets",
+    "allDebts": "All debts",
+    "financialGoals": "All financial goals",
+    "confirmDelete": "Yes, delete my account",
+    "cancel": "Cancel",
+    "deleting": "Deleting...",
+    "deleteSuccess": "Your account has been deleted. A confirmation email has been sent.",
+    "deleteError": "Failed to delete account. Please try again."
   },
   "settings": {
     "title": "My Details",

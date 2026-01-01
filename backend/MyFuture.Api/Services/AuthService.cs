@@ -13,6 +13,7 @@ public interface IAuthService
     Task<bool> UpdateLanguageAsync(int userId, string language);
     Task<bool> RequestPasswordResetAsync(string email);
     Task<bool> ResetPasswordAsync(string token, string newPassword);
+    Task<bool> DeleteAccountAsync(int userId);
 }
 
 public class AuthService : IAuthService
@@ -194,6 +195,32 @@ public class AuthService : IAuthService
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiry = null;
         await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> DeleteAccountAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return false;
+        }
+
+        // Store user info for email before deletion
+        var userEmail = user.Email;
+        var firstName = user.FirstName;
+        var lastName = user.LastName;
+
+        // Delete the user (cascade delete will handle related data)
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
+        // Send confirmation email to user (fire and forget)
+        _ = Task.Run(() => _emailService.SendAccountDeletionEmailAsync(userEmail, firstName));
+        
+        // Send notification to admin (fire and forget)
+        _ = Task.Run(() => _emailService.SendAccountDeletionNotificationAsync(userEmail, firstName, lastName));
 
         return true;
     }

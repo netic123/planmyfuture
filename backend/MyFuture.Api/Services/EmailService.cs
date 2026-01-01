@@ -11,6 +11,8 @@ public interface IEmailService
     Task SendWelcomeEmailAsync(string userEmail, string firstName);
     Task SendPasswordResetEmailAsync(string userEmail, string firstName, string resetToken);
     Task SendLoginNotificationAsync(string userEmail, string firstName, string lastName, string? ipAddress, int loginCount, DateTime? lastLoginAt);
+    Task SendAccountDeletionEmailAsync(string userEmail, string firstName);
+    Task SendAccountDeletionNotificationAsync(string userEmail, string firstName, string lastName);
 }
 
 public class EmailService : IEmailService
@@ -331,6 +333,123 @@ public class EmailService : IEmailService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send login notification email for {Email}", userEmail);
+        }
+    }
+
+    public async Task SendAccountDeletionEmailAsync(string userEmail, string firstName)
+    {
+        if (_resend == null)
+        {
+            _logger.LogWarning("Resend not configured. Skipping account deletion email.");
+            return;
+        }
+
+        try
+        {
+            var htmlBody = $@"
+                <html>
+                <body style='font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc;'>
+                    <div style='max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+                        <div style='text-align: center; margin-bottom: 30px;'>
+                            <h1 style='color: #171717; margin: 0;'>Min Ekonomi</h1>
+                        </div>
+                        
+                        <h2 style='color: #171717; margin-bottom: 20px;'>Ditt konto har raderats</h2>
+                        
+                        <p style='color: #525252; font-size: 16px; line-height: 1.6;'>
+                            Hej {firstName},
+                        </p>
+                        
+                        <p style='color: #525252; font-size: 16px; line-height: 1.6;'>
+                            Vi bekräftar att ditt konto och all din personliga information har raderats permanent från Min Ekonomi i enlighet med GDPR.
+                        </p>
+                        
+                        <div style='background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;'>
+                            <p style='margin: 0; color: #525252;'><strong>Vad har raderats:</strong></p>
+                            <ul style='color: #525252; margin: 10px 0 0 0;'>
+                                <li>Kontoinformation (email, namn)</li>
+                                <li>Alla budgetposter (inkomster och utgifter)</li>
+                                <li>Alla tillgångar</li>
+                                <li>Alla skulder</li>
+                                <li>Alla finansiella mål</li>
+                            </ul>
+                        </div>
+                        
+                        <p style='color: #525252; font-size: 16px; line-height: 1.6;'>
+                            Denna åtgärd är permanent och kan inte ångras. Om du vill använda Min Ekonomi igen i framtiden behöver du skapa ett nytt konto.
+                        </p>
+                        
+                        <p style='color: #525252; font-size: 16px; line-height: 1.6;'>
+                            Tack för att du använde Min Ekonomi. Vi önskar dig lycka till!
+                        </p>
+                        
+                        <hr style='border: none; border-top: 1px solid #e5e5e5; margin: 30px 0;' />
+                        
+                        <p style='color: #a3a3a3; font-size: 12px; text-align: center;'>
+                            Detta meddelande skickades till {userEmail} för att bekräfta att ditt konto har raderats.<br/>
+                            Radering utförd: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
+                        </p>
+                    </div>
+                </body>
+                </html>";
+
+            var message = new EmailMessage
+            {
+                From = GetFromEmail(),
+                To = userEmail,
+                Subject = "✅ Ditt konto har raderats - Min Ekonomi",
+                HtmlBody = htmlBody
+            };
+
+            await _resend.EmailSendAsync(message);
+            _logger.LogInformation("Account deletion confirmation email sent to {Email} via Resend", userEmail);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send account deletion email to {Email}", userEmail);
+        }
+    }
+
+    public async Task SendAccountDeletionNotificationAsync(string userEmail, string firstName, string lastName)
+    {
+        if (_resend == null)
+        {
+            _logger.LogWarning("Resend not configured. Skipping account deletion notification.");
+            return;
+        }
+
+        try
+        {
+            var notifyEmail = _configuration["Resend:NotifyEmail"] ?? "eren.netic@gmail.com";
+
+            var htmlBody = $@"
+                <html>
+                <body style='font-family: Arial, sans-serif; padding: 20px;'>
+                    <h2 style='color: #DC2626;'>🗑️ Konto raderat på Min Ekonomi</h2>
+                    <div style='background: #FEE2E2; border: 2px solid #DC2626; padding: 20px; border-radius: 8px; margin: 20px 0;'>
+                        <p><strong>👤 Namn:</strong> {firstName} {lastName}</p>
+                        <p><strong>📧 Email:</strong> {userEmail}</p>
+                        <p><strong>🕐 Tidpunkt:</strong> {DateTime.Now:yyyy-MM-dd HH:mm:ss}</p>
+                    </div>
+                    <p style='color: #525252;'>Användaren har begärt att radera sitt konto via GDPR-funktionen. All data har raderats permanent.</p>
+                    <p style='color: #6b7280; font-size: 12px; margin-top: 20px;'>Detta meddelande skickades automatiskt från Min Ekonomi.</p>
+                </body>
+                </html>";
+
+            var message = new EmailMessage
+            {
+                From = GetFromEmail(),
+                To = notifyEmail,
+                Subject = $"🗑️ Min Ekonomi - Konto raderat - {firstName} {lastName}",
+                HtmlBody = htmlBody
+            };
+
+            await _resend.EmailSendAsync(message);
+            _logger.LogInformation("Account deletion notification email sent for {Email} via Resend", userEmail);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send account deletion notification email for {Email}", userEmail);
         }
     }
 }
