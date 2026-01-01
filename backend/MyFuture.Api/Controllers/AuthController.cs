@@ -129,5 +129,18 @@ public class AuthController : ControllerBase
         }
         return Ok(new { message = "Password has been reset successfully" });
     }
+
+    [Authorize]
+    [HttpDelete("account")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var success = await _authService.DeleteAccountAsync(userId);
+        if (!success)
+        {
+            return NotFound(new { message = "Account not found" });
+        }
+        return Ok(new { message = "Account and all associated data have been permanently deleted" });
+    }
 }
 

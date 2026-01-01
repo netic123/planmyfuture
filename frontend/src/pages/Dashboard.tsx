@@ -20,6 +20,8 @@ import {
   CreditCard,
   Building,
   Wallet,
+  UserX,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   XAxis,
@@ -99,6 +101,11 @@ export default function Dashboard() {
   const [newItemAmount, setNewItemAmount] = useState<number>(0);
   const [newItemRate, setNewItemRate] = useState<number>(0);
   const [newItemType, setNewItemType] = useState<number>(0);
+  
+  // GDPR delete account
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const getToken = () => localStorage.getItem('token');
   const getHeaders = () => ({
@@ -178,6 +185,32 @@ export default function Dashboard() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/');
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    setDeleteError('');
+    
+    try {
+      const response = await fetch(`${API_URL}/api/auth/account`, {
+        method: 'DELETE',
+        headers: getHeaders(),
+      });
+      
+      if (response.ok) {
+        // Clear local storage and redirect
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/');
+      } else {
+        const data = await response.json();
+        setDeleteError(data.message || t('gdpr.deleteError'));
+      }
+    } catch {
+      setDeleteError(t('gdpr.deleteError'));
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const toggleSection = (section: 'income' | 'expenses' | 'debts' | 'assets') => {
@@ -603,13 +636,20 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black relative">
-      {/* Header with language switcher and logout */}
+      {/* Header with language switcher, GDPR and logout */}
       <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
         <button
           onClick={toggleLanguage}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-neutral-500 transition-colors"
         >
           {i18n.language === 'sv' ? 'EN' : 'SV'}
+        </button>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="p-2 text-neutral-500 hover:text-red-500 transition-colors"
+          title={t('gdpr.deleteAccount')}
+        >
+          <UserX className="h-5 w-5" />
         </button>
         <button
           onClick={handleLogout}
@@ -619,6 +659,73 @@ export default function Dashboard() {
           <LogOut className="h-5 w-5" />
         </button>
       </div>
+
+      {/* GDPR Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-900 rounded-2xl max-w-md w-full p-6 border border-neutral-700">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-12 w-12 bg-red-500/20 rounded-full flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-red-500" />
+              </div>
+              <h2 className="text-xl font-semibold text-white">{t('gdpr.deleteAccountTitle')}</h2>
+            </div>
+            
+            <p className="text-neutral-400 mb-4">
+              {t('gdpr.deleteAccountWarning')}
+            </p>
+            
+            <div className="bg-neutral-800 rounded-xl p-4 mb-4">
+              <p className="text-sm font-medium text-white mb-2">{t('gdpr.whatWillBeDeleted')}</p>
+              <ul className="text-sm text-neutral-400 space-y-1">
+                <li>• {t('gdpr.accountInfo')}</li>
+                <li>• {t('gdpr.budgetItems')}</li>
+                <li>• {t('gdpr.allAssets')}</li>
+                <li>• {t('gdpr.allDebts')}</li>
+                <li>• {t('gdpr.financialGoals')}</li>
+              </ul>
+            </div>
+            
+            <p className="text-red-400 text-sm font-medium mb-4">
+              {t('gdpr.deleteAccountConfirm')}
+            </p>
+            
+            {deleteError && (
+              <p className="text-red-500 text-sm mb-4">{deleteError}</p>
+            )}
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteError('');
+                }}
+                disabled={deleting}
+                className="flex-1 py-3 px-4 border border-neutral-700 rounded-xl text-white hover:bg-neutral-800 transition-colors disabled:opacity-50"
+              >
+                {t('gdpr.cancel')}
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="flex-1 py-3 px-4 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t('gdpr.deleting')}
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    {t('gdpr.confirmDelete')}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-3xl mx-auto px-6 py-12 space-y-6">
         {/* Net Worth Card */}

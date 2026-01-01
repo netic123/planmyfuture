@@ -328,8 +328,26 @@
       "emailPlaceholder": "din@email.se",
       "password": "Lösenord",
       "passwordPlaceholder": "Minst 6 tecken",
-      "createAccount": "Skapa konto"
+      "createAccount": "Skapa konto",
+      "gdprNotice": "Vi stödjer GDPR – du kan radera all din data när som helst efter inloggning."
     }
+  },
+  "gdpr": {
+    "deleteAccount": "Radera konto",
+    "deleteAccountTitle": "Radera konto?",
+    "deleteAccountWarning": "Detta kommer permanent radera ditt konto och all din data. Åtgärden kan inte ångras.",
+    "deleteAccountConfirm": "Är du helt säker på att du vill radera ditt konto?",
+    "whatWillBeDeleted": "Vad som raderas:",
+    "accountInfo": "Kontoinformation (email, namn)",
+    "budgetItems": "Alla budgetposter (inkomster och utgifter)",
+    "allAssets": "Alla tillgångar",
+    "allDebts": "Alla skulder",
+    "financialGoals": "Alla finansiella mål",
+    "confirmDelete": "Ja, radera mitt konto",
+    "cancel": "Avbryt",
+    "deleting": "Raderar...",
+    "deleteSuccess": "Ditt konto har raderats. En bekräftelse har skickats till din email.",
+    "deleteError": "Kunde inte radera kontot. Försök igen."
   },
   "settings": {
     "title": "Mina uppgifter",

@@ -4,8 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../../context/OnboardingContext';
 import OnboardingLayout from '../../components/OnboardingLayout';
 import { ArrowLeft, Check, Loader2, Eye, EyeOff } from 'lucide-react';
-import { formatCurrency } from '../../utils/formatters';
-
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function SignupStep() {
@@ -15,26 +13,6 @@ export default function SignupStep() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
-  // Calculate summary
-  const monthlyMortgageInterest = data.mortgageAmount > 0 && data.mortgageInterestRate > 0
-    ? Math.round((data.mortgageAmount * data.mortgageInterestRate / 100) / 12)
-    : 0;
-  const totalExpenses = data.expenses.reduce((sum, e) => sum + e.amount, 0) 
-    + monthlyMortgageInterest 
-    + data.mortgageAmortization;
-  
-  // Calculate equity in property (property value minus mortgage)
-  const propertyEquity = data.propertyValue > 0 ? data.propertyValue - data.mortgageAmount : 0;
-  
-  // Total assets = financial assets + equity in property
-  const totalAssets = data.assets.reduce((sum, a) => sum + a.amount, 0) + propertyEquity;
-  
-  // Total debts = only other debts (mortgage is already factored into equity)
-  const totalDebts = data.debts.reduce((sum, d) => sum + d.amount, 0);
-  
-  const netWorth = totalAssets - totalDebts;
-  const monthlyBalance = data.salary - totalExpenses;
 
   const handleBack = () => {
     navigate('/assets');
@@ -173,7 +151,7 @@ export default function SignupStep() {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          name: 'Bostad',
+          name: 'Bostadsvärde',
           balance: data.propertyValue,
           category: 1, // RealEstate
         }),
@@ -230,26 +208,6 @@ export default function SignupStep() {
       title={t('onboarding.signup.title')}
       subtitle={t('onboarding.signup.subtitle')}
     >
-      {/* Summary */}
-      <div className="bg-neutral-800 border border-neutral-700 text-white p-5 rounded-xl mb-2">
-        <p className="text-white/50 text-sm mb-1">{t('onboarding.signup.netWorth')}</p>
-        <p className="text-3xl font-semibold">{formatCurrency(netWorth)}</p>
-        <div className="flex gap-6 mt-3 text-sm">
-          <div>
-            <p className="text-white/50">{t('onboarding.signup.assets')}</p>
-            <p className="font-medium">{formatCurrency(totalAssets)}</p>
-          </div>
-          <div>
-            <p className="text-white/50">{t('onboarding.signup.debts')}</p>
-            <p className="font-medium">{formatCurrency(totalDebts)}</p>
-          </div>
-          <div>
-            <p className="text-white/50">{t('onboarding.signup.leftPerMonth')}</p>
-            <p className="font-medium">{formatCurrency(monthlyBalance)}</p>
-          </div>
-        </div>
-      </div>
-
       <form onSubmit={handleSignup} className="space-y-4">
         {/* Birth Year - for future projections */}
         <div>
@@ -299,6 +257,11 @@ export default function SignupStep() {
             </button>
           </div>
         </div>
+
+        {/* GDPR Notice */}
+        <p className="text-xs text-white/40 text-center">
+          {t('onboarding.signup.gdprNotice')}
+        </p>
 
         {error && (
           <p className="text-red-400 text-sm">{error}</p>
