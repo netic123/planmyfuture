@@ -42,14 +42,14 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col">
       {/* Header with login link and language switcher */}
       <div className="px-6 py-4 flex justify-end items-center">
         <div className="flex items-center gap-4">
           {/* Language switcher */}
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors"
             title={i18n.language === 'sv' ? 'Switch to English' : 'Byt till svenska'}
           >
             <Globe className="h-4 w-4" />
@@ -58,7 +58,7 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
           {/* Login link */}
           <Link 
             to="/login" 
-            className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+            className="text-sm text-white/60 hover:text-white transition-colors"
           >
             {t('onboarding.haveAccount')} <span className="font-medium underline">{t('onboarding.login')}</span>
           </Link>
@@ -78,10 +78,10 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
                 <div 
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
                     isActive 
-                      ? 'bg-neutral-900 text-white' 
+                      ? 'bg-white text-black' 
                       : isCompleted 
-                        ? 'bg-neutral-900 text-white' 
-                        : 'bg-neutral-200 text-neutral-500'
+                        ? 'bg-white text-black' 
+                        : 'bg-neutral-800 text-neutral-500'
                   }`}
                 >
                   {isCompleted ? '✓' : stepNum}
@@ -89,7 +89,7 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
                 {i < totalSteps - 1 && (
                   <div 
                     className={`w-8 h-0.5 ${
-                      isCompleted ? 'bg-neutral-900' : 'bg-neutral-200'
+                      isCompleted ? 'bg-white' : 'bg-neutral-800'
                     }`}
                   />
                 )}
@@ -97,8 +97,8 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
             );
           })}
         </div>
-        <p className="text-center text-sm text-neutral-500">
-          {t('onboarding.step')} {currentStep} {t('onboarding.of')} {totalSteps}: <span className="font-medium text-neutral-700">{t(`onboarding.steps.${stepKeys[currentStep - 1]}`)}</span>
+        <p className="text-center text-sm text-white/50">
+          {t('onboarding.step')} {currentStep} {t('onboarding.of')} {totalSteps}: <span className="font-medium text-white">{t(`onboarding.steps.${stepKeys[currentStep - 1]}`)}</span>
         </p>
       </div>
 
@@ -107,11 +107,11 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
         <div className="w-full max-w-md">
           {/* Title */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-semibold text-neutral-900 mb-2">
+            <h1 className="text-3xl font-semibold text-white mb-2">
               {title}
             </h1>
             {subtitle && (
-              <p className="text-neutral-500">
+              <p className="text-white/50">
                 {subtitle}
               </p>
             )}

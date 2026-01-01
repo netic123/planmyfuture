@@ -17,37 +17,13 @@ import LoginPage from './pages/LoginPage';
 
 function OnboardingRoutes() {
   return (
-    <OnboardingProvider>
-      <Routes>
-        <Route path="salary" element={<SalaryStep />} />
-        <Route path="expenses" element={<ExpensesStep />} />
-        <Route path="mortgage" element={<MortgageStep />} />
-        <Route path="debts" element={<DebtsStep />} />
-        <Route path="assets" element={<AssetsStep />} />
-        <Route path="signup" element={<SignupStep />} />
-        <Route path="*" element={<Navigate to="salary" replace />} />
-      </Routes>
-    </OnboardingProvider>
-  );
-}
-
-function AppRoutes() {
-  return (
     <Routes>
-      {/* Main app */}
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/login" element={<LoginPage />} />
-      
-      {/* Redirect old settings route to dashboard */}
-      <Route path="/settings" element={<Navigate to="/dashboard" replace />} />
-      
-      {/* Legacy onboarding routes - redirect to base URL */}
-      <Route path="/onboarding/salary" element={<Navigate to="/" replace />} />
-      <Route path="/onboarding/*" element={<OnboardingRoutes />} />
-      
-      {/* Base URL: show onboarding (salary step) or redirect to dashboard if logged in */}
-      <Route path="/" element={<HomeRoute />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/" element={<SalaryStep />} />
+      <Route path="/expenses" element={<ExpensesStep />} />
+      <Route path="/mortgage" element={<MortgageStep />} />
+      <Route path="/debts" element={<DebtsStep />} />
+      <Route path="/assets" element={<AssetsStep />} />
+      <Route path="/signup" element={<SignupStep />} />
     </Routes>
   );
 }
@@ -60,10 +36,10 @@ function HomeRoute() {
     return <Navigate to="/dashboard" replace />;
   }
   
-  // Show onboarding (salary step) at base URL
+  // Show onboarding with shared provider
   return (
     <OnboardingProvider>
-      <SalaryStep />
+      <OnboardingRoutes />
     </OnboardingProvider>
   );
 }
@@ -71,7 +47,18 @@ function HomeRoute() {
 export default function App() {
   return (
     <BrowserRouter>
-          <AppRoutes />
+      <Routes>
+        {/* Main app */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/login" element={<LoginPage />} />
+        
+        {/* Redirect old routes */}
+        <Route path="/settings" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/onboarding/*" element={<Navigate to="/" replace />} />
+        
+        {/* Onboarding flow at base URL */}
+        <Route path="/*" element={<HomeRoute />} />
+      </Routes>
     </BrowserRouter>
   );
 }

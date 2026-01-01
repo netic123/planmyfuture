@@ -10,17 +10,14 @@ export default function SalaryStep() {
   const { t } = useTranslation();
   const { data, updateData, setCurrentStep } = useOnboarding();
 
-  const currentYear = new Date().getFullYear();
-  const currentAge = data.birthYear > 0 ? currentYear - data.birthYear : 0;
-
   const handleNext = () => {
-    if (data.salary > 0 && data.birthYear > 1920 && data.birthYear <= currentYear) {
+    if (data.salary > 0) {
       setCurrentStep(2);
-      navigate('/onboarding/expenses');
+      navigate('/expenses');
     }
   };
 
-  const isValid = data.salary > 0 && data.birthYear > 1920 && data.birthYear <= currentYear;
+  const isValid = data.salary > 0;
 
   return (
     <OnboardingLayout 
@@ -28,30 +25,9 @@ export default function SalaryStep() {
       subtitle={t('onboarding.salary.subtitle')}
     >
       <div className="space-y-6">
-        {/* Age / Birth Year */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-2 text-center">
-            {t('onboarding.salary.birthYear')}
-          </label>
-          <input
-            type="number"
-            value={data.birthYear || ''}
-            onChange={(e) => updateData({ birthYear: parseInt(e.target.value) || 0 })}
-            placeholder={t('onboarding.salary.birthYearPlaceholder')}
-            className="w-full px-4 py-4 text-center text-2xl font-medium border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent"
-            min={1920}
-            max={currentYear}
-          />
-          {currentAge > 0 && (
-            <p className="text-center text-sm text-neutral-500 mt-2">
-              {t('onboarding.salary.currentAge')}: {currentAge} {t('onboarding.salary.years')}
-            </p>
-          )}
-        </div>
-
         {/* Salary */}
         <div>
-          <label className="block text-sm text-neutral-500 mb-2 text-center">
+          <label className="block text-sm text-white/70 mb-2 text-center">
             {t('onboarding.salary.monthlyIncome')}
           </label>
           <FormattedNumberInput
@@ -67,7 +43,7 @@ export default function SalaryStep() {
       <button
         onClick={handleNext}
         disabled={!isValid}
-        className="w-full flex items-center justify-center gap-2 py-4 bg-neutral-900 text-white rounded-xl font-medium text-lg hover:bg-neutral-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 py-4 bg-white text-black rounded-xl font-medium text-lg hover:bg-neutral-200 transition-colors disabled:bg-neutral-600 disabled:text-neutral-400 disabled:cursor-not-allowed"
       >
         {t('onboarding.salary.continue')}
         <ArrowRight className="h-5 w-5" />

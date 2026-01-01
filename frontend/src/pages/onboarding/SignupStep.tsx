@@ -37,7 +37,7 @@ export default function SignupStep() {
   const monthlyBalance = data.salary - totalExpenses;
 
   const handleBack = () => {
-    navigate('/onboarding/assets');
+    navigate('/assets');
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -231,40 +231,55 @@ export default function SignupStep() {
       subtitle={t('onboarding.signup.subtitle')}
     >
       {/* Summary */}
-      <div className="bg-neutral-900 text-white p-5 rounded-xl mb-2">
-        <p className="text-neutral-400 text-sm mb-1">{t('onboarding.signup.netWorth')}</p>
+      <div className="bg-neutral-800 border border-neutral-700 text-white p-5 rounded-xl mb-2">
+        <p className="text-white/50 text-sm mb-1">{t('onboarding.signup.netWorth')}</p>
         <p className="text-3xl font-semibold">{formatCurrency(netWorth)}</p>
         <div className="flex gap-6 mt-3 text-sm">
           <div>
-            <p className="text-neutral-400">{t('onboarding.signup.assets')}</p>
+            <p className="text-white/50">{t('onboarding.signup.assets')}</p>
             <p className="font-medium">{formatCurrency(totalAssets)}</p>
           </div>
           <div>
-            <p className="text-neutral-400">{t('onboarding.signup.debts')}</p>
+            <p className="text-white/50">{t('onboarding.signup.debts')}</p>
             <p className="font-medium">{formatCurrency(totalDebts)}</p>
           </div>
           <div>
-            <p className="text-neutral-400">{t('onboarding.signup.leftPerMonth')}</p>
+            <p className="text-white/50">{t('onboarding.signup.leftPerMonth')}</p>
             <p className="font-medium">{formatCurrency(monthlyBalance)}</p>
           </div>
         </div>
       </div>
 
       <form onSubmit={handleSignup} className="space-y-4">
+        {/* Birth Year - for future projections */}
         <div>
-          <label className="text-sm text-neutral-600 mb-1 block">{t('onboarding.signup.email')}</label>
+          <label className="text-sm text-white/70 mb-1 block">{t('onboarding.signup.birthYear')}</label>
+          <input
+            type="number"
+            value={data.birthYear || ''}
+            onChange={(e) => updateData({ birthYear: parseInt(e.target.value) || 0 })}
+            placeholder={t('onboarding.signup.birthYearPlaceholder')}
+            className="w-full px-4 py-3 bg-black border border-neutral-700 text-white rounded-xl placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
+          />
+          <p className="text-xs text-white/40 mt-1.5">
+            {t('onboarding.signup.birthYearExplanation')}
+          </p>
+        </div>
+
+        <div>
+          <label className="text-sm text-white/70 mb-1 block">{t('onboarding.signup.email')}</label>
           <input
             type="email"
             value={data.email}
             onChange={(e) => updateData({ email: e.target.value })}
             placeholder={t('onboarding.signup.emailPlaceholder')}
             required
-            className="w-full px-4 py-3 border border-neutral-200 rounded-xl"
+            className="w-full px-4 py-3 bg-black border border-neutral-700 text-white rounded-xl placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
           />
         </div>
 
         <div>
-          <label className="text-sm text-neutral-600 mb-1 block">{t('onboarding.signup.password')}</label>
+          <label className="text-sm text-white/70 mb-1 block">{t('onboarding.signup.password')}</label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -273,12 +288,12 @@ export default function SignupStep() {
               placeholder={t('onboarding.signup.passwordPlaceholder')}
               required
               minLength={6}
-              className="w-full px-4 py-3 border border-neutral-200 rounded-xl pr-12"
+              className="w-full px-4 py-3 bg-black border border-neutral-700 text-white rounded-xl placeholder:text-neutral-500 pr-12 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
             >
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
@@ -286,21 +301,21 @@ export default function SignupStep() {
         </div>
 
         {error && (
-          <p className="text-red-600 text-sm">{error}</p>
+          <p className="text-red-400 text-sm">{error}</p>
         )}
 
         <div className="flex gap-3 pt-2">
           <button
             type="button"
             onClick={handleBack}
-            className="flex items-center justify-center gap-2 py-4 px-6 border border-neutral-200 rounded-xl font-medium hover:bg-neutral-50 transition-colors"
+            className="flex items-center justify-center gap-2 py-4 px-6 border border-neutral-700 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <button
             type="submit"
             disabled={loading || !data.email || !data.password}
-            className="flex-1 flex items-center justify-center gap-2 py-4 bg-neutral-900 text-white rounded-xl font-medium text-lg hover:bg-neutral-800 transition-colors disabled:opacity-40"
+            className="flex-1 flex items-center justify-center gap-2 py-4 bg-white text-black rounded-xl font-medium text-lg hover:bg-neutral-200 transition-colors disabled:bg-neutral-600 disabled:text-neutral-400"
           >
             {loading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
