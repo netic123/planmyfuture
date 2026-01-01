@@ -55,62 +55,62 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col">
       {/* Header with language switcher */}
       <div className="px-6 py-4 flex justify-end items-center">
         <button
           onClick={toggleLanguage}
-          className="flex items-center gap-1.5 text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-neutral-500 transition-colors"
           title={i18n.language === 'sv' ? 'Switch to English' : 'Byt till svenska'}
         >
           <Globe className="h-4 w-4" />
-          <span className="font-medium">{i18n.language === 'sv' ? 'EN' : 'SV'}</span>
+          <span>{i18n.language === 'sv' ? 'EN' : 'SV'}</span>
         </button>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold text-neutral-900">
+            <h1 className="text-2xl font-semibold text-white">
               {t('login.signInToAccount')}
             </h1>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-neutral-200">
+          <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-700">
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+                <div className="p-3 rounded-lg bg-red-900/50 border border-red-700 text-red-300 text-sm">
                   {error}
                 </div>
               )}
 
               <div>
-                <label className="text-sm text-neutral-600 mb-1 block">{t('auth.email')}</label>
+                <label className="text-sm text-white/70 mb-1 block">{t('auth.email')}</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-neutral-200 rounded-xl"
+                  className="w-full px-4 py-3 bg-black border border-neutral-700 text-white rounded-xl placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
                   placeholder={t('placeholders.email')}
                   required
                 />
               </div>
 
               <div>
-                <label className="text-sm text-neutral-600 mb-1 block">{t('auth.password')}</label>
+                <label className="text-sm text-white/70 mb-1 block">{t('auth.password')}</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 border border-neutral-200 rounded-xl pr-12"
+                    className="w-full px-4 py-3 bg-black border border-neutral-700 text-white rounded-xl placeholder:text-neutral-500 pr-12 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
                     placeholder="••••••••"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -118,7 +118,7 @@ export default function LoginPage() {
               </div>
 
               <div className="text-right">
-                <Link to="/forgot-password" className="text-sm text-neutral-600 hover:text-neutral-900">
+                <Link to="/forgot-password" className="text-sm text-white/50 hover:text-white transition-colors">
                   {t('login.forgotPassword')}
                 </Link>
               </div>
@@ -126,7 +126,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-white text-black rounded-xl font-medium hover:bg-neutral-200 transition-colors disabled:bg-neutral-600 disabled:text-neutral-400 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -136,9 +136,9 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-neutral-500">
+            <p className="mt-6 text-center text-sm text-white/50">
               {t('auth.noAccount')}{' '}
-              <Link to="/onboarding/salary" className="text-neutral-900 hover:underline font-medium">
+              <Link to="/onboarding/salary" className="text-white hover:underline font-medium">
                 {t('auth.createAccount')}
               </Link>
             </p>
