@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '../utils/formatters';
 import {
   TrendingUp,
@@ -16,7 +15,6 @@ import {
   Trash2,
   Check,
   X,
-  Wallet,
   CreditCard,
   Building,
 } from 'lucide-react';
@@ -71,10 +69,8 @@ interface Asset {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{ email: string } | null>(null);
   
   // Data for editing
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
@@ -104,15 +100,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
     
     if (!token) {
       navigate('/');
       return;
-    }
-
-    if (userData) {
-      setUser(JSON.parse(userData));
     }
 
     loadAllData(token);
@@ -491,25 +482,17 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-neutral-900">Min Ekonomi</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-neutral-500">{user?.email}</span>
-            <button
-              onClick={handleLogout}
-              className="p-2 text-neutral-400 hover:text-neutral-600"
-              title="Logga ut"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-neutral-50 relative">
+      {/* Logout button */}
+      <button
+        onClick={handleLogout}
+        className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-600 transition-colors z-10"
+        title="Logga ut"
+      >
+        <LogOut className="h-5 w-5" />
+      </button>
 
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+      <main className="max-w-3xl mx-auto px-6 py-12 space-y-6">
         {/* Net Worth Card */}
         <div className="bg-neutral-900 text-white rounded-2xl p-8">
           <p className="text-neutral-400 text-sm mb-1">Nettoförmögenhet</p>
