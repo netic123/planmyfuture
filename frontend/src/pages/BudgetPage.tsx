@@ -4,7 +4,6 @@ import type { PersonalBudgetItem, BudgetSummary } from '../types';
 import { BudgetItemType, BudgetCategory } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import FormattedNumberInput from '../components/FormattedNumberInput';
-import { LabelWithTooltip } from '../components/Tooltip';
 import {
   Plus,
   Trash2,
@@ -171,11 +170,7 @@ export default function BudgetPage() {
           </div>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <LabelWithTooltip 
-                label="Namn" 
-                tooltip="Vad kallas inkomsten eller utgiften? T.ex. 'Lön', 'Hyra', 'Mat'" 
-                required 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Namn</label>
               <input
                 type="text"
                 value={formData.name}
@@ -186,11 +181,7 @@ export default function BudgetPage() {
               />
             </div>
             <div>
-              <LabelWithTooltip 
-                label="Belopp per månad" 
-                tooltip="Månadsbelopp i kronor. Lön anges efter skatt (netto)." 
-                required 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Belopp/månad (kr)</label>
               <FormattedNumberInput
                 value={formData.amount}
                 onChange={(val) => setFormData({ ...formData, amount: val })}
@@ -198,10 +189,7 @@ export default function BudgetPage() {
               />
             </div>
             <div>
-              <LabelWithTooltip 
-                label="Typ" 
-                tooltip="Inkomst = pengar du får in. Utgift = pengar som går ut" 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Typ</label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: parseInt(e.target.value) })}
@@ -212,10 +200,7 @@ export default function BudgetPage() {
               </select>
             </div>
             <div>
-              <LabelWithTooltip 
-                label="Kategori" 
-                tooltip="Vilken kategori passar bäst? Hjälper till att sortera din budget" 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Kategori</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: parseInt(e.target.value) })}
