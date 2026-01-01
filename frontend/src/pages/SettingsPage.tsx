@@ -74,7 +74,7 @@ export default function SettingsPage() {
       const headers = { 'Authorization': `Bearer ${token}` };
       
       const [budgetRes, debtsRes, assetsRes] = await Promise.all([
-        fetch(`${API_URL}/api/personal-finance/budget/summary`, { headers }),
+        fetch(`${API_URL}/api/personal-finance/budget`, { headers }),
         fetch(`${API_URL}/api/personal-finance/debts`, { headers }),
         fetch(`${API_URL}/api/personal-finance/accounts`, { headers }),
       ]);
