@@ -361,33 +361,35 @@ export default function Dashboard() {
   // Calculate how many years until age 100
   const yearsUntil100 = currentAge ? Math.max(0, 100 - currentAge) : 60;
   
-  // Chart data - use age if available
-  const chartData = summary?.projections?.slice(0, Math.min(10, yearsUntil100)).map(p => ({
-    year: currentAge ? `${currentAge + p.years} ${t('dashboard.yr')}` : `${p.years} ${t('dashboard.yr')}`,
-    age: currentAge ? currentAge + p.years : null,
-    netWorth: Math.round(p.projectedNetWorth),
-  })) || [];
+  // Chart data - show age on x-axis, covering from now until 100
+  const chartData = summary?.projections
+    ?.filter(p => p.years <= yearsUntil100)
+    ?.filter((_, i, arr) => {
+      // Show approximately 8-10 points for a clean chart
+      const step = Math.max(1, Math.floor(arr.length / 8));
+      return i % step === 0 || i === arr.length - 1;
+    })
+    ?.map(p => ({
+      year: currentAge ? `${currentAge + p.years}` : `${p.years}`,
+      age: currentAge ? currentAge + p.years : p.years,
+      netWorth: Math.round(p.projectedNetWorth),
+    })) || [];
 
-  // Generate age-based milestones (every 5 or 10 years until 100)
+  // Generate age-based milestones (every 10 years until 100)
   const generateAgeMilestones = () => {
     if (!currentAge || !summary?.projections) return [];
     
     const milestones: number[] = [];
-    // Target ages: round up to next 5, then every 10 years until 100
-    let nextMilestone = Math.ceil(currentAge / 5) * 5;
-    if (nextMilestone === currentAge) nextMilestone += 5;
+    // Start from next decade (40, 50, 60, 70, 80, 90, 100)
+    let nextMilestone = Math.ceil(currentAge / 10) * 10;
+    if (nextMilestone === currentAge) nextMilestone += 10;
     
     while (nextMilestone <= 100) {
       milestones.push(nextMilestone);
       nextMilestone += 10;
     }
     
-    // Always include 100
-    if (!milestones.includes(100)) {
-      milestones.push(100);
-    }
-    
-    return milestones.slice(0, 6); // Max 6 milestones
+    return milestones; // All milestones until 100
   };
 
   const ageMilestones = generateAgeMilestones();
@@ -742,85 +744,73 @@ export default function Dashboard() {
         )}
 
         {/* Future Projections - Age Based */}
-        {summary?.projections && summary.projections.length > 0 && (
+        {summary?.projections && summary.projections.length > 0 && currentAge && (
           <div className="bg-white rounded-xl p-6 border border-neutral-200">
             <h2 className="text-sm font-medium text-neutral-900 mb-4">{t('dashboard.yourFuture')}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {currentAge && ageMilestones.length > 0 ? (
-                // Age-based projections
-                ageMilestones.map((targetAge) => {
-                  const yearsFromNow = targetAge - currentAge;
-                  const projection = summary.projections.find(p => p.years === yearsFromNow) 
-                    || summary.projections.find(p => p.years >= yearsFromNow);
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {ageMilestones.map((targetAge) => {
+                const yearsFromNow = targetAge - currentAge;
+                
+                // Find the closest projection (interpolate if needed)
+                const exactProjection = summary.projections.find(p => p.years === yearsFromNow);
+                let netWorth: number;
+                
+                if (exactProjection) {
+                  netWorth = exactProjection.projectedNetWorth;
+                } else {
+                  // Find projections before and after to interpolate
+                  const before = summary.projections.filter(p => p.years < yearsFromNow).pop();
+                  const after = summary.projections.find(p => p.years > yearsFromNow);
                   
-                  if (!projection) return null;
-                  
-                  // Linear interpolation if exact year not found
-                  const exactProjection = summary.projections.find(p => p.years === yearsFromNow);
-                  const netWorth = exactProjection 
-                    ? exactProjection.projectedNetWorth
-                    : projection.projectedNetWorth * (yearsFromNow / projection.years);
-                  
-                  return (
-                    <div key={targetAge} className="text-center p-4 bg-neutral-50 rounded-xl">
-                      <p className="text-xs text-neutral-500 mb-1">{t('dashboard.atAge', { age: targetAge })}</p>
-                      <p className="text-xl font-semibold text-neutral-900">
-                        {formatCurrency(netWorth)}
-                      </p>
-                    </div>
-                  );
-                })
-              ) : (
-                // Fallback to years-based
-                summary.projections
-                  .filter(p => [5, 10, 20, 30].includes(p.years))
-                  .map((proj, idx) => (
-                    <div key={idx} className="text-center p-4 bg-neutral-50 rounded-xl">
-                      <p className="text-xs text-neutral-500 mb-1">{t('dashboard.inYears', { years: proj.years })}</p>
-                      <p className="text-xl font-semibold text-neutral-900">
-                        {formatCurrency(proj.projectedNetWorth)}
-                      </p>
-                    </div>
-                  ))
-              )}
+                  if (before && after) {
+                    // Linear interpolation
+                    const ratio = (yearsFromNow - before.years) / (after.years - before.years);
+                    netWorth = before.projectedNetWorth + ratio * (after.projectedNetWorth - before.projectedNetWorth);
+                  } else if (after) {
+                    netWorth = (summary.netWorth || 0) + (after.projectedNetWorth - (summary.netWorth || 0)) * (yearsFromNow / after.years);
+                  } else if (before) {
+                    // Extrapolate from last known
+                    const growthRate = before.projectedNetWorth / (summary.netWorth || 1);
+                    netWorth = before.projectedNetWorth * Math.pow(growthRate, yearsFromNow / before.years);
+                  } else {
+                    netWorth = summary.netWorth || 0;
+                  }
+                }
+                
+                return (
+                  <div key={targetAge} className="text-center p-4 bg-neutral-50 rounded-xl">
+                    <p className="text-xs text-neutral-500 mb-1">{t('dashboard.atAge', { age: targetAge })}</p>
+                    <p className="text-xl font-semibold text-neutral-900">
+                      {formatCurrency(netWorth)}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
         {/* Cost of Living Projections */}
-        {summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && (
+        {summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && currentAge && (
           <div className="bg-white rounded-xl p-6 border border-neutral-200">
             <div className="flex items-center gap-2 mb-4">
               <Wallet className="h-4 w-4 text-neutral-400" />
               <h2 className="text-sm font-medium text-neutral-900">{t('dashboard.costOfLiving')}</h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {currentAge && ageMilestones.length > 0 ? (
-                // Age-based cost of living
-                ageMilestones.slice(0, 6).map((targetAge) => {
-                  const yearsFromNow = targetAge - currentAge;
-                  const totalCost = calculateCostOfLiving(yearsFromNow);
-                  
-                  return (
-                    <div key={targetAge} className="text-center p-4 bg-red-50 rounded-xl">
-                      <p className="text-xs text-neutral-500 mb-1">{t('dashboard.totalCostUntil', { age: targetAge })}</p>
-                      <p className="text-lg font-semibold text-red-600">
-                        {formatCurrency(totalCost)}
-                      </p>
-                    </div>
-                  );
-                })
-              ) : (
-                // Fallback to years-based
-                [5, 10, 20, 30, 40, 50].map((years) => (
-                  <div key={years} className="text-center p-4 bg-red-50 rounded-xl">
-                    <p className="text-xs text-neutral-500 mb-1">{t('dashboard.inYears', { years })}</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {ageMilestones.map((targetAge) => {
+                const yearsFromNow = targetAge - currentAge;
+                const totalCost = calculateCostOfLiving(yearsFromNow);
+                
+                return (
+                  <div key={targetAge} className="text-center p-4 bg-red-50 rounded-xl">
+                    <p className="text-xs text-neutral-500 mb-1">{t('dashboard.totalCostUntil', { age: targetAge })}</p>
                     <p className="text-lg font-semibold text-red-600">
-                      {formatCurrency(calculateCostOfLiving(years))}
+                      {formatCurrency(totalCost)}
                     </p>
                   </div>
-                ))
-              )}
+                );
+              })}
             </div>
           </div>
         )}
