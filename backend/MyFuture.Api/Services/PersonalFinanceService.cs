@@ -424,6 +424,10 @@ public class PersonalFinanceService : IPersonalFinanceService
         // Hämta marknadsvärdet på tillgångar kopplade till skulder (t.ex. bostadens värde)
         var assetValuesFromDebts = debts.Where(d => d.AssetValue.HasValue).Sum(d => d.AssetValue!.Value);
         
+        // För projektioner - beräkna skulder med/utan tillgång
+        var debtsWithAssets = debts.Where(d => d.AssetValue.HasValue).Sum(d => d.CurrentBalance);
+        var debtsWithoutAssets = allDebts - debtsWithAssets;
+        
         // Tydlig modell:
         // Tillgångar = finansiella tillgångar + marknadsvärde på fastigheter
         // Skulder = ALLA skulder (inklusive bolån)
