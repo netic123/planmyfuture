@@ -27,8 +27,9 @@ Thumbs.db
 logs/
 logs.zip
 
-# Secrets (keep appsettings.Development.json out of repo)
+# Secrets (keep appsettings with credentials out of repo)
 appsettings.Development.json
+**/appsettings.json
 
 # Deploy artifacts
 *.zip
