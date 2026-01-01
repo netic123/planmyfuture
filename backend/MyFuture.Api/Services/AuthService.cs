@@ -212,14 +212,21 @@ public class AuthService : IAuthService
         var firstName = user.FirstName;
         var lastName = user.LastName;
 
+        // Send confirmation email BEFORE deletion (so we still have user data if email fails)
+        try
+        {
+            await _emailService.SendAccountDeletionEmailAsync(userEmail, firstName);
+        }
+        catch (Exception)
+        {
+            // Continue with deletion even if email fails - GDPR requires we delete the data
+        }
+
         // Delete the user (cascade delete will handle related data)
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
 
-        // Send confirmation email to user (fire and forget)
-        _ = Task.Run(() => _emailService.SendAccountDeletionEmailAsync(userEmail, firstName));
-        
-        // Send notification to admin (fire and forget)
+        // Send notification to admin (fire and forget, after successful deletion)
         _ = Task.Run(() => _emailService.SendAccountDeletionNotificationAsync(userEmail, firstName, lastName));
 
         return true;

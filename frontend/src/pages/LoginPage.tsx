@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Eye, EyeOff, Globe } from 'lucide-react';
+import Logo from '../components/Logo';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -71,6 +72,9 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center mb-4">
+              <Logo size="lg" />
+            </div>
             <h1 className="text-2xl font-semibold text-white">
               {t('login.signInToAccount')}
             </h1>

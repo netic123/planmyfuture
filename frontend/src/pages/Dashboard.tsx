@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
@@ -22,6 +22,7 @@ import {
   Wallet,
   UserX,
   AlertTriangle,
+  Home,
 } from 'lucide-react';
 import {
   XAxis,
@@ -119,6 +120,26 @@ export default function Dashboard() {
 
   // Alla tillgångar (inklusive bostad som nu sparas separat vid onboarding)
   const allAssets = assets;
+
+  // Calculate home ownership percentage
+  const homeOwnership = useMemo(() => {
+    const propertyAsset = assets.find(a => a.category === 1); // RealEstate
+    const mortgage = debts.find(d => d.type === 0); // Mortgage
+    
+    if (!propertyAsset || propertyAsset.balance <= 0) return null;
+    
+    const propertyValue = propertyAsset.balance;
+    const mortgageAmount = mortgage?.currentBalance || 0;
+    const equity = propertyValue - mortgageAmount;
+    const debtRemaining = (mortgageAmount / propertyValue) * 100;
+    
+    return {
+      propertyValue,
+      mortgageAmount,
+      equity,
+      percentage: debtRemaining.toFixed(2)
+    };
+  }, [assets, debts]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -255,17 +276,26 @@ export default function Dashboard() {
   // Budget operations
   const updateBudgetItem = async (id: number, name: string, amount: number) => {
     setSaving(true);
-    const item = budgetItems.find(i => i.id === id);
-    if (!item) return;
-    
-    await fetch(`${API_URL}/api/personal-finance/budget/items/${id}`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify({ ...item, name, amount }),
-    });
-    setBudgetItems(budgetItems.map(i => i.id === id ? { ...i, name, amount } : i));
-    cancelEdit();
-    refreshSummary();
+    try {
+      const item = budgetItems.find(i => i.id === id);
+      if (!item) {
+        cancelEdit();
+        return;
+      }
+      
+      await fetch(`${API_URL}/api/personal-finance/budget/items/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ ...item, name, amount }),
+      });
+      setBudgetItems(budgetItems.map(i => i.id === id ? { ...i, name, amount } : i));
+      cancelEdit();
+      refreshSummary();
+    } catch (error) {
+      console.error('Failed to update budget item:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteBudgetItem = async (id: number) => {
@@ -305,17 +335,26 @@ export default function Dashboard() {
   // Debt operations
   const updateDebt = async (id: number, name: string, currentBalance: number) => {
     setSaving(true);
-    const debt = debts.find(d => d.id === id);
-    if (!debt) return;
-    
-    await fetch(`${API_URL}/api/personal-finance/debts/${id}`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify({ ...debt, name, currentBalance }),
-    });
-    setDebts(debts.map(d => d.id === id ? { ...d, name, currentBalance } : d));
-    cancelEdit();
-    refreshSummary();
+    try {
+      const debt = debts.find(d => d.id === id);
+      if (!debt) {
+        cancelEdit();
+        return;
+      }
+      
+      await fetch(`${API_URL}/api/personal-finance/debts/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ ...debt, name, currentBalance }),
+      });
+      setDebts(debts.map(d => d.id === id ? { ...d, name, currentBalance } : d));
+      cancelEdit();
+      refreshSummary();
+    } catch (error) {
+      console.error('Failed to update debt:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteDebt = async (id: number) => {
@@ -355,17 +394,26 @@ export default function Dashboard() {
   // Asset operations
   const updateAsset = async (id: number, name: string, balance: number) => {
     setSaving(true);
-    const asset = assets.find(a => a.id === id);
-    if (!asset) return;
-    
-    await fetch(`${API_URL}/api/personal-finance/accounts/${id}`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify({ ...asset, name, balance }),
-    });
-    setAssets(assets.map(a => a.id === id ? { ...a, name, balance } : a));
-    cancelEdit();
-    refreshSummary();
+    try {
+      const asset = assets.find(a => a.id === id);
+      if (!asset) {
+        cancelEdit();
+        return;
+      }
+      
+      await fetch(`${API_URL}/api/personal-finance/accounts/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ ...asset, name, balance }),
+      });
+      setAssets(assets.map(a => a.id === id ? { ...a, name, balance } : a));
+      cancelEdit();
+      refreshSummary();
+    } catch (error) {
+      console.error('Failed to update asset:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteAsset = async (id: number) => {
@@ -547,14 +595,14 @@ export default function Dashboard() {
       <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
         <button
           onClick={() => toggleSection(section)}
-          className="w-full p-5 flex items-center justify-between hover:bg-neutral-800 transition-colors"
+          className="w-full p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 hover:bg-neutral-800 transition-colors"
         >
           <div className="flex items-center gap-2">
             {icon}
             <span className="text-sm text-neutral-400">{label}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-2xl font-semibold text-white">
+          <div className="flex items-center justify-between sm:justify-end gap-3">
+            <span className="text-xl sm:text-2xl font-semibold text-white">
               {formatCurrency(value)}
             </span>
             {isExpanded ? (
@@ -635,9 +683,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-black relative">
+    <div className="min-h-screen bg-black">
       {/* Header with language switcher, GDPR and logout */}
-      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+      <div className="flex justify-end items-center gap-2 px-6 py-4">
         <button
           onClick={toggleLanguage}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-neutral-500 transition-colors"
@@ -728,23 +776,23 @@ export default function Dashboard() {
         </div>
       )}
 
-      <main className="max-w-3xl mx-auto px-6 py-12 space-y-6">
+      <main className="max-w-6xl mx-auto px-6 py-12 space-y-6">
         {/* Net Worth Card */}
         <div className="bg-neutral-900 text-white rounded-2xl p-8">
           <p className="text-neutral-400 text-sm mb-1">{t('dashboard.netWorth')}</p>
           <p className="text-4xl font-semibold tracking-tight">
             {formatCurrency(summary?.netWorth || 0)}
           </p>
-          <div className="flex gap-8 mt-6">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 mt-4">
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-white" />
-              <span className="text-neutral-400 text-sm">
+              <div className="h-2 w-2 rounded-full bg-white flex-shrink-0" />
+              <span className="text-neutral-400 text-sm whitespace-nowrap">
                 {t('dashboard.totalAssets')}: {formatCurrency(summary?.totalAssets || 0)}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-neutral-500" />
-              <span className="text-neutral-400 text-sm">
+              <div className="h-2 w-2 rounded-full bg-neutral-500 flex-shrink-0" />
+              <span className="text-neutral-400 text-sm whitespace-nowrap">
                 {t('dashboard.totalDebts')}: {formatCurrency(summary?.totalDebts || 0)}
               </span>
             </div>
@@ -791,6 +839,25 @@ export default function Dashboard() {
             t('dashboard.addExpense')
           )}
 
+          {/* Assets */}
+          {renderExpandableCard(
+            'assets',
+            <Building className="h-4 w-4 text-blue-500" />,
+            t('dashboard.totalAssets'),
+            summary?.totalAssets || 0,
+            allAssets,
+            (asset) => renderEditableRow(
+              asset.id,
+              asset.name,
+              asset.balance,
+              'assets',
+              updateAsset,
+              deleteAsset
+            ),
+            addAsset,
+            t('dashboard.addAsset')
+          )}
+
           {/* Debts */}
           {renderExpandableCard(
             'debts',
@@ -812,146 +879,146 @@ export default function Dashboard() {
             addDebt,
             t('dashboard.addDebt')
           )}
+        </div>
 
-          {/* Assets */}
-          {renderExpandableCard(
-            'assets',
-            <Building className="h-4 w-4 text-blue-500" />,
-            t('dashboard.totalAssets'),
-            summary?.totalAssets || 0,
-            allAssets,
-            (asset) => renderEditableRow(
-              asset.id,
-              asset.name,
-              asset.balance,
-              'assets',
-              updateAsset,
-              deleteAsset
-            ),
-            addAsset,
-            t('dashboard.addAsset')
+        {/* Monthly Balance & Home Ownership */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+              <div className="flex items-center gap-2">
+                <PiggyBank className="h-5 w-5 text-neutral-500" />
+                <span className="text-neutral-400">{t('dashboard.savingsPerMonth')}</span>
+              </div>
+              <span className={`text-xl sm:text-2xl font-semibold ${(summary?.monthlyBalance || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {formatCurrency(summary?.monthlyBalance || 0)}
+              </span>
+            </div>
+          </div>
+
+          {homeOwnership && (
+            <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+                <div className="flex items-center gap-2">
+                  <Home className="h-5 w-5 text-neutral-500" />
+                  <span className="text-neutral-400">{t('dashboard.debtRemaining')}</span>
+                </div>
+                <span className="text-xl sm:text-2xl font-semibold text-white">
+                  {homeOwnership.percentage}%
+                </span>
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Monthly Balance */}
-        <div className="bg-neutral-900 rounded-xl p-5 border border-neutral-800">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <PiggyBank className="h-5 w-5 text-neutral-500" />
-              <span className="text-neutral-400">{t('dashboard.savingsPerMonth')}</span>
-            </div>
-            <span className={`text-2xl font-semibold ${(summary?.monthlyBalance || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {formatCurrency(summary?.monthlyBalance || 0)}
-            </span>
-          </div>
-        </div>
-
-        {/* Forecast Chart */}
+        {/* Charts Grid */}
         {chartData.length > 0 && (
-          <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
-            <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-neutral-500" />
-              {t('dashboard.forecast')}
-            </h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ffffff" stopOpacity={0.15}/>
-                      <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
-                  <XAxis 
-                    dataKey="year" 
-                    tick={{ fontSize: 12, fill: '#737373' }}
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 12, fill: '#737373' }}
-                    tickFormatter={(value) => {
-                      if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                      return `${(value / 1000).toFixed(0)}k`;
-                    }}
-                  />
-                  <Tooltip 
-                    formatter={(value) => formatCurrency(Number(value) || 0)}
-                    contentStyle={{ 
-                      borderRadius: '8px', 
-                      border: '1px solid #333333',
-                      backgroundColor: '#171717',
-                      color: '#ffffff',
-                      fontSize: '14px'
-                    }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="netWorth" 
-                    name={t('dashboard.netWorth')}
-                    stroke="#ffffff" 
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorNetWorth)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Forecast Chart */}
+            <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+              <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-neutral-500" />
+                {t('dashboard.forecast')}
+              </h2>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ffffff" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
+                    <XAxis 
+                      dataKey="year" 
+                      tick={{ fontSize: 12, fill: '#737373' }}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12, fill: '#737373' }}
+                      tickFormatter={(value) => {
+                        if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                        return `${(value / 1000).toFixed(0)}k`;
+                      }}
+                    />
+                    <Tooltip 
+                      formatter={(value) => formatCurrency(Number(value) || 0)}
+                      contentStyle={{ 
+                        borderRadius: '8px', 
+                        border: '1px solid #333333',
+                        backgroundColor: '#171717',
+                        color: '#ffffff',
+                        fontSize: '14px'
+                      }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="netWorth" 
+                      name={t('dashboard.netWorth')}
+                      stroke="#ffffff" 
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorNetWorth)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Cost of Living Chart */}
-        {chartData.length > 0 && summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && (
-          <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
-            <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-neutral-500" />
-              {t('dashboard.costOfLiving')}
-            </h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData.map(d => ({
-                  ...d,
-                  costOfLiving: calculateCostOfLiving(d.age - (currentAge || 0))
-                }))}>
-                  <defs>
-                    <linearGradient id="colorCostOfLiving" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
-                  <XAxis 
-                    dataKey="year" 
-                    tick={{ fontSize: 12, fill: '#737373' }}
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 12, fill: '#737373' }}
-                    tickFormatter={(value) => {
-                      if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                      return `${(value / 1000).toFixed(0)}k`;
-                    }}
-                  />
-                  <Tooltip 
-                    formatter={(value) => formatCurrency(Number(value) || 0)}
-                    contentStyle={{ 
-                      borderRadius: '8px', 
-                      border: '1px solid #333333',
-                      backgroundColor: '#171717',
-                      color: '#ffffff',
-                      fontSize: '14px'
-                    }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="costOfLiving" 
-                    name={t('dashboard.costOfLiving')}
-                    stroke="#ef4444" 
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorCostOfLiving)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            {/* Cost of Living Chart */}
+            {summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && (
+              <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+                <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-neutral-500" />
+                  {t('dashboard.costOfLiving')}
+                </h2>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData.map(d => ({
+                      ...d,
+                      costOfLiving: calculateCostOfLiving(d.age - (currentAge || 0))
+                    }))}>
+                      <defs>
+                        <linearGradient id="colorCostOfLiving" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
+                      <XAxis 
+                        dataKey="year" 
+                        tick={{ fontSize: 12, fill: '#737373' }}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12, fill: '#737373' }}
+                        tickFormatter={(value) => {
+                          if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                          return `${(value / 1000).toFixed(0)}k`;
+                        }}
+                      />
+                      <Tooltip 
+                        formatter={(value) => formatCurrency(Number(value) || 0)}
+                        contentStyle={{ 
+                          borderRadius: '8px', 
+                          border: '1px solid #333333',
+                          backgroundColor: '#171717',
+                          color: '#ffffff',
+                          fontSize: '14px'
+                        }}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="costOfLiving" 
+                        name={t('dashboard.costOfLiving')}
+                        stroke="#ef4444" 
+                        strokeWidth={2}
+                        fillOpacity={1}
+                        fill="url(#colorCostOfLiving)" 
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
