@@ -19,7 +19,7 @@ export default function MortgageStep() {
   };
 
   const handleNoMortgage = () => {
-    updateData({ hasMortgage: false, mortgageAmount: 0, mortgageInterestRate: 0, propertyValue: 0 });
+    updateData({ hasMortgage: false, mortgageAmount: 0, mortgageInterestRate: 0, mortgageAmortization: 0, propertyValue: 0 });
     setCurrentStep(4);
     navigate('/onboarding/debts');
   };
@@ -88,6 +88,16 @@ export default function MortgageStep() {
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400">%</span>
             </div>
+          </div>
+
+          <div>
+            <label className="text-sm text-neutral-600 mb-1 block">Amortering per månad</label>
+            <FormattedNumberInput
+              value={data.mortgageAmortization}
+              onChange={(value) => updateData({ mortgageAmortization: value })}
+              placeholder="3 000"
+              suffix="kr/mån"
+            />
           </div>
 
           {data.propertyValue > 0 && data.mortgageAmount > 0 && (

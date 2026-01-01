@@ -28,6 +28,7 @@ export interface OnboardingData {
   hasMortgage: boolean;
   mortgageAmount: number;
   mortgageInterestRate: number;
+  mortgageAmortization: number;
   propertyValue: number;
   
   // Step 4: Other debts
@@ -55,6 +56,7 @@ const defaultData: OnboardingData = {
   hasMortgage: false,
   mortgageAmount: 0,
   mortgageInterestRate: 0,
+  mortgageAmortization: 0,
   propertyValue: 0,
   debts: [],
   assets: [],
