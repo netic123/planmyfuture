@@ -1,19 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '../utils/formatters';
 import {
   TrendingUp,
   PiggyBank,
-  CreditCard,
   ArrowUpRight,
   ArrowDownRight,
   Loader2,
   LogOut,
-  Settings,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  Wallet,
+  CreditCard,
+  Building,
 } from 'lucide-react';
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -39,11 +46,61 @@ interface Summary {
   }>;
 }
 
+interface BudgetItem {
+  id: number;
+  name: string;
+  amount: number;
+  type: number;
+  category: number;
+}
+
+interface Debt {
+  id: number;
+  name: string;
+  type: number;
+  currentBalance: number;
+  interestRate: number;
+}
+
+interface Asset {
+  id: number;
+  name: string;
+  balance: number;
+  category: number;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ email: string } | null>(null);
+  
+  // Data for editing
+  const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  
+  // Expanded sections
+  const [expandedSection, setExpandedSection] = useState<'income' | 'expenses' | 'debts' | 'assets' | null>(null);
+  
+  // Edit states
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState<number>(0);
+  const [saving, setSaving] = useState(false);
+  
+  // Add new item states
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newItemName, setNewItemName] = useState('');
+  const [newItemAmount, setNewItemAmount] = useState<number>(0);
+  const [newItemRate, setNewItemRate] = useState<number>(0);
+  const [newItemType, setNewItemType] = useState<number>(0);
+
+  const getToken = () => localStorage.getItem('token');
+  const getHeaders = () => ({
+    'Authorization': `Bearer ${getToken()}`,
+    'Content-Type': 'application/json',
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -58,24 +115,44 @@ export default function Dashboard() {
       setUser(JSON.parse(userData));
     }
 
-    loadData(token);
+    loadAllData(token);
   }, [navigate]);
 
-  const loadData = async (token: string) => {
+  const loadAllData = async (token: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/personal-finance/summary`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const headers = { 'Authorization': `Bearer ${token}` };
       
-      if (response.ok) {
-        const data = await response.json();
+      const [summaryRes, budgetRes, debtsRes, assetsRes] = await Promise.all([
+        fetch(`${API_URL}/api/personal-finance/summary`, { headers }),
+        fetch(`${API_URL}/api/personal-finance/budget`, { headers }),
+        fetch(`${API_URL}/api/personal-finance/debts`, { headers }),
+        fetch(`${API_URL}/api/personal-finance/accounts`, { headers }),
+      ]);
+      
+      if (summaryRes.ok) {
+        const data = await summaryRes.json();
         setSummary(data);
       }
+      if (budgetRes.ok) {
+        const data = await budgetRes.json();
+        setBudgetItems([...data.incomeItems, ...data.expenseItems]);
+      }
+      if (debtsRes.ok) setDebts(await debtsRes.json());
+      if (assetsRes.ok) setAssets(await assetsRes.json());
     } catch (err) {
       console.error('Failed to load data:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const refreshSummary = async () => {
+    const token = getToken();
+    if (!token) return;
+    const res = await fetch(`${API_URL}/api/personal-finance/summary`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (res.ok) setSummary(await res.json());
   };
 
   const handleLogout = () => {
@@ -84,11 +161,184 @@ export default function Dashboard() {
     navigate('/');
   };
 
-  // Generate chart data
+  const toggleSection = (section: 'income' | 'expenses' | 'debts' | 'assets') => {
+    setExpandedSection(expandedSection === section ? null : section);
+    setShowAddForm(false);
+    setEditingId(null);
+  };
+
+  const startEdit = (id: number, value: number) => {
+    setEditingId(id);
+    setEditValue(value);
+  };
+
+  const resetAddForm = () => {
+    setShowAddForm(false);
+    setNewItemName('');
+    setNewItemAmount(0);
+    setNewItemRate(0);
+    setNewItemType(0);
+  };
+
+  // Budget operations
+  const updateBudgetItem = async (id: number, amount: number) => {
+    setSaving(true);
+    const item = budgetItems.find(i => i.id === id);
+    if (!item) return;
+    
+    await fetch(`${API_URL}/api/personal-finance/budget/items/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ ...item, amount }),
+    });
+    setBudgetItems(budgetItems.map(i => i.id === id ? { ...i, amount } : i));
+    setEditingId(null);
+    setSaving(false);
+    refreshSummary();
+  };
+
+  const deleteBudgetItem = async (id: number) => {
+    await fetch(`${API_URL}/api/personal-finance/budget/items/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    setBudgetItems(budgetItems.filter(item => item.id !== id));
+    refreshSummary();
+  };
+
+  const addBudgetItem = async (isIncome: boolean) => {
+    if (!newItemName || newItemAmount <= 0) return;
+    setSaving(true);
+    
+    const res = await fetch(`${API_URL}/api/personal-finance/budget/items`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        name: newItemName,
+        amount: newItemAmount,
+        type: isIncome ? 0 : 1,
+        category: isIncome ? 0 : 10,
+        isRecurring: true,
+      }),
+    });
+    
+    if (res.ok) {
+      const newItem = await res.json();
+      setBudgetItems([...budgetItems, newItem]);
+    }
+    resetAddForm();
+    setSaving(false);
+    refreshSummary();
+  };
+
+  // Debt operations
+  const updateDebt = async (id: number, currentBalance: number) => {
+    setSaving(true);
+    const debt = debts.find(d => d.id === id);
+    if (!debt) return;
+    
+    await fetch(`${API_URL}/api/personal-finance/debts/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ ...debt, currentBalance }),
+    });
+    setDebts(debts.map(d => d.id === id ? { ...d, currentBalance } : d));
+    setEditingId(null);
+    setSaving(false);
+    refreshSummary();
+  };
+
+  const deleteDebt = async (id: number) => {
+    await fetch(`${API_URL}/api/personal-finance/debts/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    setDebts(debts.filter(d => d.id !== id));
+    refreshSummary();
+  };
+
+  const addDebt = async () => {
+    if (!newItemName || newItemAmount <= 0) return;
+    setSaving(true);
+    
+    const res = await fetch(`${API_URL}/api/personal-finance/debts`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        name: newItemName,
+        type: newItemType,
+        originalAmount: newItemAmount,
+        currentBalance: newItemAmount,
+        interestRate: newItemRate,
+      }),
+    });
+    
+    if (res.ok) {
+      const newDebt = await res.json();
+      setDebts([...debts, newDebt]);
+    }
+    resetAddForm();
+    setSaving(false);
+    refreshSummary();
+  };
+
+  // Asset operations
+  const updateAsset = async (id: number, balance: number) => {
+    setSaving(true);
+    const asset = assets.find(a => a.id === id);
+    if (!asset) return;
+    
+    await fetch(`${API_URL}/api/personal-finance/accounts/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ ...asset, balance }),
+    });
+    setAssets(assets.map(a => a.id === id ? { ...a, balance } : a));
+    setEditingId(null);
+    setSaving(false);
+    refreshSummary();
+  };
+
+  const deleteAsset = async (id: number) => {
+    await fetch(`${API_URL}/api/personal-finance/accounts/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    setAssets(assets.filter(a => a.id !== id));
+    refreshSummary();
+  };
+
+  const addAsset = async () => {
+    if (!newItemName || newItemAmount <= 0) return;
+    setSaving(true);
+    
+    const res = await fetch(`${API_URL}/api/personal-finance/accounts`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        name: newItemName,
+        balance: newItemAmount,
+        category: newItemType,
+      }),
+    });
+    
+    if (res.ok) {
+      const newAsset = await res.json();
+      setAssets([...assets, newAsset]);
+    }
+    resetAddForm();
+    setSaving(false);
+    refreshSummary();
+  };
+
+  // Filter data
+  const incomeItems = budgetItems.filter(item => item.type === 0);
+  const expenseItems = budgetItems.filter(item => item.type === 1);
+
+  // Chart data
   const chartData = summary?.projections?.slice(0, 10).map(p => ({
     year: `${p.years} år`,
     netWorth: Math.round(p.projectedNetWorth),
-    saved: Math.round(p.totalSaved),
   })) || [];
 
   if (loading) {
@@ -99,6 +349,147 @@ export default function Dashboard() {
     );
   }
 
+  const renderEditableAmount = (
+    id: number, 
+    currentValue: number, 
+    onSave: (id: number, value: number) => void,
+    prefix: string = ''
+  ) => {
+    if (editingId === id) {
+      return (
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            value={editValue}
+            onChange={(e) => setEditValue(parseFloat(e.target.value) || 0)}
+            className="w-28 px-2 py-1 border border-neutral-300 rounded text-right text-sm"
+            autoFocus
+          />
+          <button 
+            onClick={() => onSave(id, editValue)} 
+            disabled={saving}
+            className="p-1 text-green-600 hover:bg-green-50 rounded"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+          <button 
+            onClick={() => setEditingId(null)} 
+            className="p-1 text-neutral-400 hover:bg-neutral-100 rounded"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      );
+    }
+    return (
+      <button 
+        onClick={() => startEdit(id, currentValue)}
+        className="flex items-center gap-1.5 group text-sm"
+      >
+        <span className="font-medium">{prefix}{formatCurrency(currentValue)}</span>
+        <Pencil className="h-3 w-3 text-neutral-300 group-hover:text-neutral-600" />
+      </button>
+    );
+  };
+
+  const renderExpandableCard = (
+    section: 'income' | 'expenses' | 'debts' | 'assets',
+    icon: React.ReactNode,
+    label: string,
+    value: number,
+    items: any[],
+    renderItem: (item: any) => React.ReactNode,
+    onAdd: () => void,
+    addLabel: string
+  ) => {
+    const isExpanded = expandedSection === section;
+    
+    return (
+      <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+        <button
+          onClick={() => toggleSection(section)}
+          className="w-full p-5 flex items-center justify-between hover:bg-neutral-50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            {icon}
+            <span className="text-sm text-neutral-600">{label}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl font-semibold text-neutral-900">
+              {formatCurrency(value)}
+            </span>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-neutral-400" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-neutral-400" />
+            )}
+          </div>
+        </button>
+        
+        {isExpanded && (
+          <div className="border-t border-neutral-100 p-4 space-y-2">
+            {items.length === 0 ? (
+              <p className="text-sm text-neutral-400 text-center py-2">Inga poster</p>
+            ) : (
+              items.map(renderItem)
+            )}
+            
+            {showAddForm ? (
+              <div className="mt-3 p-3 bg-neutral-50 rounded-lg space-y-2">
+                <input
+                  type="text"
+                  placeholder="Namn"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm"
+                />
+                <input
+                  type="number"
+                  placeholder="Belopp"
+                  value={newItemAmount || ''}
+                  onChange={(e) => setNewItemAmount(parseFloat(e.target.value) || 0)}
+                  className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm"
+                />
+                {section === 'debts' && (
+                  <input
+                    type="number"
+                    placeholder="Ränta %"
+                    value={newItemRate || ''}
+                    onChange={(e) => setNewItemRate(parseFloat(e.target.value) || 0)}
+                    className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm"
+                  />
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={resetAddForm}
+                    className="flex-1 py-2 text-sm text-neutral-600 hover:bg-neutral-100 rounded-lg"
+                  >
+                    Avbryt
+                  </button>
+                  <button
+                    onClick={onAdd}
+                    disabled={saving || !newItemName || newItemAmount <= 0}
+                    className="flex-1 py-2 text-sm bg-neutral-900 text-white rounded-lg disabled:opacity-50"
+                  >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : 'Lägg till'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="w-full py-2 mt-2 text-sm text-neutral-500 hover:text-neutral-700 flex items-center justify-center gap-1 border border-dashed border-neutral-200 rounded-lg hover:border-neutral-400"
+              >
+                <Plus className="h-4 w-4" />
+                {addLabel}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
@@ -108,14 +499,9 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             <span className="text-sm text-neutral-500">{user?.email}</span>
             <button
-              onClick={() => navigate('/settings')}
-              className="p-2 text-neutral-400 hover:text-neutral-600"
-            >
-              <Settings className="h-5 w-5" />
-            </button>
-            <button
               onClick={handleLogout}
               className="p-2 text-neutral-400 hover:text-neutral-600"
+              title="Logga ut"
             >
               <LogOut className="h-5 w-5" />
             </button>
@@ -146,36 +532,112 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Monthly Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl p-5 border border-neutral-200">
-            <div className="flex items-center gap-2 mb-2">
-              <ArrowUpRight className="h-4 w-4 text-neutral-400" />
-              <span className="text-sm text-neutral-600">Inkomst/mån</span>
-            </div>
-            <p className="text-2xl font-semibold text-neutral-900">
-              {formatCurrency(summary?.totalMonthlyIncome || 0)}
-            </p>
-          </div>
+        {/* Expandable Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Income */}
+          {renderExpandableCard(
+            'income',
+            <ArrowUpRight className="h-4 w-4 text-green-500" />,
+            'Inkomst/mån',
+            summary?.totalMonthlyIncome || 0,
+            incomeItems,
+            (item) => (
+              <div key={item.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
+                <span className="text-sm text-neutral-700">{item.name}</span>
+                <div className="flex items-center gap-2">
+                  {renderEditableAmount(item.id, item.amount, updateBudgetItem)}
+                  <button onClick={() => deleteBudgetItem(item.id)} className="p-1 text-neutral-300 hover:text-red-500">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ),
+            () => addBudgetItem(true),
+            'Lägg till inkomst'
+          )}
 
-          <div className="bg-white rounded-xl p-5 border border-neutral-200">
-            <div className="flex items-center gap-2 mb-2">
-              <ArrowDownRight className="h-4 w-4 text-neutral-400" />
-              <span className="text-sm text-neutral-600">Utgifter/mån</span>
-            </div>
-            <p className="text-2xl font-semibold text-neutral-900">
-              {formatCurrency(summary?.totalMonthlyExpenses || 0)}
-            </p>
-          </div>
+          {/* Expenses */}
+          {renderExpandableCard(
+            'expenses',
+            <ArrowDownRight className="h-4 w-4 text-red-500" />,
+            'Utgifter/mån',
+            summary?.totalMonthlyExpenses || 0,
+            expenseItems,
+            (item) => (
+              <div key={item.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
+                <span className="text-sm text-neutral-700">{item.name}</span>
+                <div className="flex items-center gap-2">
+                  {renderEditableAmount(item.id, item.amount, updateBudgetItem)}
+                  <button onClick={() => deleteBudgetItem(item.id)} className="p-1 text-neutral-300 hover:text-red-500">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ),
+            () => addBudgetItem(false),
+            'Lägg till utgift'
+          )}
 
-          <div className="bg-white rounded-xl p-5 border border-neutral-200">
-            <div className="flex items-center gap-2 mb-2">
-              <PiggyBank className="h-4 w-4 text-neutral-400" />
-              <span className="text-sm text-neutral-600">Sparar/mån</span>
+          {/* Debts */}
+          {renderExpandableCard(
+            'debts',
+            <CreditCard className="h-4 w-4 text-orange-500" />,
+            'Skulder',
+            summary?.totalDebts || 0,
+            debts,
+            (debt) => (
+              <div key={debt.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
+                <div>
+                  <span className="text-sm text-neutral-700">{debt.name || getDebtTypeName(debt.type)}</span>
+                  {debt.interestRate > 0 && (
+                    <span className="text-xs text-neutral-400 ml-2">{debt.interestRate}%</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {renderEditableAmount(debt.id, debt.currentBalance, updateDebt)}
+                  <button onClick={() => deleteDebt(debt.id)} className="p-1 text-neutral-300 hover:text-red-500">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ),
+            addDebt,
+            'Lägg till skuld'
+          )}
+
+          {/* Assets */}
+          {renderExpandableCard(
+            'assets',
+            <Building className="h-4 w-4 text-blue-500" />,
+            'Tillgångar',
+            summary?.totalAssets || 0,
+            assets,
+            (asset) => (
+              <div key={asset.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
+                <span className="text-sm text-neutral-700">{asset.name}</span>
+                <div className="flex items-center gap-2">
+                  {renderEditableAmount(asset.id, asset.balance, updateAsset)}
+                  <button onClick={() => deleteAsset(asset.id)} className="p-1 text-neutral-300 hover:text-red-500">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ),
+            addAsset,
+            'Lägg till tillgång'
+          )}
+        </div>
+
+        {/* Monthly Balance */}
+        <div className="bg-white rounded-xl p-5 border border-neutral-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <PiggyBank className="h-5 w-5 text-neutral-400" />
+              <span className="text-neutral-600">Sparar per månad</span>
             </div>
-            <p className="text-2xl font-semibold text-neutral-900">
+            <span className={`text-2xl font-semibold ${(summary?.monthlyBalance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(summary?.monthlyBalance || 0)}
-            </p>
+            </span>
           </div>
         </div>
 
@@ -253,3 +715,16 @@ export default function Dashboard() {
   );
 }
 
+function getDebtTypeName(type: number): string {
+  const types: Record<number, string> = {
+    0: 'Bolån',
+    1: 'Studielån',
+    2: 'Billån',
+    3: 'Privatlån',
+    4: 'Kreditkort',
+    5: 'Skatteverket',
+    6: 'CSN',
+    7: 'Övrigt',
+  };
+  return types[type] || 'Skuld';
+}

@@ -14,7 +14,6 @@ import {
 // Main Pages
 import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/LoginPage';
-import SettingsPage from './pages/SettingsPage';
 
 function OnboardingRoutes() {
   return (
@@ -40,8 +39,10 @@ function AppRoutes() {
       
       {/* Main app */}
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/settings" element={<SettingsPage />} />
       <Route path="/login" element={<LoginPage />} />
+      
+      {/* Redirect old settings route to dashboard */}
+      <Route path="/settings" element={<Navigate to="/dashboard" replace />} />
       
       {/* Default: redirect to onboarding or dashboard */}
       <Route path="/" element={<HomeRedirect />} />
