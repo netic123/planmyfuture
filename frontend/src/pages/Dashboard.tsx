@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { formatCurrency } from '../utils/formatters';
 import {
   TrendingUp,
@@ -557,16 +558,29 @@ export default function Dashboard() {
     );
   };
 
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'sv' ? 'en' : 'sv';
+    i18n.changeLanguage(newLang);
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 relative">
-      {/* Logout button */}
-      <button
-        onClick={handleLogout}
-        className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-600 transition-colors z-10"
-        title="Logga ut"
-      >
-        <LogOut className="h-5 w-5" />
-      </button>
+      {/* Header with language switcher and logout */}
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+        <button
+          onClick={toggleLanguage}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-600 hover:text-neutral-900 bg-white border border-neutral-200 rounded-lg hover:border-neutral-300 transition-colors"
+        >
+          {i18n.language === 'sv' ? 'EN' : 'SV'}
+        </button>
+        <button
+          onClick={handleLogout}
+          className="p-2 text-neutral-400 hover:text-neutral-600 transition-colors"
+          title={t('dashboard.logout')}
+        >
+          <LogOut className="h-5 w-5" />
+        </button>
+      </div>
 
       <main className="max-w-3xl mx-auto px-6 py-12 space-y-6">
         {/* Net Worth Card */}
