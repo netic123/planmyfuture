@@ -1,5 +1,7 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -103,6 +105,34 @@ builder.Services.AddCors(options =>
 // HttpClient for external API calls (IP geolocation)
 builder.Services.AddHttpClient();
 
+// Rate Limiting - protect against brute-force attacks
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    
+    // Strict rate limit for auth endpoints (login, register, forgot-password)
+    options.AddPolicy("auth", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,           // Max 10 requests
+                Window = TimeSpan.FromMinutes(1), // Per minute
+                QueueLimit = 0
+            }));
+    
+    // Stricter rate limit for password reset (prevent email spam)
+    options.AddPolicy("password-reset", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,            // Max 3 requests
+                Window = TimeSpan.FromMinutes(15), // Per 15 minutes
+                QueueLimit = 0
+            }));
+});
+
 // Register services
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -134,7 +164,33 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Security headers
+app.Use(async (context, next) =>
+{
+    // Prevent clickjacking
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    // Prevent MIME type sniffing
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    // Enable XSS filter
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    // Referrer policy
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    // Content Security Policy
+    context.Response.Headers.Append("Content-Security-Policy", 
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline'; " +
+        "style-src 'self' 'unsafe-inline'; " +
+        "img-src 'self' data: https:; " +
+        "font-src 'self'; " +
+        "connect-src 'self' https://api.ipify.org;");
+    
+    await next();
+});
+
 app.UseCors("AllowFrontend");
+
+// Rate limiting
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
