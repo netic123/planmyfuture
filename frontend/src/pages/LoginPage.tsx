@@ -26,7 +26,7 @@ export default function LoginPage() {
       login(data);
       navigate('/');
     } catch {
-      setError(i18n.language === 'sv' ? 'Fel email eller lösenord' : 'Invalid email or password');
+      setError(t('login.invalidCredentials'));
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export default function LoginPage() {
             Plan My Future
           </h1>
           <p className="mt-2 text-sm text-neutral-500">
-            {i18n.language === 'sv' ? 'Logga in på ditt konto' : 'Sign in to your account'}
+            {t('login.signInToAccount')}
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="input"
-                placeholder={i18n.language === 'sv' ? 'din@email.se' : 'your@email.com'}
+                placeholder={t('placeholders.email')}
                 required
               />
             </div>
@@ -112,7 +112,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="label">{t('auth.password')}</label>
                 <Link to="/forgot-password" tabIndex={-1} className="text-xs text-neutral-500 hover:text-neutral-900">
-                  {i18n.language === 'sv' ? 'Glömt lösenord?' : 'Forgot password?'}
+                  {t('login.forgotPassword')}
                 </Link>
               </div>
               <input
@@ -134,7 +134,7 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  {i18n.language === 'sv' ? 'Loggar in...' : 'Signing in...'}
+                  {t('login.signingIn')}
                 </>
               ) : (
                 t('auth.login')

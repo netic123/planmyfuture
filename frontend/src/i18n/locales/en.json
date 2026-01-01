@@ -64,7 +64,18 @@
     "myBusiness": "MyBusiness",
     "businessDescription": "Start and manage your business with simple accounting",
     "goToMyBusiness": "Go to MyBusiness →",
-    "morePosts": "+ more posts"
+    "morePosts": "+ more posts",
+    "savingsNext24Months": "Savings next 24 months",
+    "netWorthOverTime": "Net worth over time",
+    "costsVsSavings": "Costs vs savings per period",
+    "yourFuture": "Your future",
+    "inYears": "In {{years}} years",
+    "remaining": "Remaining",
+    "saved": "Saved",
+    "totalSaved": "Total saved",
+    "totalCostsLabel": "Total costs",
+    "remainingDebt": "Remaining debt",
+    "yr": "yr"
   },
   "auth": {
     "login": "Log in",
@@ -114,6 +125,47 @@
   "language": {
     "en": "English",
     "sv": "Svenska"
+  },
+  "gig": {
+    "findGigs": "Find gigs",
+    "postGig": "Post gig",
+    "myGigs": "My gigs",
+    "myProfile": "My profile"
+  },
+  "login": {
+    "signInToAccount": "Sign in to your account",
+    "invalidCredentials": "Invalid email or password",
+    "forgotPassword": "Forgot password?",
+    "signingIn": "Signing in..."
+  },
+  "register": {
+    "createNewAccount": "Create a new account",
+    "couldNotCreate": "Could not create account. Email might already exist."
+  },
+  "forgotPassword": {
+    "title": "Forgot password?",
+    "description": "Enter your email and we'll send you a reset link",
+    "sendResetLink": "Send reset link",
+    "backToLogin": "Back to login",
+    "checkEmail": "Check your email!",
+    "emailSentDescription": "If an account exists with that email, we've sent a link to reset your password."
+  },
+  "resetPassword": {
+    "title": "Set new password",
+    "success": "Password changed!",
+    "successDescription": "Your password has been changed. Redirecting to login...",
+    "description": "Choose a strong password for your account",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "setPassword": "Change password",
+    "resetting": "Resetting...",
+    "invalidToken": "Invalid or expired reset link. Please request a new one.",
+    "passwordTooShort": "Password must be at least 6 characters"
+  },
+  "placeholders": {
+    "email": "your@email.com",
+    "firstName": "John",
+    "lastName": "Smith"
   }
 }
 

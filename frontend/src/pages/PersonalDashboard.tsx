@@ -94,7 +94,7 @@ export default function PersonalDashboard() {
   const longTermChartData = useMemo(() => {
     if (!summary) return [];
     return summary.projections.map(proj => ({
-      year: `${proj.years} ${i18n.language === 'sv' ? 'år' : 'yr'}`,
+      year: `${proj.years} ${t('dashboard.yr')}`,
       years: proj.years,
       netWorth: Math.round(proj.projectedNetWorth),
       savings: Math.round(proj.projectedSavingsWithInterest),
@@ -224,7 +224,7 @@ export default function PersonalDashboard() {
         {/* Monthly Savings Projection (24 months) */}
         <div className="card p-6">
           <h2 className="text-sm font-medium text-neutral-900 mb-4">
-            {i18n.language === 'sv' ? 'Sparande kommande 24 månader' : 'Savings next 24 months'}
+            {t('dashboard.savingsNext24Months')}
           </h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -258,7 +258,7 @@ export default function PersonalDashboard() {
                 <Area 
                   type="monotone" 
                   dataKey="savingsWithInterest" 
-                  name={i18n.language === 'sv' ? 'Sparat' : 'Saved'}
+                  name={t('dashboard.saved')}
                   stroke="#171717" 
                   strokeWidth={2}
                   fillOpacity={1}
@@ -267,7 +267,7 @@ export default function PersonalDashboard() {
                 <Area 
                   type="monotone" 
                   dataKey="netWorth" 
-                  name={i18n.language === 'sv' ? 'Nettoförmögenhet' : 'Net Worth'}
+                  name={t('dashboard.netWorth')}
                   stroke="#737373" 
                   strokeWidth={2}
                   fillOpacity={1}
@@ -281,7 +281,7 @@ export default function PersonalDashboard() {
         {/* Long-term Net Worth Projection (60 years) */}
         <div className="card p-6">
           <h2 className="text-sm font-medium text-neutral-900 mb-4">
-            {i18n.language === 'sv' ? 'Nettoförmögenhet över tid' : 'Net worth over time'}
+            {t('dashboard.netWorthOverTime')}
           </h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -307,7 +307,7 @@ export default function PersonalDashboard() {
                 <Line 
                   type="monotone" 
                   dataKey="netWorth" 
-                  name={i18n.language === 'sv' ? 'Nettoförmögenhet' : 'Net Worth'}
+                  name={t('dashboard.netWorth')}
                   stroke="#171717" 
                   strokeWidth={2}
                   dot={false}
@@ -315,7 +315,7 @@ export default function PersonalDashboard() {
                 <Line 
                   type="monotone" 
                   dataKey="savings" 
-                  name={i18n.language === 'sv' ? 'Totalt sparat' : 'Total savings'}
+                  name={t('dashboard.totalSaved')}
                   stroke="#a3a3a3" 
                   strokeWidth={1.5}
                   strokeDasharray="4 4"
@@ -324,7 +324,7 @@ export default function PersonalDashboard() {
                 <Line 
                   type="monotone" 
                   dataKey="debt" 
-                  name={i18n.language === 'sv' ? 'Kvarvarande skuld' : 'Remaining debt'}
+                  name={t('dashboard.remainingDebt')}
                   stroke="#737373" 
                   strokeWidth={1.5}
                   dot={false}
@@ -338,7 +338,7 @@ export default function PersonalDashboard() {
       {/* Costs vs Savings Bar Chart */}
       <div className="card p-6">
         <h2 className="text-sm font-medium text-neutral-900 mb-4">
-          {i18n.language === 'sv' ? 'Kostnader vs sparande per period' : 'Costs vs savings per period'}
+          {t('dashboard.costsVsSavings')}
         </h2>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
@@ -363,13 +363,13 @@ export default function PersonalDashboard() {
               <Legend wrapperStyle={{ fontSize: '12px' }} />
               <Bar 
                 dataKey="costs" 
-                name={i18n.language === 'sv' ? 'Totala kostnader' : 'Total costs'}
+                name={t('dashboard.totalCostsLabel')}
                 fill="#737373" 
                 radius={[3, 3, 0, 0]}
               />
               <Bar 
                 dataKey="savings" 
-                name={i18n.language === 'sv' ? 'Totalt sparat' : 'Total saved'}
+                name={t('dashboard.totalSaved')}
                 fill="#171717" 
                 radius={[3, 3, 0, 0]}
               />
@@ -489,7 +489,7 @@ export default function PersonalDashboard() {
                     <div>
                       <span className="text-sm font-medium text-neutral-900">{debt.typeName}</span>
                       <p className="text-xs text-neutral-400">
-                        {i18n.language === 'sv' ? 'Kvar: ' : 'Remaining: '}{debt.remainingPercentage.toFixed(1)}%
+                        {t('dashboard.remaining')}: {debt.remainingPercentage.toFixed(1)}%
                       </p>
                     </div>
                   </div>
@@ -551,20 +551,20 @@ export default function PersonalDashboard() {
       {/* Future Projections */}
       <div className="card p-6">
         <h2 className="text-sm font-medium text-neutral-900 mb-6">
-          {i18n.language === 'sv' ? 'Din framtid' : 'Your future'}
+          {t('dashboard.yourFuture')}
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {summary.projections.filter(p => [5, 10, 20, 30].includes(p.years)).map((proj, idx) => (
             <div key={idx} className="text-center p-4 bg-neutral-50 rounded-lg">
               <div className="text-xs text-neutral-500 mb-1">
-                {i18n.language === 'sv' ? `Om ${proj.years} år` : `In ${proj.years} years`}
+                {t('dashboard.inYears', { years: proj.years })}
               </div>
               <div className={`text-xl font-semibold text-neutral-900`}>
                 {formatCurrency(proj.projectedNetWorth)}
               </div>
               <div className="text-xs text-neutral-400 mt-1">
-                {i18n.language === 'sv' ? 'Nettoförmögenhet' : 'Net worth'}
+                {t('dashboard.netWorth')}
               </div>
             </div>
           ))}
