@@ -34,9 +34,6 @@ function OnboardingRoutes() {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Onboarding flow */}
-      <Route path="/onboarding/*" element={<OnboardingRoutes />} />
-      
       {/* Main app */}
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/login" element={<LoginPage />} />
@@ -44,21 +41,31 @@ function AppRoutes() {
       {/* Redirect old settings route to dashboard */}
       <Route path="/settings" element={<Navigate to="/dashboard" replace />} />
       
-      {/* Default: redirect to onboarding or dashboard */}
-      <Route path="/" element={<HomeRedirect />} />
+      {/* Legacy onboarding routes - redirect to base URL */}
+      <Route path="/onboarding/salary" element={<Navigate to="/" replace />} />
+      <Route path="/onboarding/*" element={<OnboardingRoutes />} />
+      
+      {/* Base URL: show onboarding (salary step) or redirect to dashboard if logged in */}
+      <Route path="/" element={<HomeRoute />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
 
-function HomeRedirect() {
+function HomeRoute() {
   const token = localStorage.getItem('token');
   
+  // If logged in, redirect to dashboard
   if (token) {
     return <Navigate to="/dashboard" replace />;
   }
   
-  return <Navigate to="/onboarding/salary" replace />;
+  // Show onboarding (salary step) at base URL
+  return (
+    <OnboardingProvider>
+      <SalaryStep />
+    </OnboardingProvider>
+  );
 }
 
 export default function App() {
