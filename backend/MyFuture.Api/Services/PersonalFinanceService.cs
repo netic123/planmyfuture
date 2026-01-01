@@ -230,15 +230,21 @@ public class PersonalFinanceService : IPersonalFinanceService
 
     public async Task<DebtDto?> CreateDebtAsync(CreateDebtRequest request, int userId)
     {
+        // Auto-generate name from type if not provided
+        var name = string.IsNullOrEmpty(request.Name) 
+            ? GetDefaultDebtName(request.Type) 
+            : request.Name;
+            
         var debt = new Debt
         {
-            Name = request.Name,
+            Name = name,
             Lender = request.Lender,
             Type = request.Type,
             OriginalAmount = request.OriginalAmount,
             CurrentBalance = request.CurrentBalance,
             AssetValue = request.AssetValue,
             InterestRate = request.InterestRate,
+            AmortizationRate = request.AmortizationRate,
             MonthlyPayment = request.MonthlyPayment,
             MonthlyAmortization = request.MonthlyAmortization,
             StartDate = request.StartDate,
@@ -258,19 +264,35 @@ public class PersonalFinanceService : IPersonalFinanceService
 
         return MapToDto(debt);
     }
+    
+    private static string GetDefaultDebtName(DebtType type) => type switch
+    {
+        DebtType.Mortgage => "Bolån",
+        DebtType.StudentLoan => "Studielån",
+        DebtType.CarLoan => "Billån",
+        DebtType.PersonalLoan => "Privatlån",
+        DebtType.CreditCard => "Kreditkort",
+        DebtType.TaxDebt => "Skatteskuld",
+        DebtType.BusinessLoan => "Företagslån",
+        _ => "Lån"
+    };
 
     public async Task<DebtDto?> UpdateDebtAsync(int id, UpdateDebtRequest request, int userId)
     {
         var debt = await _context.Debts.FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
         if (debt == null) return null;
 
-        debt.Name = request.Name;
+        // Auto-generate name from type if not provided
+        debt.Name = string.IsNullOrEmpty(request.Name) 
+            ? GetDefaultDebtName(request.Type) 
+            : request.Name;
         debt.Lender = request.Lender;
         debt.Type = request.Type;
         debt.OriginalAmount = request.OriginalAmount;
         debt.CurrentBalance = request.CurrentBalance;
         debt.AssetValue = request.AssetValue;
         debt.InterestRate = request.InterestRate;
+        debt.AmortizationRate = request.AmortizationRate;
         debt.MonthlyPayment = request.MonthlyPayment;
         debt.MonthlyAmortization = request.MonthlyAmortization;
         debt.StartDate = request.StartDate;
@@ -574,8 +596,11 @@ public class PersonalFinanceService : IPersonalFinanceService
         debt.CurrentBalance,
         debt.AssetValue,
         debt.InterestRate,
+        debt.AmortizationRate,
         debt.MonthlyPayment,
         debt.MonthlyAmortization,
+        debt.MonthlyInterest,
+        debt.CalculatedMonthlyAmortization,
         debt.StartDate,
         debt.EndDate,
         debt.NextPaymentDate,
