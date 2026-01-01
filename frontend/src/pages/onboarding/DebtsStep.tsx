@@ -10,6 +10,8 @@ const debtTypes = [
   'Billån',
   'Privatlån',
   'Kreditkort',
+  'Skatteverket',
+  'Till person',
   'Övrigt',
 ];
 
@@ -18,12 +20,16 @@ export default function DebtsStep() {
   const { data, updateData, setCurrentStep } = useOnboarding();
   const [debts, setDebts] = useState(data.debts);
   const [showForm, setShowForm] = useState(false);
-  const [newDebt, setNewDebt] = useState({ type: 'Studielån', amount: 0, interestRate: 0 });
+  const [newDebt, setNewDebt] = useState({ type: 'Studielån', amount: 0, interestRate: 0, name: '' });
 
   const addDebt = () => {
     if (newDebt.amount > 0) {
-      setDebts([...debts, newDebt]);
-      setNewDebt({ type: 'Studielån', amount: 0, interestRate: 0 });
+      const debtToAdd = {
+        ...newDebt,
+        name: newDebt.name || (newDebt.type === 'Till person' ? 'Privat skuld' : newDebt.type),
+      };
+      setDebts([...debts, debtToAdd]);
+      setNewDebt({ type: 'Studielån', amount: 0, interestRate: 0, name: '' });
       setShowForm(false);
     }
   };
@@ -83,9 +89,12 @@ export default function DebtsStep() {
           {debts.map((debt, index) => (
             <div key={index} className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
               <div>
-                <p className="font-medium text-neutral-900">{debt.type}</p>
+                <p className="font-medium text-neutral-900">
+                  {debt.name || debt.type}
+                </p>
                 <p className="text-sm text-neutral-500">
-                  {debt.amount.toLocaleString('sv-SE')} kr • {debt.interestRate}% ränta
+                  {debt.amount.toLocaleString('sv-SE')} kr
+                  {debt.interestRate > 0 && ` • ${debt.interestRate}% ränta`}
                 </p>
               </div>
               <button
@@ -104,7 +113,7 @@ export default function DebtsStep() {
                 <label className="text-sm text-neutral-600 mb-1 block">Typ av skuld</label>
                 <select
                   value={newDebt.type}
-                  onChange={(e) => setNewDebt({ ...newDebt, type: e.target.value })}
+                  onChange={(e) => setNewDebt({ ...newDebt, type: e.target.value, name: '' })}
                   className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl"
                 >
                   {debtTypes.map(type => (
@@ -112,6 +121,20 @@ export default function DebtsStep() {
                   ))}
                 </select>
               </div>
+              {(newDebt.type === 'Till person' || newDebt.type === 'Övrigt') && (
+                <div>
+                  <label className="text-sm text-neutral-600 mb-1 block">
+                    {newDebt.type === 'Till person' ? 'Till vem?' : 'Beskrivning'}
+                  </label>
+                  <input
+                    type="text"
+                    value={newDebt.name}
+                    onChange={(e) => setNewDebt({ ...newDebt, name: e.target.value })}
+                    placeholder={newDebt.type === 'Till person' ? 'T.ex. Mamma, Kompis...' : 'Beskriv skulden'}
+                    className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl"
+                  />
+                </div>
+              )}
               <div>
                 <label className="text-sm text-neutral-600 mb-1 block">Belopp</label>
                 <FormattedNumberInput
@@ -122,14 +145,14 @@ export default function DebtsStep() {
                 />
               </div>
               <div>
-                <label className="text-sm text-neutral-600 mb-1 block">Ränta</label>
+                <label className="text-sm text-neutral-600 mb-1 block">Ränta (0 om ingen)</label>
                 <div className="relative">
                   <input
                     type="number"
                     step="0.1"
                     value={newDebt.interestRate || ''}
                     onChange={(e) => setNewDebt({ ...newDebt, interestRate: parseFloat(e.target.value) || 0 })}
-                    placeholder="5.5"
+                    placeholder="0"
                     className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl pr-12"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400">%</span>
