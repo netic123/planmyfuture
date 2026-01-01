@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { OnboardingProvider } from './context/OnboardingContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Onboarding Pages
 import {
@@ -48,8 +49,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Main app */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Main app - protected routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/login" element={<LoginPage />} />
         
         {/* Redirect old routes */}
