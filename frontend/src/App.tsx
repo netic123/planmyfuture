@@ -11,6 +11,7 @@ import CreateCompanyPage from './pages/CreateCompanyPage';
 
 // Personal Finance Pages
 import PersonalDashboard from './pages/PersonalDashboard';
+import EnterDataPage from './pages/EnterDataPage';
 import BudgetPage from './pages/BudgetPage';
 import AssetsPage from './pages/AssetsPage';
 import DebtsPage from './pages/DebtsPage';
@@ -90,6 +91,7 @@ function AppRoutes() {
       }>
         {/* Personal Finance Routes */}
         <Route index element={<PersonalDashboard />} />
+        <Route path="enter-data" element={<EnterDataPage />} />
         <Route path="budget" element={<BudgetPage />} />
         <Route path="assets" element={<AssetsPage />} />
         <Route path="debts" element={<DebtsPage />} />
