@@ -419,10 +419,12 @@ public class PersonalFinanceService : IPersonalFinanceService
 
         // Beräkna summor
         // Tillgångar = alla konton (inklusive bostad som separat tillgång)
-        var totalAssets = accounts.Sum(a => a.Balance);
+        var financialAssets = accounts.Sum(a => a.Balance);
+        var totalAssets = financialAssets;
         
         // Skulder = alla skulder
-        var totalDebts = debts.Sum(d => d.CurrentBalance);
+        var allDebts = debts.Sum(d => d.CurrentBalance);
+        var totalDebts = allDebts;
         
         // För projektioner - beräkna skulder med/utan kopplad tillgång
         var debtsWithAssets = debts.Where(d => d.AssetValue.HasValue).Sum(d => d.CurrentBalance);
