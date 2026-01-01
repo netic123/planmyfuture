@@ -69,7 +69,6 @@ interface Asset {
   name: string;
   balance: number;
   category: number;
-  isFromDebt?: boolean;  // True om tillgången kommer från en skuld (t.ex. bostad från bolån)
 }
 
 export default function Dashboard() {
@@ -109,19 +108,8 @@ export default function Dashboard() {
   const currentYear = new Date().getFullYear();
   const currentAge = birthYear ? currentYear - birthYear : null;
 
-  // Kombinera vanliga tillgångar med tillgångar kopplade till skulder (t.ex. bostad från bolån)
-  const allAssets = [
-    ...assets,
-    ...debts
-      .filter(d => d.assetValue && d.assetValue > 0)
-      .map(d => ({
-        id: -d.id, // Negativa ID för att skilja från vanliga assets
-        name: d.name === 'Bolån' ? 'Bostad' : `${d.name} (tillgång)`,
-        balance: d.assetValue!,
-        category: 0,
-        isFromDebt: true, // Markera att det är en kopplad tillgång
-      }))
-  ];
+  // Alla tillgångar (inklusive bostad som nu sparas separat vid onboarding)
+  const allAssets = assets;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -703,22 +691,12 @@ export default function Dashboard() {
             allAssets,
             (asset) => (
               <div key={asset.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
-                <span className="text-sm text-neutral-700">
-                  {asset.name}
-                  {asset.isFromDebt && <span className="text-xs text-neutral-400 ml-1">(kopplad)</span>}
-                </span>
+                <span className="text-sm text-neutral-700">{asset.name}</span>
                 <div className="flex items-center gap-2">
-                  {asset.isFromDebt ? (
-                    // Tillgångar från skulder visas som read-only (redigeras via skulden)
-                    <span className="text-sm font-medium text-neutral-900">{formatCurrency(asset.balance)}</span>
-                  ) : (
-                    <>
-                      {renderEditableAmount(asset.id, asset.balance, updateAsset)}
-                      <button onClick={() => deleteAsset(asset.id)} className="p-1 text-neutral-300 hover:text-red-500">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </>
-                  )}
+                  {renderEditableAmount(asset.id, asset.balance, updateAsset)}
+                  <button onClick={() => deleteAsset(asset.id)} className="p-1 text-neutral-300 hover:text-red-500">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
             ),
