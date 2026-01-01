@@ -188,7 +188,7 @@ export default function BudgetPage() {
             <div>
               <LabelWithTooltip 
                 label="Belopp per månad" 
-                tooltip="Hur mycket får/betalar du varje månad? Ange beloppet efter skatt för lön" 
+                tooltip="Månadsbelopp i kronor. Lön anges efter skatt (netto)." 
                 required 
               />
               <FormattedNumberInput
