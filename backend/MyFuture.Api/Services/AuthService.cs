@@ -21,12 +21,14 @@ public class AuthService : IAuthService
     private readonly AppDbContext _context;
     private readonly IJwtService _jwtService;
     private readonly IEmailService _emailService;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(AppDbContext context, IJwtService jwtService, IEmailService emailService)
+    public AuthService(AppDbContext context, IJwtService jwtService, IEmailService emailService, ILogger<AuthService> logger)
     {
         _context = context;
         _jwtService = jwtService;
         _emailService = emailService;
+        _logger = logger;
     }
 
     public async Task<AuthResponse?> RegisterAsync(RegisterRequest request, string? ipAddress = null)
@@ -201,9 +203,12 @@ public class AuthService : IAuthService
 
     public async Task<bool> DeleteAccountAsync(int userId)
     {
+        _logger.LogInformation("DeleteAccountAsync called for userId: {UserId}", userId);
+        
         var user = await _context.Users.FindAsync(userId);
         if (user == null)
         {
+            _logger.LogWarning("DeleteAccountAsync: User not found for userId: {UserId}", userId);
             return false;
         }
 
@@ -211,20 +216,26 @@ public class AuthService : IAuthService
         var userEmail = user.Email;
         var firstName = user.FirstName;
         var lastName = user.LastName;
+        
+        _logger.LogInformation("DeleteAccountAsync: Deleting account for {Email}", userEmail);
 
         // Send confirmation email BEFORE deletion (so we still have user data if email fails)
         try
         {
+            _logger.LogInformation("DeleteAccountAsync: Sending deletion email to {Email}", userEmail);
             await _emailService.SendAccountDeletionEmailAsync(userEmail, firstName);
+            _logger.LogInformation("DeleteAccountAsync: Deletion email sent successfully to {Email}", userEmail);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "DeleteAccountAsync: Failed to send deletion email to {Email}", userEmail);
             // Continue with deletion even if email fails - GDPR requires we delete the data
         }
 
         // Delete the user (cascade delete will handle related data)
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("DeleteAccountAsync: Account deleted for {Email}", userEmail);
 
         // Send notification to admin (fire and forget, after successful deletion)
         _ = Task.Run(() => _emailService.SendAccountDeletionNotificationAsync(userEmail, firstName, lastName));
