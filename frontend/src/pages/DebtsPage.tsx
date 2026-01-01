@@ -14,9 +14,9 @@ import {
   X,
   CreditCard,
   Home,
-  Building2,
   Car,
-  GraduationCap
+  GraduationCap,
+  Building2
 } from 'lucide-react';
 
 const debtTypeLabels: Record<DebtType, string> = {
@@ -30,23 +30,21 @@ const debtTypeLabels: Record<DebtType, string> = {
   [DebtType.Other]: 'Övrigt',
 };
 
+// Types that typically have an asset value
+const assetDebtTypes = [DebtType.Mortgage, DebtType.CarLoan];
+
 export default function DebtsPage() {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    lender: '',
     type: DebtType.Mortgage,
-    originalAmount: 0,
     currentBalance: 0,
     assetValue: undefined as number | undefined,
     interestRate: 0,
+    amortizationRate: undefined as number | undefined,
     monthlyPayment: undefined as number | undefined,
-    monthlyAmortization: undefined as number | undefined,
-    notes: '',
-    sortOrder: 0
   });
 
   useEffect(() => {
@@ -65,13 +63,32 @@ export default function DebtsPage() {
     }
   };
 
+  // Calculate monthly values in real-time
+  const calculatedMonthlyInterest = formData.currentBalance * (formData.interestRate / 100) / 12;
+  const calculatedMonthlyAmortization = formData.amortizationRate 
+    ? formData.currentBalance * (formData.amortizationRate / 100) / 12 
+    : 0;
+  const calculatedEquity = formData.assetValue 
+    ? formData.assetValue - formData.currentBalance 
+    : 0;
+  const showAssetField = assetDebtTypes.includes(formData.type);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload = {
+        type: formData.type,
+        currentBalance: formData.currentBalance,
+        assetValue: formData.assetValue,
+        interestRate: formData.interestRate,
+        amortizationRate: formData.amortizationRate,
+        monthlyPayment: formData.monthlyPayment,
+      };
+      
       if (editingDebt) {
-        await personalFinanceApi.updateDebt(editingDebt.id, { ...formData, isActive: true });
+        await personalFinanceApi.updateDebt(editingDebt.id, { ...payload, isActive: true });
       } else {
-        await personalFinanceApi.createDebt(formData);
+        await personalFinanceApi.createDebt(payload);
       }
       await loadData();
       resetForm();
@@ -93,17 +110,12 @@ export default function DebtsPage() {
   const handleEdit = (debt: Debt) => {
     setEditingDebt(debt);
     setFormData({
-      name: debt.name,
-      lender: debt.lender || '',
       type: debt.type,
-      originalAmount: debt.originalAmount,
       currentBalance: debt.currentBalance,
       assetValue: debt.assetValue,
       interestRate: debt.interestRate,
+      amortizationRate: debt.amortizationRate,
       monthlyPayment: debt.monthlyPayment,
-      monthlyAmortization: debt.monthlyAmortization,
-      notes: debt.notes || '',
-      sortOrder: debt.sortOrder
     });
     setShowForm(true);
   };
@@ -112,22 +124,19 @@ export default function DebtsPage() {
     setShowForm(false);
     setEditingDebt(null);
     setFormData({
-      name: '',
-      lender: '',
       type: DebtType.Mortgage,
-      originalAmount: 0,
       currentBalance: 0,
       assetValue: undefined,
       interestRate: 0,
+      amortizationRate: undefined,
       monthlyPayment: undefined,
-      monthlyAmortization: undefined,
-      notes: '',
-      sortOrder: 0
     });
   };
 
   const totalDebt = debts.reduce((sum, d) => sum + d.currentBalance, 0);
   const totalEquity = debts.reduce((sum, d) => sum + d.equityInAsset, 0);
+  const totalMonthlyInterest = debts.reduce((sum, d) => sum + d.monthlyInterest, 0);
+  const totalMonthlyAmortization = debts.reduce((sum, d) => sum + d.calculatedMonthlyAmortization, 0);
 
   const getDebtIcon = (type: DebtType) => {
     const iconClass = "h-4 w-4";
@@ -165,18 +174,22 @@ export default function DebtsPage() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="card p-6 bg-neutral-900 text-white">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="card p-5 bg-neutral-900 text-white">
           <p className="text-neutral-400 text-sm mb-1">Total skuld</p>
-          <p className="text-3xl font-semibold">{formatCurrency(totalDebt)}</p>
+          <p className="text-2xl font-semibold">{formatCurrency(totalDebt)}</p>
         </div>
         <div className="card p-5">
-          <p className="text-sm text-neutral-500 mb-1">Eget kapital i tillgångar</p>
+          <p className="text-sm text-neutral-500 mb-1">Eget kapital</p>
           <p className="text-2xl font-semibold text-neutral-900">{formatCurrency(totalEquity)}</p>
         </div>
         <div className="card p-5">
-          <p className="text-sm text-neutral-500 mb-1">Antal skulder</p>
-          <p className="text-2xl font-semibold text-neutral-900">{debts.length}</p>
+          <p className="text-sm text-neutral-500 mb-1">Månadsränta</p>
+          <p className="text-2xl font-semibold text-neutral-900">{formatCurrency(totalMonthlyInterest)}</p>
+        </div>
+        <div className="card p-5">
+          <p className="text-sm text-neutral-500 mb-1">Månadsamortering</p>
+          <p className="text-2xl font-semibold text-neutral-900">{formatCurrency(totalMonthlyAmortization)}</p>
         </div>
       </div>
 
@@ -191,65 +204,45 @@ export default function DebtsPage() {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <LabelWithTooltip 
-                label="Namn" 
-                tooltip="Ge lånet ett namn så du lätt känner igen det, t.ex. 'Bostadslån Nordea'" 
-                required 
-              />
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="input"
-                placeholder="T.ex. Bostadslån"
-                required
-              />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Row 1: Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <LabelWithTooltip 
+                  label="Typ av lån" 
+                  tooltip="Vilken typ av lån är det?" 
+                  required
+                />
+                <select
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: parseInt(e.target.value) })}
+                  className="input"
+                >
+                  {Object.entries(debtTypeLabels).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
+              {showAssetField && (
+                <div>
+                  <LabelWithTooltip 
+                    label={formData.type === DebtType.Mortgage ? "Bostadens marknadsvärde" : "Tillgångens värde"} 
+                    tooltip="Vad är tillgången värd idag? Används för att räkna ut ditt eget kapital." 
+                  />
+                  <FormattedNumberInput
+                    value={formData.assetValue || 0}
+                    onChange={(val) => setFormData({ ...formData, assetValue: val || undefined })}
+                    suffix="kr"
+                  />
+                </div>
+              )}
             </div>
+
+            {/* Row 2: Loan amount */}
             <div>
               <LabelWithTooltip 
-                label="Långivare" 
-                tooltip="Banken eller företaget som du lånat pengar av" 
-              />
-              <input
-                type="text"
-                value={formData.lender}
-                onChange={(e) => setFormData({ ...formData, lender: e.target.value })}
-                className="input"
-                placeholder="T.ex. SBAB, Nordea, Handelsbanken"
-              />
-            </div>
-            <div>
-              <LabelWithTooltip 
-                label="Typ" 
-                tooltip="Vilken typ av lån är det? Detta hjälper till att kategorisera dina skulder" 
-              />
-              <select
-                value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: parseInt(e.target.value) })}
-                className="input"
-              >
-                {Object.entries(debtTypeLabels).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <LabelWithTooltip 
-                label="Lånat belopp (ursprungligt)" 
-                tooltip="Hur mycket lånade du från början? T.ex. om du tog ett lån på 3 000 000 kr" 
-              />
-              <FormattedNumberInput
-                value={formData.originalAmount}
-                onChange={(val) => setFormData({ ...formData, originalAmount: val })}
-                suffix="kr"
-              />
-            </div>
-            <div>
-              <LabelWithTooltip 
-                label="Kvar att betala" 
-                tooltip="Hur mycket är kvar att betala på lånet idag? Hittas på kontoutdrag eller i din bank-app" 
+                label="Kvarvarande lån" 
+                tooltip="Hur mycket är kvar att betala på lånet idag?" 
                 required 
               />
               <FormattedNumberInput
@@ -258,38 +251,60 @@ export default function DebtsPage() {
                 suffix="kr"
               />
             </div>
-            <div>
-              <LabelWithTooltip 
-                label="Bostadens marknadsvärde" 
-                tooltip="Vad är bostaden värd idag? Används för att räkna ut ditt eget kapital (bostadens värde minus kvarvarande lån)" 
-              />
-              <FormattedNumberInput
-                value={formData.assetValue || 0}
-                onChange={(val) => setFormData({ ...formData, assetValue: val || undefined })}
-                suffix="kr"
-              />
-            </div>
-            <div>
-              <LabelWithTooltip 
-                label="Ränta" 
-                tooltip="Din aktuella räntesats på lånet, t.ex. 2.72%. Hittas på ditt kontoutdrag" 
-              />
-              <div className="relative">
-                <input
-                  type="number"
-                  value={formData.interestRate || ''}
-                  onChange={(e) => setFormData({ ...formData, interestRate: parseFloat(e.target.value) || 0 })}
-                  className="input pr-10"
-                  step="0.01"
-                  placeholder="2.72"
+
+            {/* Row 3: Interest and Amortization rates */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <LabelWithTooltip 
+                  label="Ränta" 
+                  tooltip="Din räntesats i procent, t.ex. 2.72%" 
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">%</span>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={formData.interestRate || ''}
+                    onChange={(e) => setFormData({ ...formData, interestRate: parseFloat(e.target.value) || 0 })}
+                    className="input pr-10"
+                    step="0.01"
+                    placeholder="2.72"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">%</span>
+                </div>
+                {formData.interestRate > 0 && formData.currentBalance > 0 && (
+                  <p className="text-sm text-neutral-500 mt-1">
+                    = {formatCurrency(calculatedMonthlyInterest)}/mån
+                  </p>
+                )}
+              </div>
+              <div>
+                <LabelWithTooltip 
+                  label="Amortering" 
+                  tooltip="Din amorteringstakt i procent per år, t.ex. 2%" 
+                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={formData.amortizationRate || ''}
+                    onChange={(e) => setFormData({ ...formData, amortizationRate: parseFloat(e.target.value) || undefined })}
+                    className="input pr-10"
+                    step="0.01"
+                    placeholder="2"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">%</span>
+                </div>
+                {formData.amortizationRate && formData.amortizationRate > 0 && formData.currentBalance > 0 && (
+                  <p className="text-sm text-neutral-500 mt-1">
+                    = {formatCurrency(calculatedMonthlyAmortization)}/mån
+                  </p>
+                )}
               </div>
             </div>
+
+            {/* Row 4: Monthly fee */}
             <div>
               <LabelWithTooltip 
-                label="Avgift/mån (ej ränta/amortering)" 
-                tooltip="Fasta månadsavgifter utöver ränta och amortering, t.ex. bostadsrättsavgift, försäkring, eller administrationsavgifter" 
+                label="Avgift/månad" 
+                tooltip="Fasta månadsavgifter utöver ränta och amortering, t.ex. bostadsrättsavgift" 
               />
               <FormattedNumberInput
                 value={formData.monthlyPayment || 0}
@@ -297,18 +312,23 @@ export default function DebtsPage() {
                 suffix="kr"
               />
             </div>
-            <div>
-              <LabelWithTooltip 
-                label="Amortering/mån" 
-                tooltip="Hur mycket betalar du av på lånet varje månad? Detta minskar din skuld" 
-              />
-              <FormattedNumberInput
-                value={formData.monthlyAmortization || 0}
-                onChange={(val) => setFormData({ ...formData, monthlyAmortization: val || undefined })}
-                suffix="kr"
-              />
-            </div>
-            <div className="md:col-span-3 flex justify-end gap-3">
+
+            {/* Equity display */}
+            {showAssetField && formData.assetValue && formData.assetValue > 0 && (
+              <div className="bg-neutral-100 p-4 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-neutral-600">Ditt eget kapital i tillgången:</span>
+                  <span className="text-lg font-semibold text-neutral-900">
+                    {formatCurrency(calculatedEquity)}
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 mt-1">
+                  {formatCurrency(formData.assetValue)} (värde) − {formatCurrency(formData.currentBalance)} (lån)
+                </p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 pt-2">
               <button type="button" onClick={resetForm} className="px-4 py-2 text-sm text-neutral-600 hover:text-neutral-900">
                 Avbryt
               </button>
@@ -331,22 +351,33 @@ export default function DebtsPage() {
                   {getDebtIcon(debt.type)}
                 </div>
                 <div>
-                  <h3 className="font-medium text-neutral-900">{debt.name}</h3>
-                  <p className="text-sm text-neutral-500">{debt.lender || debtTypeLabels[debt.type]}</p>
-                  {debt.interestRate > 0 && (
-                    <p className="text-xs text-neutral-400 mt-1">Ränta: {debt.interestRate}%</p>
-                  )}
+                  <h3 className="font-medium text-neutral-900">{debtTypeLabels[debt.type]}</h3>
+                  <div className="text-sm text-neutral-500 space-y-0.5 mt-1">
+                    {debt.interestRate > 0 && (
+                      <p>Ränta: {debt.interestRate}% ({formatCurrency(debt.monthlyInterest)}/mån)</p>
+                    )}
+                    {debt.calculatedMonthlyAmortization > 0 && (
+                      <p>Amortering: {debt.amortizationRate}% ({formatCurrency(debt.calculatedMonthlyAmortization)}/mån)</p>
+                    )}
+                    {debt.monthlyPayment && debt.monthlyPayment > 0 && (
+                      <p>Avgift: {formatCurrency(debt.monthlyPayment)}/mån</p>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <div className="text-right">
                   <p className="text-xl font-semibold text-neutral-900">{formatCurrency(debt.currentBalance)}</p>
                   {debt.assetValue && debt.assetValue > 0 && (
-                    <p className="text-sm text-neutral-600">
-                      Eget kapital: {formatCurrency(debt.equityInAsset)}
-                    </p>
+                    <>
+                      <p className="text-sm text-neutral-600">
+                        Eget kapital: {formatCurrency(debt.equityInAsset)}
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        Tillgångsvärde: {formatCurrency(debt.assetValue)}
+                      </p>
+                    </>
                   )}
-                  <p className="text-xs text-neutral-400">{debt.remainingPercentage.toFixed(1)}% kvar</p>
                 </div>
                 <div className="flex gap-1">
                   <button onClick={() => handleEdit(debt)} className="p-2 text-neutral-400 hover:text-neutral-600">
@@ -358,20 +389,6 @@ export default function DebtsPage() {
                 </div>
               </div>
             </div>
-            {/* Progress bar */}
-            {debt.originalAmount > 0 && (
-              <div className="mt-4">
-                <div className="h-1.5 bg-neutral-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-neutral-900 transition-all"
-                    style={{ width: `${100 - debt.remainingPercentage}%` }}
-                  />
-                </div>
-                <p className="text-xs text-neutral-500 mt-1">
-                  {formatCurrency(debt.originalAmount - debt.currentBalance)} av {formatCurrency(debt.originalAmount)} avbetalat
-                </p>
-              </div>
-            )}
           </div>
         ))}
       </div>

@@ -482,8 +482,11 @@ export interface Debt {
   currentBalance: number;
   assetValue?: number;
   interestRate: number;
+  amortizationRate?: number;
   monthlyPayment?: number;
   monthlyAmortization?: number;
+  monthlyInterest: number;
+  calculatedMonthlyAmortization: number;
   startDate?: string;
   endDate?: string;
   nextPaymentDate?: string;

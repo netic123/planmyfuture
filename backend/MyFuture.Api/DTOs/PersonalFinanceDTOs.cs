@@ -85,8 +85,11 @@ public record DebtDto(
     decimal CurrentBalance,
     decimal? AssetValue,
     decimal InterestRate,
+    decimal? AmortizationRate,
     decimal? MonthlyPayment,
     decimal? MonthlyAmortization,
+    decimal MonthlyInterest,
+    decimal CalculatedMonthlyAmortization,
     DateTime? StartDate,
     DateTime? EndDate,
     DateTime? NextPaymentDate,
@@ -99,14 +102,15 @@ public record DebtDto(
 );
 
 public record CreateDebtRequest(
-    string Name,
-    string? Lender,
     DebtType Type,
-    decimal OriginalAmount,
     decimal CurrentBalance,
     decimal? AssetValue = null,
     decimal InterestRate = 0,
+    decimal? AmortizationRate = null,
     decimal? MonthlyPayment = null,
+    string? Name = null,
+    string? Lender = null,
+    decimal OriginalAmount = 0,
     decimal? MonthlyAmortization = null,
     DateTime? StartDate = null,
     DateTime? EndDate = null,
@@ -117,22 +121,23 @@ public record CreateDebtRequest(
 );
 
 public record UpdateDebtRequest(
-    string Name,
-    string? Lender,
     DebtType Type,
-    decimal OriginalAmount,
     decimal CurrentBalance,
     decimal? AssetValue,
     decimal InterestRate,
+    decimal? AmortizationRate,
     decimal? MonthlyPayment,
-    decimal? MonthlyAmortization,
-    DateTime? StartDate,
-    DateTime? EndDate,
-    DateTime? NextPaymentDate,
-    string? Color,
-    int SortOrder,
-    bool IsActive,
-    string? Notes
+    string? Name = null,
+    string? Lender = null,
+    decimal OriginalAmount = 0,
+    decimal? MonthlyAmortization = null,
+    DateTime? StartDate = null,
+    DateTime? EndDate = null,
+    DateTime? NextPaymentDate = null,
+    string? Color = null,
+    int SortOrder = 0,
+    bool IsActive = true,
+    string? Notes = null
 );
 
 // === FinancialGoal DTOs ===

@@ -26,8 +26,15 @@ public class Debt
     
     // Ränta och amortering
     public decimal InterestRate { get; set; }    // Räntesats i %
-    public decimal? MonthlyPayment { get; set; } // Månadskostnad
-    public decimal? MonthlyAmortization { get; set; }  // Amortering per månad
+    public decimal? AmortizationRate { get; set; }  // Amorteringstakt i % (för auto-beräkning)
+    public decimal? MonthlyPayment { get; set; } // Avgift/månad (ej ränta/amortering)
+    public decimal? MonthlyAmortization { get; set; }  // Amortering per månad (auto-beräknad eller manuell)
+    
+    // Beräknade månadskostnader
+    public decimal MonthlyInterest => CurrentBalance * (InterestRate / 100) / 12;
+    public decimal CalculatedMonthlyAmortization => AmortizationRate.HasValue 
+        ? CurrentBalance * (AmortizationRate.Value / 100) / 12 
+        : MonthlyAmortization ?? 0;
     
     // Datum
     public DateTime? StartDate { get; set; }
