@@ -49,11 +49,11 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
           {/* Language switcher */}
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-neutral-500 transition-colors"
             title={i18n.language === 'sv' ? 'Switch to English' : 'Byt till svenska'}
           >
             <Globe className="h-4 w-4" />
-            <span className="font-medium">{i18n.language === 'sv' ? 'EN' : 'SV'}</span>
+            <span>{i18n.language === 'sv' ? 'EN' : 'SV'}</span>
           </button>
           {/* Login link */}
           <Link 
@@ -67,7 +67,7 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
 
       {/* Step indicator */}
       <div className="px-6 pb-2">
-        <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="flex items-center justify-center gap-1 sm:gap-2 mb-2">
           {Array.from({ length: totalSteps }, (_, i) => {
             const stepNum = i + 1;
             const isActive = stepNum === currentStep;
@@ -76,7 +76,7 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
             return (
               <div key={i} className="flex items-center">
                 <div 
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-all ${
                     isActive 
                       ? 'bg-white text-black' 
                       : isCompleted 
@@ -88,7 +88,7 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
                 </div>
                 {i < totalSteps - 1 && (
                   <div 
-                    className={`w-8 h-0.5 ${
+                    className={`w-4 sm:w-8 h-0.5 ${
                       isCompleted ? 'bg-white' : 'bg-neutral-800'
                     }`}
                   />
