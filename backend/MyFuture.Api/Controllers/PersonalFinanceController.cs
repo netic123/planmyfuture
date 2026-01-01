@@ -32,6 +32,7 @@ public class PersonalFinanceController : ControllerBase
     // === Budget ===
     
     [HttpGet("budget")]
+    [HttpGet("budget/summary")] // Alias for backwards compatibility
     public async Task<ActionResult<BudgetSummary>> GetBudgetSummary()
     {
         var summary = await _financeService.GetBudgetSummaryAsync(GetUserId());
