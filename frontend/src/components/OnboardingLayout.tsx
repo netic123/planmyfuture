@@ -10,16 +10,35 @@ interface OnboardingLayoutProps {
   subtitle?: string;
 }
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function OnboardingLayout({ children, title, subtitle }: OnboardingLayoutProps) {
   const { currentStep, totalSteps } = useOnboarding();
   const { t, i18n } = useTranslation();
 
   const stepKeys = ['salary', 'expenses', 'mortgage', 'debts', 'assets', 'account'];
 
-  const toggleLanguage = () => {
+  const toggleLanguage = async () => {
     const newLang = i18n.language === 'sv' ? 'en' : 'sv';
     i18n.changeLanguage(newLang);
     localStorage.setItem('language', newLang);
+    
+    // If user is logged in, save to backend
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await fetch(`${API_URL}/api/auth/language`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ language: newLang }),
+        });
+      } catch (error) {
+        console.error('Failed to save language preference:', error);
+      }
+    }
   };
 
   return (
