@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../../context/OnboardingContext';
 import OnboardingLayout from '../../components/OnboardingLayout';
 import { ArrowLeft, Check, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -9,6 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function SignupStep() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data, updateData } = useOnboarding();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -156,13 +158,13 @@ export default function SignupStep() {
     // Save other debts
     for (const debt of data.debts) {
       const debtTypeMap: Record<string, number> = {
-        'Studielån': 1,
-        'Billån': 2,
-        'Privatlån': 3,
-        'Kreditkort': 4,
-        'Skatteverket': 5,
-        'Till person': 3, // Uses PersonalLoan type, name field has the person
-        'Övrigt': 7,
+        'studentLoan': 1,
+        'carLoan': 2,
+        'personalLoan': 3,
+        'creditCard': 4,
+        'taxAuthority': 5,
+        'toPerson': 3, // Uses PersonalLoan type, name field has the person
+        'other': 7,
       };
       await fetch(`${API_URL}/api/personal-finance/debts`, {
         method: 'POST',
@@ -180,11 +182,11 @@ export default function SignupStep() {
     // Save assets
     for (const asset of data.assets) {
       const categoryMap: Record<string, number> = {
-        'Sparkonto': 2,
-        'Investeringar': 3,
-        'Pension': 4,
-        'Kontanter': 0,
-        'Övrigt': 8,
+        'savings': 2,
+        'investments': 3,
+        'pension': 4,
+        'cash': 0,
+        'other': 8,
       };
       await fetch(`${API_URL}/api/personal-finance/accounts`, {
         method: 'POST',
@@ -200,24 +202,24 @@ export default function SignupStep() {
 
   return (
     <OnboardingLayout 
-      title="Spara din ekonomi"
-      subtitle="Skapa ett konto för att se din översikt"
+      title={t('onboarding.signup.title')}
+      subtitle={t('onboarding.signup.subtitle')}
     >
       {/* Summary */}
       <div className="bg-neutral-900 text-white p-5 rounded-xl mb-2">
-        <p className="text-neutral-400 text-sm mb-1">Din nettoförmögenhet</p>
+        <p className="text-neutral-400 text-sm mb-1">{t('onboarding.signup.netWorth')}</p>
         <p className="text-3xl font-semibold">{formatCurrency(netWorth)}</p>
         <div className="flex gap-6 mt-3 text-sm">
           <div>
-            <p className="text-neutral-400">Tillgångar</p>
+            <p className="text-neutral-400">{t('onboarding.signup.assets')}</p>
             <p className="font-medium">{formatCurrency(totalAssets)}</p>
           </div>
           <div>
-            <p className="text-neutral-400">Skulder</p>
+            <p className="text-neutral-400">{t('onboarding.signup.debts')}</p>
             <p className="font-medium">{formatCurrency(totalDebts)}</p>
           </div>
           <div>
-            <p className="text-neutral-400">Kvar/mån</p>
+            <p className="text-neutral-400">{t('onboarding.signup.leftPerMonth')}</p>
             <p className="font-medium">{formatCurrency(monthlyBalance)}</p>
           </div>
         </div>
@@ -225,25 +227,25 @@ export default function SignupStep() {
 
       <form onSubmit={handleSignup} className="space-y-4">
         <div>
-          <label className="text-sm text-neutral-600 mb-1 block">E-post</label>
+          <label className="text-sm text-neutral-600 mb-1 block">{t('onboarding.signup.email')}</label>
           <input
             type="email"
             value={data.email}
             onChange={(e) => updateData({ email: e.target.value })}
-            placeholder="din@email.se"
+            placeholder={t('onboarding.signup.emailPlaceholder')}
             required
             className="w-full px-4 py-3 border border-neutral-200 rounded-xl"
           />
         </div>
 
         <div>
-          <label className="text-sm text-neutral-600 mb-1 block">Lösenord</label>
+          <label className="text-sm text-neutral-600 mb-1 block">{t('onboarding.signup.password')}</label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
               value={data.password}
               onChange={(e) => updateData({ password: e.target.value })}
-              placeholder="Minst 6 tecken"
+              placeholder={t('onboarding.signup.passwordPlaceholder')}
               required
               minLength={6}
               className="w-full px-4 py-3 border border-neutral-200 rounded-xl pr-12"
@@ -279,7 +281,7 @@ export default function SignupStep() {
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <>
-                Skapa konto
+                {t('onboarding.signup.createAccount')}
                 <Check className="h-5 w-5" />
               </>
             )}
@@ -289,4 +291,3 @@ export default function SignupStep() {
     </OnboardingLayout>
   );
 }
-

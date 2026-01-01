@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../context/OnboardingContext';
+import { Globe } from 'lucide-react';
 
 interface OnboardingLayoutProps {
   children: ReactNode;
@@ -8,29 +10,41 @@ interface OnboardingLayoutProps {
   subtitle?: string;
 }
 
-const stepLabels = [
-  'Lön',
-  'Utgifter', 
-  'Bostadslån',
-  'Skulder',
-  'Tillgångar',
-  'Konto'
-];
-
 export default function OnboardingLayout({ children, title, subtitle }: OnboardingLayoutProps) {
   const { currentStep, totalSteps } = useOnboarding();
+  const { t, i18n } = useTranslation();
+
+  const stepKeys = ['salary', 'expenses', 'mortgage', 'debts', 'assets', 'account'];
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'sv' ? 'en' : 'sv';
+    i18n.changeLanguage(newLang);
+    localStorage.setItem('language', newLang);
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
-      {/* Header with login link */}
+      {/* Header with login link and language switcher */}
       <div className="px-6 py-4 flex justify-between items-center">
-        <span className="text-lg font-semibold text-neutral-900">Min Ekonomi</span>
-        <Link 
-          to="/login" 
-          className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
-        >
-          Har du redan ett konto? <span className="font-medium underline">Logga in</span>
-        </Link>
+        <span className="text-lg font-semibold text-neutral-900">{t('onboarding.appName')}</span>
+        <div className="flex items-center gap-4">
+          {/* Language switcher */}
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-1.5 text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+            title={i18n.language === 'sv' ? 'Switch to English' : 'Byt till svenska'}
+          >
+            <Globe className="h-4 w-4" />
+            <span className="font-medium">{i18n.language === 'sv' ? 'EN' : 'SV'}</span>
+          </button>
+          {/* Login link */}
+          <Link 
+            to="/login" 
+            className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+          >
+            {t('onboarding.haveAccount')} <span className="font-medium underline">{t('onboarding.login')}</span>
+          </Link>
+        </div>
       </div>
 
       {/* Step indicator */}
@@ -66,7 +80,7 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
           })}
         </div>
         <p className="text-center text-sm text-neutral-500">
-          Steg {currentStep} av {totalSteps}: <span className="font-medium text-neutral-700">{stepLabels[currentStep - 1]}</span>
+          {t('onboarding.step')} {currentStep} {t('onboarding.of')} {totalSteps}: <span className="font-medium text-neutral-700">{t(`onboarding.steps.${stepKeys[currentStep - 1]}`)}</span>
         </p>
       </div>
 
