@@ -506,14 +506,14 @@ export default function Dashboard() {
               <div className="mt-3 p-3 bg-neutral-50 rounded-lg space-y-2">
                 <input
                   type="text"
-                  placeholder="Namn"
+                  placeholder={t('dashboard.namePlaceholder')}
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
                   className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm"
                 />
                 <input
                   type="number"
-                  placeholder="Belopp"
+                  placeholder={t('dashboard.amountPlaceholder')}
                   value={newItemAmount || ''}
                   onChange={(e) => setNewItemAmount(parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm"
@@ -532,14 +532,14 @@ export default function Dashboard() {
                     onClick={resetAddForm}
                     className="flex-1 py-2 text-sm text-neutral-600 hover:bg-neutral-100 rounded-lg"
                   >
-                    Avbryt
+                    {t('dashboard.cancel')}
                   </button>
                   <button
                     onClick={onAdd}
                     disabled={saving || !newItemName || newItemAmount <= 0}
                     className="flex-1 py-2 text-sm bg-neutral-900 text-white rounded-lg disabled:opacity-50"
                   >
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : 'Lägg till'}
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t('dashboard.add')}
                   </button>
                 </div>
               </div>
@@ -585,7 +585,7 @@ export default function Dashboard() {
       <main className="max-w-3xl mx-auto px-6 py-12 space-y-6">
         {/* Net Worth Card */}
         <div className="bg-neutral-900 text-white rounded-2xl p-8">
-          <p className="text-neutral-400 text-sm mb-1">Nettoförmögenhet</p>
+          <p className="text-neutral-400 text-sm mb-1">{t('dashboard.netWorth')}</p>
           <p className="text-4xl font-semibold tracking-tight">
             {formatCurrency(summary?.netWorth || 0)}
           </p>
@@ -593,13 +593,13 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-white" />
               <span className="text-neutral-400 text-sm">
-                Tillgångar: {formatCurrency(summary?.totalAssets || 0)}
+                {t('dashboard.totalAssets')}: {formatCurrency(summary?.totalAssets || 0)}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-neutral-500" />
               <span className="text-neutral-400 text-sm">
-                Skulder: {formatCurrency(summary?.totalDebts || 0)}
+                {t('dashboard.totalDebts')}: {formatCurrency(summary?.totalDebts || 0)}
               </span>
             </div>
           </div>
@@ -611,7 +611,7 @@ export default function Dashboard() {
           {renderExpandableCard(
             'income',
             <ArrowUpRight className="h-4 w-4 text-green-500" />,
-            'Inkomst/mån',
+            t('dashboard.monthlyIncome'),
             summary?.totalMonthlyIncome || 0,
             incomeItems,
             (item) => (
@@ -626,14 +626,14 @@ export default function Dashboard() {
               </div>
             ),
             () => addBudgetItem(true),
-            'Lägg till inkomst'
+            t('dashboard.addIncome')
           )}
 
           {/* Expenses */}
           {renderExpandableCard(
             'expenses',
             <ArrowDownRight className="h-4 w-4 text-red-500" />,
-            'Utgifter/mån',
+            t('dashboard.monthlyExpenses'),
             summary?.totalMonthlyExpenses || 0,
             expenseItems,
             (item) => (
@@ -648,14 +648,14 @@ export default function Dashboard() {
               </div>
             ),
             () => addBudgetItem(false),
-            'Lägg till utgift'
+            t('dashboard.addExpense')
           )}
 
           {/* Debts */}
           {renderExpandableCard(
             'debts',
             <CreditCard className="h-4 w-4 text-orange-500" />,
-            'Skulder',
+            t('dashboard.totalDebts'),
             summary?.totalDebts || 0,
             debts,
             (debt) => (
@@ -675,14 +675,14 @@ export default function Dashboard() {
               </div>
             ),
             addDebt,
-            'Lägg till skuld'
+            t('dashboard.addDebt')
           )}
 
           {/* Assets */}
           {renderExpandableCard(
             'assets',
             <Building className="h-4 w-4 text-blue-500" />,
-            'Tillgångar',
+            t('dashboard.totalAssets'),
             summary?.totalAssets || 0,
             assets,
             (asset) => (
@@ -697,7 +697,7 @@ export default function Dashboard() {
               </div>
             ),
             addAsset,
-            'Lägg till tillgång'
+            t('dashboard.addAsset')
           )}
         </div>
 
@@ -706,7 +706,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <PiggyBank className="h-5 w-5 text-neutral-400" />
-              <span className="text-neutral-600">Sparar per månad</span>
+              <span className="text-neutral-600">{t('dashboard.savingsPerMonth')}</span>
             </div>
             <span className={`text-2xl font-semibold ${(summary?.monthlyBalance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(summary?.monthlyBalance || 0)}
