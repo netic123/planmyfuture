@@ -208,7 +208,7 @@ export default function Dashboard() {
                     }}
                   />
                   <Tooltip 
-                    formatter={(value: number) => formatCurrency(value)}
+                    formatter={(value) => formatCurrency(Number(value) || 0)}
                     contentStyle={{ 
                       borderRadius: '8px', 
                       border: '1px solid #e5e5e5',
