@@ -88,7 +88,9 @@ export default function Dashboard() {
   
   // Edit states
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingSection, setEditingSection] = useState<'income' | 'expenses' | 'debts' | 'assets' | null>(null);
   const [editValue, setEditValue] = useState<number>(0);
+  const [editName, setEditName] = useState<string>('');
   const [saving, setSaving] = useState(false);
   
   // Add new item states (tracks which section's form is showing)
@@ -192,12 +194,21 @@ export default function Dashboard() {
       }
       return newSet;
     });
-    setEditingId(null);
+    cancelEdit();
   };
 
-  const startEdit = (id: number, value: number) => {
+  const startEdit = (id: number, name: string, value: number, section: 'income' | 'expenses' | 'debts' | 'assets') => {
     setEditingId(id);
+    setEditName(name);
     setEditValue(value);
+    setEditingSection(section);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditName('');
+    setEditValue(0);
+    setEditingSection(null);
   };
 
   const resetAddForm = () => {
@@ -209,7 +220,7 @@ export default function Dashboard() {
   };
 
   // Budget operations
-  const updateBudgetItem = async (id: number, amount: number) => {
+  const updateBudgetItem = async (id: number, name: string, amount: number) => {
     setSaving(true);
     const item = budgetItems.find(i => i.id === id);
     if (!item) return;
@@ -217,11 +228,10 @@ export default function Dashboard() {
     await fetch(`${API_URL}/api/personal-finance/budget/items/${id}`, {
       method: 'PUT',
       headers: getHeaders(),
-      body: JSON.stringify({ ...item, amount }),
+      body: JSON.stringify({ ...item, name, amount }),
     });
-    setBudgetItems(budgetItems.map(i => i.id === id ? { ...i, amount } : i));
-    setEditingId(null);
-    setSaving(false);
+    setBudgetItems(budgetItems.map(i => i.id === id ? { ...i, name, amount } : i));
+    cancelEdit();
     refreshSummary();
   };
 
@@ -260,7 +270,7 @@ export default function Dashboard() {
   };
 
   // Debt operations
-  const updateDebt = async (id: number, currentBalance: number) => {
+  const updateDebt = async (id: number, name: string, currentBalance: number) => {
     setSaving(true);
     const debt = debts.find(d => d.id === id);
     if (!debt) return;
@@ -268,11 +278,10 @@ export default function Dashboard() {
     await fetch(`${API_URL}/api/personal-finance/debts/${id}`, {
       method: 'PUT',
       headers: getHeaders(),
-      body: JSON.stringify({ ...debt, currentBalance }),
+      body: JSON.stringify({ ...debt, name, currentBalance }),
     });
-    setDebts(debts.map(d => d.id === id ? { ...d, currentBalance } : d));
-    setEditingId(null);
-    setSaving(false);
+    setDebts(debts.map(d => d.id === id ? { ...d, name, currentBalance } : d));
+    cancelEdit();
     refreshSummary();
   };
 
@@ -311,7 +320,7 @@ export default function Dashboard() {
   };
 
   // Asset operations
-  const updateAsset = async (id: number, balance: number) => {
+  const updateAsset = async (id: number, name: string, balance: number) => {
     setSaving(true);
     const asset = assets.find(a => a.id === id);
     if (!asset) return;
@@ -319,11 +328,10 @@ export default function Dashboard() {
     await fetch(`${API_URL}/api/personal-finance/accounts/${id}`, {
       method: 'PUT',
       headers: getHeaders(),
-      body: JSON.stringify({ ...asset, balance }),
+      body: JSON.stringify({ ...asset, name, balance }),
     });
-    setAssets(assets.map(a => a.id === id ? { ...a, balance } : a));
-    setEditingId(null);
-    setSaving(false);
+    setAssets(assets.map(a => a.id === id ? { ...a, name, balance } : a));
+    cancelEdit();
     refreshSummary();
   };
 
@@ -421,46 +429,72 @@ export default function Dashboard() {
     );
   }
 
-  const renderEditableAmount = (
-    id: number, 
-    currentValue: number, 
-    onSave: (id: number, value: number) => void,
-    prefix: string = ''
+  // Render editable row with both name and value
+  const renderEditableRow = (
+    id: number,
+    currentName: string,
+    currentValue: number,
+    section: 'income' | 'expenses' | 'debts' | 'assets',
+    onSave: (id: number, name: string, value: number) => void,
+    onDelete: (id: number) => void,
+    extraInfo?: React.ReactNode
   ) => {
-    if (editingId === id) {
+    const isEditing = editingId === id && editingSection === section;
+    
+    if (isEditing) {
       return (
-        <div className="flex items-center gap-2">
+        <div key={id} className="flex items-center justify-between py-2 px-3 bg-blue-50 rounded-lg border border-blue-200">
           <input
-            type="number"
-            value={editValue}
-            onChange={(e) => setEditValue(parseFloat(e.target.value) || 0)}
-            className="w-28 px-2 py-1 border border-neutral-300 rounded text-right text-sm"
-            autoFocus
+            type="text"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            className="flex-1 min-w-0 px-2 py-1 border border-neutral-300 rounded text-sm mr-2"
+            placeholder="Namn"
           />
-          <button 
-            onClick={() => onSave(id, editValue)} 
-            disabled={saving}
-            className="p-1 text-green-600 hover:bg-green-50 rounded"
-          >
-            <Check className="h-4 w-4" />
-          </button>
-          <button 
-            onClick={() => setEditingId(null)} 
-            className="p-1 text-neutral-400 hover:bg-neutral-100 rounded"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              value={editValue}
+              onChange={(e) => setEditValue(parseFloat(e.target.value) || 0)}
+              className="w-28 px-2 py-1 border border-neutral-300 rounded text-right text-sm"
+            />
+            <button 
+              onClick={() => onSave(id, editName, editValue)} 
+              disabled={saving}
+              className="p-1 text-green-600 hover:bg-green-100 rounded"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+            <button 
+              onClick={cancelEdit} 
+              className="p-1 text-neutral-400 hover:bg-neutral-100 rounded"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       );
     }
+    
     return (
-      <button 
-        onClick={() => startEdit(id, currentValue)}
-        className="flex items-center gap-1.5 group text-sm"
-      >
-        <span className="font-medium">{prefix}{formatCurrency(currentValue)}</span>
-        <Pencil className="h-3 w-3 text-neutral-300 group-hover:text-neutral-600" />
-      </button>
+      <div key={id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
+        <div className="flex items-center">
+          <span className="text-sm text-neutral-700">{currentName}</span>
+          {extraInfo}
+        </div>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => startEdit(id, currentName, currentValue, section)}
+            className="flex items-center gap-1.5 group text-sm"
+          >
+            <span className="font-medium">{formatCurrency(currentValue)}</span>
+            <Pencil className="h-3 w-3 text-neutral-300 group-hover:text-neutral-600" />
+          </button>
+          <button onClick={() => onDelete(id)} className="p-1 text-neutral-300 hover:text-red-500">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
     );
   };
 
@@ -618,16 +652,13 @@ export default function Dashboard() {
             t('dashboard.monthlyIncome'),
             summary?.totalMonthlyIncome || 0,
             incomeItems,
-            (item) => (
-              <div key={item.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
-                <span className="text-sm text-neutral-700">{item.name}</span>
-                <div className="flex items-center gap-2">
-                  {renderEditableAmount(item.id, item.amount, updateBudgetItem)}
-                  <button onClick={() => deleteBudgetItem(item.id)} className="p-1 text-neutral-300 hover:text-red-500">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
+            (item) => renderEditableRow(
+              item.id,
+              item.name,
+              item.amount,
+              'income',
+              updateBudgetItem,
+              deleteBudgetItem
             ),
             () => addBudgetItem(true),
             t('dashboard.addIncome')
@@ -640,16 +671,13 @@ export default function Dashboard() {
             t('dashboard.monthlyExpenses'),
             summary?.totalMonthlyExpenses || 0,
             expenseItems,
-            (item) => (
-              <div key={item.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
-                <span className="text-sm text-neutral-700">{item.name}</span>
-                <div className="flex items-center gap-2">
-                  {renderEditableAmount(item.id, item.amount, updateBudgetItem)}
-                  <button onClick={() => deleteBudgetItem(item.id)} className="p-1 text-neutral-300 hover:text-red-500">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
+            (item) => renderEditableRow(
+              item.id,
+              item.name,
+              item.amount,
+              'expenses',
+              updateBudgetItem,
+              deleteBudgetItem
             ),
             () => addBudgetItem(false),
             t('dashboard.addExpense')
@@ -662,21 +690,16 @@ export default function Dashboard() {
             t('dashboard.totalDebts'),
             summary?.totalDebts || 0,
             debts,
-            (debt) => (
-              <div key={debt.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
-                <div>
-                  <span className="text-sm text-neutral-700">{debt.name || getDebtTypeName(debt.type)}</span>
-                  {debt.interestRate > 0 && (
-                    <span className="text-xs text-neutral-400 ml-2">{debt.interestRate}%</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  {renderEditableAmount(debt.id, debt.currentBalance, updateDebt)}
-                  <button onClick={() => deleteDebt(debt.id)} className="p-1 text-neutral-300 hover:text-red-500">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
+            (debt) => renderEditableRow(
+              debt.id,
+              debt.name || getDebtTypeName(debt.type),
+              debt.currentBalance,
+              'debts',
+              updateDebt,
+              deleteDebt,
+              debt.interestRate > 0 ? (
+                <span className="text-xs text-neutral-400 ml-2">{debt.interestRate}%</span>
+              ) : undefined
             ),
             addDebt,
             t('dashboard.addDebt')
@@ -689,16 +712,13 @@ export default function Dashboard() {
             t('dashboard.totalAssets'),
             summary?.totalAssets || 0,
             allAssets,
-            (asset) => (
-              <div key={asset.id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
-                <span className="text-sm text-neutral-700">{asset.name}</span>
-                <div className="flex items-center gap-2">
-                  {renderEditableAmount(asset.id, asset.balance, updateAsset)}
-                  <button onClick={() => deleteAsset(asset.id)} className="p-1 text-neutral-300 hover:text-red-500">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
+            (asset) => renderEditableRow(
+              asset.id,
+              asset.name,
+              asset.balance,
+              'assets',
+              updateAsset,
+              deleteAsset
             ),
             addAsset,
             t('dashboard.addAsset')
