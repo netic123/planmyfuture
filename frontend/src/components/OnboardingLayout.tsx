@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useOnboarding } from '../context/OnboardingContext';
 
 interface OnboardingLayoutProps {
@@ -7,26 +8,66 @@ interface OnboardingLayoutProps {
   subtitle?: string;
 }
 
+const stepLabels = [
+  'Lön',
+  'Utgifter', 
+  'Bostadslån',
+  'Skulder',
+  'Tillgångar',
+  'Konto'
+];
+
 export default function OnboardingLayout({ children, title, subtitle }: OnboardingLayoutProps) {
   const { currentStep, totalSteps } = useOnboarding();
-  
-  const progress = (currentStep / totalSteps) * 100;
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
-      {/* Progress bar */}
-      <div className="w-full h-1 bg-neutral-200">
-        <div 
-          className="h-full bg-neutral-900 transition-all duration-500 ease-out"
-          style={{ width: `${progress}%` }}
-        />
+      {/* Header with login link */}
+      <div className="px-6 py-4 flex justify-between items-center">
+        <span className="text-lg font-semibold text-neutral-900">Min Ekonomi</span>
+        <Link 
+          to="/login" 
+          className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+        >
+          Har du redan ett konto? <span className="font-medium underline">Logga in</span>
+        </Link>
       </div>
 
       {/* Step indicator */}
-      <div className="px-6 py-4">
-        <span className="text-sm text-neutral-400">
-          Steg {currentStep} av {totalSteps}
-        </span>
+      <div className="px-6 pb-2">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          {Array.from({ length: totalSteps }, (_, i) => {
+            const stepNum = i + 1;
+            const isActive = stepNum === currentStep;
+            const isCompleted = stepNum < currentStep;
+            
+            return (
+              <div key={i} className="flex items-center">
+                <div 
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                    isActive 
+                      ? 'bg-neutral-900 text-white' 
+                      : isCompleted 
+                        ? 'bg-neutral-900 text-white' 
+                        : 'bg-neutral-200 text-neutral-500'
+                  }`}
+                >
+                  {isCompleted ? '✓' : stepNum}
+                </div>
+                {i < totalSteps - 1 && (
+                  <div 
+                    className={`w-8 h-0.5 ${
+                      isCompleted ? 'bg-neutral-900' : 'bg-neutral-200'
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-center text-sm text-neutral-500">
+          Steg {currentStep} av {totalSteps}: <span className="font-medium text-neutral-700">{stepLabels[currentStep - 1]}</span>
+        </p>
       </div>
 
       {/* Content */}
@@ -53,4 +94,3 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
     </div>
   );
 }
-
