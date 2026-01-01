@@ -44,8 +44,7 @@ export default function OnboardingLayout({ children, title, subtitle }: Onboardi
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* Header with login link and language switcher */}
-      <div className="px-6 py-4 flex justify-between items-center">
-        <span className="text-lg font-semibold text-neutral-900">{t('onboarding.appName')}</span>
+      <div className="px-6 py-4 flex justify-end items-center">
         <div className="flex items-center gap-4">
           {/* Language switcher */}
           <button
