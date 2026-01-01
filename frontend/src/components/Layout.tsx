@@ -28,11 +28,8 @@ export default function Layout() {
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
   const personalNavigation = [
-    { name: t('nav.myFinance'), href: '/' },
-    { name: t('nav.budget'), href: '/budget' },
-    { name: t('nav.assets'), href: '/assets' },
-    { name: t('nav.debts'), href: '/debts' },
-    { name: t('nav.taxPension'), href: '/tax-pension' },
+    { name: t('nav.overview'), href: '/' },
+    { name: t('nav.enterData'), href: '/enter-data' },
   ];
 
   const companyNavigation = [
@@ -130,7 +127,7 @@ export default function Layout() {
                 onClick={() => setFinanceMenuOpen(!financeMenuOpen)}
                 className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-neutral-500 uppercase tracking-wider hover:text-neutral-300"
               >
-                <span>My Finances</span>
+                <span>{t('nav.myFinance')}</span>
                 {financeMenuOpen ? (
                   <ChevronDown className="h-4 w-4" />
                 ) : (

@@ -128,25 +128,11 @@ export default function PersonalDashboard() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              to="/budget"
+              to="/enter-data"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
             >
               <Plus className="h-4 w-4" />
-              {t('dashboard.addBudget')}
-            </Link>
-            <Link
-              to="/assets"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-neutral-300 text-neutral-700 text-sm font-medium hover:bg-neutral-50 transition-colors"
-            >
-              <PiggyBank className="h-4 w-4" />
-              {t('dashboard.addAssets')}
-            </Link>
-            <Link
-              to="/debts"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-neutral-300 text-neutral-700 text-sm font-medium hover:bg-neutral-50 transition-colors"
-            >
-              <CreditCard className="h-4 w-4" />
-              {t('dashboard.addDebts')}
+              {t('dashboard.startEnteringData')}
             </Link>
           </div>
         </div>
@@ -387,7 +373,7 @@ export default function PersonalDashboard() {
                 <Calendar className="h-4 w-4 text-neutral-400" />
                 {t('dashboard.monthlyBudget')}
               </h2>
-              <Link to="/budget" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
+              <Link to="/enter-data" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
                 {t('dashboard.manage')}
               </Link>
             </div>
@@ -430,7 +416,7 @@ export default function PersonalDashboard() {
               <PiggyBank className="h-4 w-4 text-neutral-400" />
               {t('dashboard.assetsTitle')}
             </h2>
-            <Link to="/assets" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
+            <Link to="/enter-data" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
               {t('dashboard.manage')}
             </Link>
           </div>
@@ -473,7 +459,7 @@ export default function PersonalDashboard() {
               <CreditCard className="h-4 w-4 text-neutral-400" />
               {t('dashboard.debtsTitle')}
             </h2>
-            <Link to="/debts" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
+            <Link to="/enter-data" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
               {t('dashboard.manage')}
             </Link>
           </div>
