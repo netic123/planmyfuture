@@ -1,30 +1,12 @@
 {
   "app": {
     "name": "Plan My Future",
-    "tagline": "Din ekonomi & företag"
+    "tagline": "Din ekonomi"
   },
   "nav": {
-    "personalFinance": "Personlig Ekonomi",
     "myFinance": "Min Ekonomi",
-    "budget": "Budget",
-    "assets": "Tillgångar",
-    "debts": "Skulder",
-    "goals": "Mål",
-    "taxPension": "Skatt & Pension",
-    "myBusiness": "MittBolag",
     "overview": "Översikt",
-    "enterData": "Mina uppgifter",
-    "invoices": "Fakturor",
-    "expenses": "Utlägg",
-    "customers": "Kunder",
-    "accounting": "Bokföring",
-    "employees": "Anställda",
-    "salaries": "Lön",
-    "vat": "Moms",
-    "reports": "Rapporter",
-    "yearEnd": "Bokslut & Skatt",
-    "selectCompany": "Välj företag",
-    "addCompany": "+ Lägg till företag",
+    "myDetails": "Mina uppgifter",
     "logout": "Logga ut"
   },
   "dashboard": {
@@ -126,12 +108,6 @@
   "language": {
     "en": "English",
     "sv": "Svenska"
-  },
-  "gig": {
-    "findGigs": "Hitta uppdrag",
-    "postGig": "Publicera uppdrag",
-    "myGigs": "Mina uppdrag",
-    "myProfile": "Min profil"
   },
   "login": {
     "signInToAccount": "Logga in på ditt konto",

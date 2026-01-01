@@ -1,30 +1,12 @@
 {
   "app": {
     "name": "Plan My Future",
-    "tagline": "Your finances & business"
+    "tagline": "Your finances"
   },
   "nav": {
-    "personalFinance": "Personal Finance",
     "myFinance": "My Finances",
-    "budget": "Budget",
-    "assets": "Assets",
-    "debts": "Debts",
-    "goals": "Goals",
-    "taxPension": "Tax & Pension",
-    "myBusiness": "MyBusiness",
     "overview": "Overview",
-    "enterData": "My Details",
-    "invoices": "Invoices",
-    "expenses": "Expenses",
-    "customers": "Customers",
-    "accounting": "Accounting",
-    "employees": "Employees",
-    "salaries": "Salaries",
-    "vat": "VAT",
-    "reports": "Reports",
-    "yearEnd": "Year-End & Tax",
-    "selectCompany": "Select company",
-    "addCompany": "+ Add company",
+    "myDetails": "My Details",
     "logout": "Log out"
   },
   "dashboard": {
@@ -126,12 +108,6 @@
   "language": {
     "en": "English",
     "sv": "Svenska"
-  },
-  "gig": {
-    "findGigs": "Find gigs",
-    "postGig": "Post gig",
-    "myGigs": "My gigs",
-    "myProfile": "My profile"
   },
   "login": {
     "signInToAccount": "Sign in to your account",
