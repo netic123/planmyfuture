@@ -23,9 +23,16 @@ export default function SignupStep() {
   const totalExpenses = data.expenses.reduce((sum, e) => sum + e.amount, 0) 
     + monthlyMortgageInterest 
     + data.mortgageAmortization;
-  const totalAssets = data.assets.reduce((sum, a) => sum + a.amount, 0) + 
-    (data.propertyValue > 0 ? data.propertyValue : 0);
-  const totalDebts = data.mortgageAmount + data.debts.reduce((sum, d) => sum + d.amount, 0);
+  
+  // Calculate equity in property (property value minus mortgage)
+  const propertyEquity = data.propertyValue > 0 ? data.propertyValue - data.mortgageAmount : 0;
+  
+  // Total assets = financial assets + equity in property
+  const totalAssets = data.assets.reduce((sum, a) => sum + a.amount, 0) + propertyEquity;
+  
+  // Total debts = only other debts (mortgage is already factored into equity)
+  const totalDebts = data.debts.reduce((sum, d) => sum + d.amount, 0);
+  
   const netWorth = totalAssets - totalDebts;
   const monthlyBalance = data.salary - totalExpenses;
 
