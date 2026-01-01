@@ -37,8 +37,6 @@ export default function FormattedNumberInput({
 
   const handleFocus = () => {
     setIsFocused(true);
-    // Show raw number when focused for easier editing, empty if 0
-    setDisplayValue(value > 0 ? value.toString() : '');
   };
 
   const handleBlur = () => {
@@ -56,19 +54,24 @@ export default function FormattedNumberInput({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let raw = e.target.value;
+    const raw = e.target.value;
     
-    // Allow only numbers, spaces, and comma/dot
-    let cleaned = raw.replace(/[^\d\s.,]/g, '');
+    // Remove all non-digit characters to get the pure number
+    const digitsOnly = raw.replace(/\D/g, '');
     
-    // Remove leading zeros (but keep single "0" or "0.")
-    cleaned = cleaned.replace(/^0+(?=\d)/, '');
+    // Remove leading zeros
+    const cleanedDigits = digitsOnly.replace(/^0+(?=\d)/, '');
     
-    setDisplayValue(cleaned);
+    // Parse to number
+    const numericValue = parseInt(cleanedDigits, 10) || 0;
     
-    // Update the actual value in real-time
-    const parsed = parseFormattedNumber(cleaned);
-    onChange(parsed);
+    // Format with thousand separators (Swedish style with spaces)
+    const formatted = numericValue > 0 
+      ? numericValue.toLocaleString('sv-SE') 
+      : '';
+    
+    setDisplayValue(formatted);
+    onChange(numericValue);
   };
 
   return (
