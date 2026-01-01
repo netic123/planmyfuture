@@ -18,7 +18,5 @@ public class User
     public string? PasswordResetToken { get; set; }
     public DateTime? PasswordResetTokenExpiry { get; set; }
     
-    // Navigation
-    public ICollection<Company> Companies { get; set; } = new List<Company>();
 }
 
