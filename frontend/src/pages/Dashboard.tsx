@@ -402,21 +402,6 @@ export default function Dashboard() {
       })
     : [];
 
-  // Generate age-based milestones (every year from current age to 70)
-  const generateAgeMilestones = () => {
-    if (!currentAge || !summary?.projections) return [];
-    
-    const milestones: number[] = [];
-    // Every year from current age + 1 up to 70
-    for (let age = currentAge + 1; age <= 70; age++) {
-      milestones.push(age);
-    }
-    
-    return milestones;
-  };
-
-  const ageMilestones = generateAgeMilestones();
-
   // Cost of living calculation (monthly expenses * 12 * years)
   const calculateCostOfLiving = (years: number) => {
     const monthlyExpenses = summary?.totalMonthlyExpenses || 0;
@@ -715,7 +700,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Chart */}
+        {/* Forecast Chart */}
         {chartData.length > 0 && (
           <div className="bg-white rounded-xl p-6 border border-neutral-200">
             <h2 className="text-sm font-medium text-neutral-900 mb-4 flex items-center gap-2">
@@ -766,87 +751,56 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Future Projections - Age Based (every year until 70) */}
-        {summary?.projections && summary.projections.length > 0 && currentAge && currentAge < 70 && (
+        {/* Cost of Living Chart */}
+        {chartData.length > 0 && summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && (
           <div className="bg-white rounded-xl p-6 border border-neutral-200">
-            <h2 className="text-sm font-medium text-neutral-900 mb-4">
-              {t('dashboard.yourFuture')} ({currentAge + 1} - 70 {t('onboarding.salary.years')})
-            </h2>
-            <div className="overflow-x-auto -mx-6 px-6">
-              <div className="flex gap-3 pb-2" style={{ minWidth: 'max-content' }}>
-                {ageMilestones.map((targetAge) => {
-                  const yearsFromNow = targetAge - currentAge;
-                  
-                  // Find the closest projection (interpolate if needed)
-                  const exactProjection = summary.projections.find(p => p.years === yearsFromNow);
-                  let netWorth: number;
-                  
-                  if (exactProjection) {
-                    netWorth = exactProjection.projectedNetWorth;
-                  } else {
-                    // Find projections before and after to interpolate
-                    const sortedProjections = [...summary.projections].sort((a, b) => a.years - b.years);
-                    const before = sortedProjections.filter(p => p.years < yearsFromNow).pop();
-                    const after = sortedProjections.find(p => p.years > yearsFromNow);
-                    
-                    if (before && after) {
-                      // Linear interpolation
-                      const ratio = (yearsFromNow - before.years) / (after.years - before.years);
-                      netWorth = before.projectedNetWorth + ratio * (after.projectedNetWorth - before.projectedNetWorth);
-                    } else if (after) {
-                      netWorth = (summary.netWorth || 0) + (after.projectedNetWorth - (summary.netWorth || 0)) * (yearsFromNow / after.years);
-                    } else if (before) {
-                      // Linear extrapolation from the last two known projections
-                      const secondToLast = sortedProjections.filter(p => p.years < before.years).pop();
-                      if (secondToLast) {
-                        const yearlyGrowth = (before.projectedNetWorth - secondToLast.projectedNetWorth) / (before.years - secondToLast.years);
-                        netWorth = before.projectedNetWorth + yearlyGrowth * (yearsFromNow - before.years);
-                      } else {
-                        const yearlyGrowth = (before.projectedNetWorth - (summary.netWorth || 0)) / before.years;
-                        netWorth = before.projectedNetWorth + yearlyGrowth * (yearsFromNow - before.years);
-                      }
-                    } else {
-                      netWorth = summary.netWorth || 0;
-                    }
-                  }
-                  
-                  return (
-                    <div key={targetAge} className="text-center p-3 bg-neutral-50 rounded-xl min-w-[100px] flex-shrink-0">
-                      <p className="text-xs text-neutral-500 mb-1">{targetAge} {t('onboarding.salary.years')}</p>
-                      <p className="text-sm font-semibold text-neutral-900">
-                        {formatCurrency(netWorth)}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Cost of Living Projections */}
-        {summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && currentAge && currentAge < 70 && (
-          <div className="bg-white rounded-xl p-6 border border-neutral-200">
-            <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-sm font-medium text-neutral-900 mb-4 flex items-center gap-2">
               <Wallet className="h-4 w-4 text-neutral-400" />
-              <h2 className="text-sm font-medium text-neutral-900">{t('dashboard.costOfLiving')}</h2>
-            </div>
-            <div className="overflow-x-auto -mx-6 px-6">
-              <div className="flex gap-3 pb-2" style={{ minWidth: 'max-content' }}>
-                {ageMilestones.map((targetAge) => {
-                  const yearsFromNow = targetAge - currentAge;
-                  const totalCost = calculateCostOfLiving(yearsFromNow);
-                  
-                  return (
-                    <div key={targetAge} className="text-center p-3 bg-red-50 rounded-xl min-w-[100px] flex-shrink-0">
-                      <p className="text-xs text-neutral-500 mb-1">{t('dashboard.totalCostUntil', { age: targetAge })}</p>
-                      <p className="text-sm font-semibold text-red-600">
-                        {formatCurrency(totalCost)}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
+              {t('dashboard.costOfLiving')}
+            </h2>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData.map(d => ({
+                  ...d,
+                  costOfLiving: calculateCostOfLiving(d.age - (currentAge || 0))
+                }))}>
+                  <defs>
+                    <linearGradient id="colorCostOfLiving" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+                  <XAxis 
+                    dataKey="year" 
+                    tick={{ fontSize: 12, fill: '#737373' }}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12, fill: '#737373' }}
+                    tickFormatter={(value) => {
+                      if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                      return `${(value / 1000).toFixed(0)}k`;
+                    }}
+                  />
+                  <Tooltip 
+                    formatter={(value) => formatCurrency(Number(value) || 0)}
+                    contentStyle={{ 
+                      borderRadius: '8px', 
+                      border: '1px solid #e5e5e5',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="costOfLiving" 
+                    name={t('dashboard.costOfLiving')}
+                    stroke="#ef4444" 
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorCostOfLiving)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}
