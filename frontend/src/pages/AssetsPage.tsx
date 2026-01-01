@@ -4,7 +4,6 @@ import type { FinancialAccount } from '../types';
 import { FinancialAccountCategory } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import FormattedNumberInput from '../components/FormattedNumberInput';
-import { LabelWithTooltip } from '../components/Tooltip';
 import {
   Plus,
   Trash2,
@@ -182,11 +181,7 @@ export default function AssetsPage() {
           </div>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <LabelWithTooltip 
-                label="Namn" 
-                tooltip="Ge kontot ett namn så du lätt känner igen det, t.ex. 'Sparkonto Nordea'" 
-                required 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Namn</label>
               <input
                 type="text"
                 value={formData.name}
@@ -197,10 +192,7 @@ export default function AssetsPage() {
               />
             </div>
             <div>
-              <LabelWithTooltip 
-                label="Bank/Mäklare" 
-                tooltip="Var finns tillgången? T.ex. Nordea, Avanza, eller 'Hemma' för kontanter" 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Bank/Mäklare</label>
               <input
                 type="text"
                 value={formData.institution}
@@ -210,11 +202,7 @@ export default function AssetsPage() {
               />
             </div>
             <div>
-              <LabelWithTooltip 
-                label="Värde idag" 
-                tooltip="Hur mycket är tillgången värd just nu? Kolla ditt kontoutdrag eller app" 
-                required 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Värde (kr)</label>
               <FormattedNumberInput
                 value={formData.balance}
                 onChange={(val) => setFormData({ ...formData, balance: val })}
@@ -222,10 +210,7 @@ export default function AssetsPage() {
               />
             </div>
             <div>
-              <LabelWithTooltip 
-                label="Kategori" 
-                tooltip="Vilken typ av tillgång är det? Hjälper till att sortera dina tillgångar" 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Kategori</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: parseInt(e.target.value) })}
@@ -237,10 +222,7 @@ export default function AssetsPage() {
               </select>
             </div>
             <div className="md:col-span-2">
-              <LabelWithTooltip 
-                label="Anteckningar" 
-                tooltip="Valfria anteckningar om tillgången, t.ex. kontonummer eller detaljer" 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Anteckningar</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}

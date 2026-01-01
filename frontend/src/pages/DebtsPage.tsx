@@ -4,7 +4,6 @@ import type { Debt } from '../types';
 import { DebtType } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import FormattedNumberInput from '../components/FormattedNumberInput';
-import { LabelWithTooltip } from '../components/Tooltip';
 import {
   Plus,
   Trash2,
@@ -208,11 +207,7 @@ export default function DebtsPage() {
             {/* Row 1: Type */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <LabelWithTooltip 
-                  label="Typ av lån" 
-                  tooltip="Vilken typ av lån är det?" 
-                  required
-                />
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Typ av lån</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: parseInt(e.target.value) })}
@@ -225,10 +220,9 @@ export default function DebtsPage() {
               </div>
               {showAssetField && (
                 <div>
-                  <LabelWithTooltip 
-                    label={formData.type === DebtType.Mortgage ? "Bostadens marknadsvärde" : "Tillgångens värde"} 
-                    tooltip="Vad är tillgången värd idag? Används för att räkna ut ditt eget kapital." 
-                  />
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">
+                    {formData.type === DebtType.Mortgage ? "Bostadens värde" : "Tillgångens värde"}
+                  </label>
                   <FormattedNumberInput
                     value={formData.assetValue || 0}
                     onChange={(val) => setFormData({ ...formData, assetValue: val || undefined })}
@@ -240,11 +234,7 @@ export default function DebtsPage() {
 
             {/* Row 2: Loan amount */}
             <div>
-              <LabelWithTooltip 
-                label="Kvarvarande lån" 
-                tooltip="Hur mycket är kvar att betala på lånet idag?" 
-                required 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Kvarvarande lån (kr)</label>
               <FormattedNumberInput
                 value={formData.currentBalance}
                 onChange={(val) => setFormData({ ...formData, currentBalance: val })}
@@ -255,10 +245,7 @@ export default function DebtsPage() {
             {/* Row 3: Interest and Amortization rates */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <LabelWithTooltip 
-                  label="Ränta" 
-                  tooltip="Din räntesats i procent, t.ex. 2.72%" 
-                />
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Ränta (%)</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -277,10 +264,7 @@ export default function DebtsPage() {
                 )}
               </div>
               <div>
-                <LabelWithTooltip 
-                  label="Amortering" 
-                  tooltip="Din amorteringstakt i procent per år, t.ex. 2%" 
-                />
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Amortering (%/år)</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -302,10 +286,7 @@ export default function DebtsPage() {
 
             {/* Row 4: Monthly fee */}
             <div>
-              <LabelWithTooltip 
-                label="Avgift/månad" 
-                tooltip="Fasta månadsavgifter utöver ränta och amortering, t.ex. bostadsrättsavgift" 
-              />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Månadsavgift (kr)</label>
               <FormattedNumberInput
                 value={formData.monthlyPayment || 0}
                 onChange={(val) => setFormData({ ...formData, monthlyPayment: val || undefined })}
