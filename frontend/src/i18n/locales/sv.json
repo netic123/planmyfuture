@@ -206,6 +206,109 @@
       "personalLoan": "Privatlån",
       "businessLoan": "Företagslån"
     }
+  },
+  "onboarding": {
+    "appName": "Min Ekonomi",
+    "haveAccount": "Har du redan ett konto?",
+    "login": "Logga in",
+    "step": "Steg",
+    "of": "av",
+    "steps": {
+      "salary": "Lön",
+      "expenses": "Utgifter",
+      "mortgage": "Bostadslån",
+      "debts": "Skulder",
+      "assets": "Tillgångar",
+      "account": "Konto"
+    },
+    "salary": {
+      "title": "Vad är din lön?",
+      "subtitle": "Efter skatt, per månad",
+      "placeholder": "35 000",
+      "continue": "Fortsätt"
+    },
+    "expenses": {
+      "title": "Dina utgifter",
+      "subtitle": "Per månad",
+      "housingFee": "Bostadsavgift",
+      "food": "Mat & hushåll",
+      "transport": "Transport",
+      "entertainment": "Nöje & övrigt",
+      "addExpense": "Lägg till utgift...",
+      "continue": "Fortsätt"
+    },
+    "mortgage": {
+      "title": "Har du bostadslån?",
+      "subtitle": "Vi beräknar din nettoförmögenhet",
+      "yes": "Ja, jag har bostadslån",
+      "yesDesc": "Ange lån och bostadens värde",
+      "no": "Nej, jag har inget bostadslån",
+      "remainingLoan": "Kvarvarande lån",
+      "propertyValue": "Bostadens värde",
+      "interestRate": "Ränta",
+      "amortization": "Amortering per månad",
+      "equity": "Eget kapital i bostaden",
+      "continue": "Fortsätt"
+    },
+    "debts": {
+      "title": "Andra skulder?",
+      "subtitle": "Studielån, billån, kreditkort...",
+      "yes": "Ja, lägg till skuld",
+      "yesDesc": "Du kan lägga till flera",
+      "no": "Nej, inga andra skulder",
+      "debtType": "Typ av skuld",
+      "personName": "Till vem?",
+      "amount": "Belopp",
+      "interest": "Ränta",
+      "add": "Lägg till",
+      "cancel": "Avbryt",
+      "addAnother": "Lägg till skuld",
+      "continue": "Fortsätt",
+      "types": {
+        "studentLoan": "Studielån",
+        "carLoan": "Billån",
+        "personalLoan": "Privatlån",
+        "creditCard": "Kreditkort",
+        "taxAuthority": "Skatteverket",
+        "toPerson": "Till person",
+        "other": "Övrigt"
+      }
+    },
+    "assets": {
+      "title": "Ditt sparande",
+      "subtitle": "Sparkonton, investeringar, pension...",
+      "yes": "Ja, lägg till tillgång",
+      "yesDesc": "Du kan lägga till flera",
+      "skip": "Hoppa över för nu",
+      "type": "Typ",
+      "name": "Namn (valfritt)",
+      "namePlaceholder": "T.ex. Avanza ISK",
+      "value": "Värde",
+      "add": "Lägg till",
+      "cancel": "Avbryt",
+      "addAnother": "Lägg till tillgång",
+      "continue": "Fortsätt",
+      "types": {
+        "savings": "Sparkonto",
+        "investments": "Investeringar",
+        "pension": "Pension",
+        "cash": "Kontanter",
+        "other": "Övrigt"
+      }
+    },
+    "signup": {
+      "title": "Spara din ekonomi",
+      "subtitle": "Skapa ett konto för att se din översikt",
+      "netWorth": "Din nettoförmögenhet",
+      "assets": "Tillgångar",
+      "debts": "Skulder",
+      "leftPerMonth": "Kvar/mån",
+      "email": "E-post",
+      "emailPlaceholder": "din@email.se",
+      "password": "Lösenord",
+      "passwordPlaceholder": "Minst 6 tecken",
+      "createAccount": "Skapa konto"
+    }
   }
 }
 

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../../context/OnboardingContext';
 import OnboardingLayout from '../../components/OnboardingLayout';
 import FormattedNumberInput from '../../components/FormattedNumberInput';
@@ -6,6 +7,7 @@ import { ArrowRight, ArrowLeft, Home } from 'lucide-react';
 
 export default function MortgageStep() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data, updateData, setCurrentStep } = useOnboarding();
 
   const handleNext = () => {
@@ -26,8 +28,8 @@ export default function MortgageStep() {
 
   return (
     <OnboardingLayout 
-      title="Har du bostadslån?"
-      subtitle="Vi beräknar din nettoförmögenhet"
+      title={t('onboarding.mortgage.title')}
+      subtitle={t('onboarding.mortgage.subtitle')}
     >
       {!data.hasMortgage && data.mortgageAmount === 0 ? (
         // Initial choice
@@ -40,8 +42,8 @@ export default function MortgageStep() {
               <Home className="h-6 w-6 text-neutral-600" />
             </div>
             <div className="text-left">
-              <p className="font-medium text-neutral-900">Ja, jag har bostadslån</p>
-              <p className="text-sm text-neutral-500">Ange lån och bostadens värde</p>
+              <p className="font-medium text-neutral-900">{t('onboarding.mortgage.yes')}</p>
+              <p className="text-sm text-neutral-500">{t('onboarding.mortgage.yesDesc')}</p>
             </div>
           </button>
 
@@ -49,14 +51,14 @@ export default function MortgageStep() {
             onClick={handleNoMortgage}
             className="w-full p-4 text-center text-neutral-600 hover:text-neutral-900 transition-colors"
           >
-            Nej, jag har inget bostadslån
+            {t('onboarding.mortgage.no')}
           </button>
         </div>
       ) : (
         // Mortgage form
         <div className="space-y-4">
           <div>
-            <label className="text-sm text-neutral-600 mb-1 block">Kvarvarande lån</label>
+            <label className="text-sm text-neutral-600 mb-1 block">{t('onboarding.mortgage.remainingLoan')}</label>
             <FormattedNumberInput
               value={data.mortgageAmount}
               onChange={(value) => updateData({ mortgageAmount: value })}
@@ -66,7 +68,7 @@ export default function MortgageStep() {
           </div>
 
           <div>
-            <label className="text-sm text-neutral-600 mb-1 block">Bostadens värde</label>
+            <label className="text-sm text-neutral-600 mb-1 block">{t('onboarding.mortgage.propertyValue')}</label>
             <FormattedNumberInput
               value={data.propertyValue}
               onChange={(value) => updateData({ propertyValue: value })}
@@ -76,7 +78,7 @@ export default function MortgageStep() {
           </div>
 
           <div>
-            <label className="text-sm text-neutral-600 mb-1 block">Ränta</label>
+            <label className="text-sm text-neutral-600 mb-1 block">{t('onboarding.mortgage.interestRate')}</label>
             <div className="relative">
               <input
                 type="number"
@@ -91,7 +93,7 @@ export default function MortgageStep() {
           </div>
 
           <div>
-            <label className="text-sm text-neutral-600 mb-1 block">Amortering per månad</label>
+            <label className="text-sm text-neutral-600 mb-1 block">{t('onboarding.mortgage.amortization')}</label>
             <FormattedNumberInput
               value={data.mortgageAmortization}
               onChange={(value) => updateData({ mortgageAmortization: value })}
@@ -102,7 +104,7 @@ export default function MortgageStep() {
 
           {data.propertyValue > 0 && data.mortgageAmount > 0 && (
             <div className="bg-neutral-100 p-4 rounded-xl">
-              <p className="text-sm text-neutral-600">Ditt eget kapital i bostaden</p>
+              <p className="text-sm text-neutral-600">{t('onboarding.mortgage.equity')}</p>
               <p className="text-xl font-semibold text-neutral-900">
                 {(data.propertyValue - data.mortgageAmount).toLocaleString('sv-SE')} kr
               </p>
@@ -123,7 +125,7 @@ export default function MortgageStep() {
             onClick={handleNext}
             className="flex-1 flex items-center justify-center gap-2 py-4 bg-neutral-900 text-white rounded-xl font-medium text-lg hover:bg-neutral-800 transition-colors"
           >
-            Fortsätt
+            {t('onboarding.mortgage.continue')}
             <ArrowRight className="h-5 w-5" />
           </button>
         )}
@@ -131,4 +133,3 @@ export default function MortgageStep() {
     </OnboardingLayout>
   );
 }
-

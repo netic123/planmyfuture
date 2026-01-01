@@ -206,6 +206,109 @@
       "personalLoan": "Personal Loan",
       "businessLoan": "Business Loan"
     }
+  },
+  "onboarding": {
+    "appName": "My Finances",
+    "haveAccount": "Already have an account?",
+    "login": "Log in",
+    "step": "Step",
+    "of": "of",
+    "steps": {
+      "salary": "Salary",
+      "expenses": "Expenses",
+      "mortgage": "Mortgage",
+      "debts": "Debts",
+      "assets": "Assets",
+      "account": "Account"
+    },
+    "salary": {
+      "title": "What is your salary?",
+      "subtitle": "After tax, per month",
+      "placeholder": "35,000",
+      "continue": "Continue"
+    },
+    "expenses": {
+      "title": "Your expenses",
+      "subtitle": "Per month",
+      "housingFee": "Housing fee",
+      "food": "Food & household",
+      "transport": "Transport",
+      "entertainment": "Entertainment & other",
+      "addExpense": "Add expense...",
+      "continue": "Continue"
+    },
+    "mortgage": {
+      "title": "Do you have a mortgage?",
+      "subtitle": "We'll calculate your net worth",
+      "yes": "Yes, I have a mortgage",
+      "yesDesc": "Enter loan and property value",
+      "no": "No, I don't have a mortgage",
+      "remainingLoan": "Remaining loan",
+      "propertyValue": "Property value",
+      "interestRate": "Interest rate",
+      "amortization": "Amortization per month",
+      "equity": "Equity in property",
+      "continue": "Continue"
+    },
+    "debts": {
+      "title": "Other debts?",
+      "subtitle": "Student loans, car loans, credit cards...",
+      "yes": "Yes, add debt",
+      "yesDesc": "You can add multiple",
+      "no": "No, no other debts",
+      "debtType": "Debt type",
+      "personName": "To whom?",
+      "amount": "Amount",
+      "interest": "Interest",
+      "add": "Add",
+      "cancel": "Cancel",
+      "addAnother": "Add debt",
+      "continue": "Continue",
+      "types": {
+        "studentLoan": "Student loan",
+        "carLoan": "Car loan",
+        "personalLoan": "Personal loan",
+        "creditCard": "Credit card",
+        "taxAuthority": "Tax authority",
+        "toPerson": "To person",
+        "other": "Other"
+      }
+    },
+    "assets": {
+      "title": "Your savings",
+      "subtitle": "Savings accounts, investments, pension...",
+      "yes": "Yes, add asset",
+      "yesDesc": "You can add multiple",
+      "skip": "Skip for now",
+      "type": "Type",
+      "name": "Name (optional)",
+      "namePlaceholder": "E.g. Investment account",
+      "value": "Value",
+      "add": "Add",
+      "cancel": "Cancel",
+      "addAnother": "Add asset",
+      "continue": "Continue",
+      "types": {
+        "savings": "Savings account",
+        "investments": "Investments",
+        "pension": "Pension",
+        "cash": "Cash",
+        "other": "Other"
+      }
+    },
+    "signup": {
+      "title": "Save your finances",
+      "subtitle": "Create an account to see your overview",
+      "netWorth": "Your net worth",
+      "assets": "Assets",
+      "debts": "Debts",
+      "leftPerMonth": "Left/month",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 6 characters",
+      "createAccount": "Create account"
+    }
   }
 }
 

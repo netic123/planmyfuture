@@ -1,24 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../../context/OnboardingContext';
 import OnboardingLayout from '../../components/OnboardingLayout';
 import FormattedNumberInput from '../../components/FormattedNumberInput';
 import { ArrowRight, ArrowLeft, Plus, X } from 'lucide-react';
 
-const defaultExpenses = [
-  { name: 'Bostadsavgift', amount: 0 },
-  { name: 'Mat & hushåll', amount: 0 },
-  { name: 'Transport', amount: 0 },
-  { name: 'Nöje & övrigt', amount: 0 },
-];
-
 export default function ExpensesStep() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { data, updateData, setCurrentStep } = useOnboarding();
+  
+  const getDefaultExpenses = () => [
+    { name: t('onboarding.expenses.housingFee'), amount: 0 },
+    { name: t('onboarding.expenses.food'), amount: 0 },
+    { name: t('onboarding.expenses.transport'), amount: 0 },
+    { name: t('onboarding.expenses.entertainment'), amount: 0 },
+  ];
+  
   const [expenses, setExpenses] = useState(
-    data.expenses.length > 0 ? data.expenses : defaultExpenses
+    data.expenses.length > 0 ? data.expenses : getDefaultExpenses()
   );
   const [newExpenseName, setNewExpenseName] = useState('');
+
+  // Update default expense names when language changes
+  useEffect(() => {
+    if (data.expenses.length === 0) {
+      setExpenses(getDefaultExpenses());
+    }
+  }, [i18n.language]);
 
   const handleExpenseChange = (index: number, amount: number) => {
     const updated = [...expenses];
@@ -50,8 +60,8 @@ export default function ExpensesStep() {
 
   return (
     <OnboardingLayout 
-      title="Dina utgifter"
-      subtitle="Per månad"
+      title={t('onboarding.expenses.title')}
+      subtitle={t('onboarding.expenses.subtitle')}
     >
       <div className="space-y-3">
         {expenses.map((expense, index) => (
@@ -82,7 +92,7 @@ export default function ExpensesStep() {
             type="text"
             value={newExpenseName}
             onChange={(e) => setNewExpenseName(e.target.value)}
-            placeholder="Lägg till utgift..."
+            placeholder={t('onboarding.expenses.addExpense')}
             className="flex-1 px-4 py-2.5 border border-neutral-200 rounded-xl text-sm"
             onKeyDown={(e) => e.key === 'Enter' && addExpense()}
           />
@@ -107,11 +117,10 @@ export default function ExpensesStep() {
           onClick={handleNext}
           className="flex-1 flex items-center justify-center gap-2 py-4 bg-neutral-900 text-white rounded-xl font-medium text-lg hover:bg-neutral-800 transition-colors"
         >
-          Fortsätt
+          {t('onboarding.expenses.continue')}
           <ArrowRight className="h-5 w-5" />
         </button>
       </div>
     </OnboardingLayout>
   );
 }
-
