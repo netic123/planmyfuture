@@ -63,7 +63,7 @@ export default function Dashboard() {
 
   const loadData = async (token: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/personal/summary`, {
+      const response = await fetch(`${API_URL}/api/personal-finance/summary`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       

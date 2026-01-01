@@ -9,6 +9,7 @@ export interface DebtItem {
   type: string;
   amount: number;
   interestRate: number;
+  name?: string;
 }
 
 export interface AssetItem {

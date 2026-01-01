@@ -77,7 +77,7 @@ export default function SignupStep() {
 
     // Save salary as income
     if (data.salary > 0) {
-      await fetch(`${API_URL}/api/personal/budget`, {
+      await fetch(`${API_URL}/api/personal-finance/budget/items`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -93,7 +93,7 @@ export default function SignupStep() {
     // Save expenses
     for (const expense of data.expenses) {
       if (expense.amount > 0) {
-        await fetch(`${API_URL}/api/personal/budget`, {
+        await fetch(`${API_URL}/api/personal-finance/budget/items`, {
           method: 'POST',
           headers,
           body: JSON.stringify({
@@ -107,16 +107,48 @@ export default function SignupStep() {
       }
     }
 
+    // Save mortgage-related expenses (interest and amortization)
+    if (data.mortgageAmount > 0 && data.mortgageInterestRate > 0) {
+      const monthlyInterest = (data.mortgageAmount * data.mortgageInterestRate / 100) / 12;
+      await fetch(`${API_URL}/api/personal-finance/budget/items`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: 'Ränta bolån',
+          amount: Math.round(monthlyInterest),
+          type: 1, // Expense
+          category: 10,
+          isRecurring: true,
+        }),
+      });
+    }
+    
+    if (data.mortgageAmortization > 0) {
+      await fetch(`${API_URL}/api/personal-finance/budget/items`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: 'Amortering',
+          amount: data.mortgageAmortization,
+          type: 1, // Expense
+          category: 10,
+          isRecurring: true,
+        }),
+      });
+    }
+
     // Save mortgage as debt
     if (data.mortgageAmount > 0) {
-      await fetch(`${API_URL}/api/personal/debts`, {
+      await fetch(`${API_URL}/api/personal-finance/debts`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
           type: 0, // Mortgage
+          originalAmount: data.mortgageAmount,
           currentBalance: data.mortgageAmount,
           assetValue: data.propertyValue,
           interestRate: data.mortgageInterestRate,
+          monthlyAmortization: data.mortgageAmortization,
         }),
       });
     }
@@ -128,13 +160,17 @@ export default function SignupStep() {
         'Billån': 2,
         'Privatlån': 3,
         'Kreditkort': 4,
+        'Skatteverket': 5,
+        'Till person': 3, // Uses PersonalLoan type, name field has the person
         'Övrigt': 7,
       };
-      await fetch(`${API_URL}/api/personal/debts`, {
+      await fetch(`${API_URL}/api/personal-finance/debts`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
+          name: debt.name || debt.type,
           type: debtTypeMap[debt.type] || 7,
+          originalAmount: debt.amount,
           currentBalance: debt.amount,
           interestRate: debt.interestRate,
         }),
@@ -150,7 +186,7 @@ export default function SignupStep() {
         'Kontanter': 0,
         'Övrigt': 8,
       };
-      await fetch(`${API_URL}/api/personal/accounts`, {
+      await fetch(`${API_URL}/api/personal-finance/accounts`, {
         method: 'POST',
         headers,
         body: JSON.stringify({

@@ -6,9 +6,10 @@ import FormattedNumberInput from '../../components/FormattedNumberInput';
 import { ArrowRight, ArrowLeft, Plus, X } from 'lucide-react';
 
 const defaultExpenses = [
-  { name: 'Hyra/Boende', amount: 0 },
-  { name: 'Mat', amount: 0 },
+  { name: 'Bostadsavgift', amount: 0 },
+  { name: 'Mat & hushåll', amount: 0 },
   { name: 'Transport', amount: 0 },
+  { name: 'Nöje & övrigt', amount: 0 },
 ];
 
 export default function ExpensesStep() {
@@ -64,7 +65,7 @@ export default function ExpensesStep() {
                 suffix="kr"
               />
             </div>
-            {index >= 3 && (
+            {index >= 4 && (
               <button
                 onClick={() => removeExpense(index)}
                 className="mt-6 p-2 text-neutral-400 hover:text-neutral-600"
