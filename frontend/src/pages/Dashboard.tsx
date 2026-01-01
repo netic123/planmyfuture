@@ -646,10 +646,11 @@ export default function Dashboard() {
         </button>
         <button
           onClick={() => setShowDeleteModal(true)}
-          className="p-2 text-neutral-500 hover:text-red-500 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-400 hover:text-red-500 bg-neutral-900 border border-neutral-700 rounded-lg hover:border-red-500/50 transition-colors"
           title={t('gdpr.deleteAccount')}
         >
-          <UserX className="h-5 w-5" />
+          <UserX className="h-4 w-4" />
+          <span>GDPR</span>
         </button>
         <button
           onClick={handleLogout}
@@ -708,7 +709,7 @@ export default function Dashboard() {
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleting}
-                className="flex-1 py-3 px-4 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="py-3 px-4 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 {deleting ? (
                   <>
