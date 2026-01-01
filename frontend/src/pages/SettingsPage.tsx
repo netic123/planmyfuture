@@ -324,9 +324,22 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-neutral-900 mb-6">{t('settings.title')}</h1>
+    <div className="min-h-screen bg-neutral-50">
+      {/* Header */}
+      <header className="bg-white border-b border-neutral-200 sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-4">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="p-2 -ml-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 className="text-xl font-semibold text-neutral-900">{t('settings.title')}</h1>
+        </div>
+      </header>
+
+      <div className="p-6">
+        <div className="max-w-2xl mx-auto">
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 bg-neutral-100 p-1 rounded-lg">
@@ -621,6 +634,7 @@ export default function SettingsPage() {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
