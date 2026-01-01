@@ -1,19 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../services/api';
-import { Loader2, Globe, ChevronDown } from 'lucide-react';
-import Logo from '../components/Logo';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function LoginPage() {
-  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
-  const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,130 +18,97 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const data = await authApi.login(email, password);
-      login(data);
-      navigate('/');
-    } catch {
-      setError(t('login.invalidCredentials'));
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Fel email eller lösenord');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data));
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ett fel uppstod');
     } finally {
       setLoading(false);
     }
   };
 
-  const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang);
-    localStorage.setItem('language', lang);
-    setLangDropdownOpen(false);
-  };
-
   return (
-    <div className="min-h-screen bg-neutral-900 flex items-center justify-center p-4">
-      {/* Language Switcher */}
-      <div className="absolute top-4 right-4">
-        <div className="relative">
-          <button
-            onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-            className="flex items-center gap-2 px-3 py-2 rounded-md bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700 transition-colors text-sm"
-          >
-            <Globe className="h-4 w-4" />
-            {t(`language.${i18n.language}`)}
-            <ChevronDown className="h-3 w-3" />
-          </button>
-          {langDropdownOpen && (
-            <div className="absolute top-full right-0 mt-1 bg-neutral-800 rounded-md shadow-lg z-50 overflow-hidden min-w-[120px]">
-              <button
-                onClick={() => changeLanguage('en')}
-                className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-700 transition-colors ${
-                  i18n.language === 'en' ? 'bg-neutral-700 text-white' : 'text-neutral-300'
-                }`}
-              >
-                {t('language.en')}
-              </button>
-              <button
-                onClick={() => changeLanguage('sv')}
-                className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-700 transition-colors ${
-                  i18n.language === 'sv' ? 'bg-neutral-700 text-white' : 'text-neutral-300'
-                }`}
-              >
-                {t('language.sv')}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      <div className="relative w-full max-w-sm">
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <Logo size="lg" />
-          </div>
-          <h1 className="text-2xl font-semibold text-white">
-            Plan My Future
+          <h1 className="text-2xl font-semibold text-neutral-900">
+            Välkommen tillbaka
           </h1>
           <p className="mt-2 text-sm text-neutral-500">
-            {t('login.signInToAccount')}
+            Logga in på ditt konto
           </p>
         </div>
 
-        <div className="card p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="bg-white rounded-xl p-6 border border-neutral-200">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-md bg-neutral-100 border border-neutral-300 text-neutral-700 text-sm">
+              <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="label">{t('auth.email')}</label>
+              <label className="text-sm text-neutral-600 mb-1 block">E-post</label>
               <input
-                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input"
-                placeholder={t('placeholders.email')}
+                className="w-full px-4 py-3 border border-neutral-200 rounded-xl"
+                placeholder="din@email.se"
                 required
               />
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="label">{t('auth.password')}</label>
-                <Link to="/forgot-password" tabIndex={-1} className="text-xs text-neutral-500 hover:text-neutral-900">
-                  {t('login.forgotPassword')}
-                </Link>
+              <label className="text-sm text-neutral-600 mb-1 block">Lösenord</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-neutral-200 rounded-xl pr-12"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input"
-                placeholder="••••••••"
-                required
-              />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="w-full py-3.5 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t('login.signingIn')}
-                </>
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                t('auth.login')
+                'Logga in'
               )}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-neutral-500">
-            {t('auth.noAccount')}{' '}
-            <Link to="/register" className="text-neutral-900 hover:underline font-medium">
-              {t('auth.register')}
+            Inget konto?{' '}
+            <Link to="/onboarding/salary" className="text-neutral-900 hover:underline font-medium">
+              Kom igång
             </Link>
           </p>
         </div>
