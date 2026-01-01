@@ -309,6 +309,49 @@
       "passwordPlaceholder": "At least 6 characters",
       "createAccount": "Create account"
     }
+  },
+  "settings": {
+    "title": "My Details",
+    "income": "Income",
+    "expenses": "Expenses",
+    "debts": "Debts",
+    "assets": "Assets",
+    "incomeLabel": "Monthly income",
+    "expenseLabel": "Monthly expense",
+    "interest": "interest",
+    "noIncome": "No income added",
+    "noExpenses": "No expenses added",
+    "noDebts": "No debts registered",
+    "noAssets": "No assets registered",
+    "addIncome": "Add income",
+    "addExpense": "Add expense",
+    "addDebt": "Add debt",
+    "addAsset": "Add asset",
+    "namePlaceholder": "Name",
+    "amountPlaceholder": "Amount",
+    "descriptionPlaceholder": "Description",
+    "interestRatePlaceholder": "Interest rate %",
+    "debtTypes": {
+      "mortgage": "Mortgage",
+      "studentLoan": "Student loan",
+      "carLoan": "Car loan",
+      "personalLoan": "Personal loan",
+      "creditCard": "Credit card",
+      "taxDebt": "Tax debt",
+      "businessLoan": "Business loan",
+      "other": "Other"
+    },
+    "assetTypes": {
+      "cash": "Cash",
+      "bankAccount": "Bank account",
+      "savings": "Savings account",
+      "investments": "Investments",
+      "pension": "Pension",
+      "property": "Property",
+      "business": "Business",
+      "crypto": "Crypto",
+      "other": "Other"
+    }
   }
 }
 
