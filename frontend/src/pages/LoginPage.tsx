@@ -57,8 +57,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* Header with language switcher */}
-      <div className="px-6 py-4 flex justify-between items-center">
-        <span className="text-lg font-semibold text-neutral-900">{t('onboarding.appName')}</span>
+      <div className="px-6 py-4 flex justify-end items-center">
         <button
           onClick={toggleLanguage}
           className="flex items-center gap-1.5 text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
