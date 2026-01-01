@@ -126,7 +126,16 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch (Npgsql.PostgresException ex) when (ex.SqlState == "42P07") // Table already exists
+    {
+        // Database tables already exist but migration history is missing
+        // This can happen when switching from EnsureCreated to Migrate
+        Console.WriteLine($"Migration skipped: {ex.Message}");
+    }
 }
 
 // Configure the HTTP request pipeline.
