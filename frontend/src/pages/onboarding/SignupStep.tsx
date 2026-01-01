@@ -152,7 +152,7 @@ export default function SignupStep() {
       });
     }
 
-    // Save mortgage as debt
+    // Save mortgage as debt (without assetValue - property is saved separately)
     if (data.mortgageAmount > 0) {
       await fetch(`${API_URL}/api/personal-finance/debts`, {
         method: 'POST',
@@ -161,9 +161,21 @@ export default function SignupStep() {
           type: 0, // Mortgage
           originalAmount: data.mortgageAmount,
           currentBalance: data.mortgageAmount,
-          assetValue: data.propertyValue,
           interestRate: data.mortgageInterestRate,
           monthlyAmortization: data.mortgageAmortization,
+        }),
+      });
+    }
+
+    // Save property value as asset
+    if (data.propertyValue > 0) {
+      await fetch(`${API_URL}/api/personal-finance/accounts`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: 'Bostad',
+          balance: data.propertyValue,
+          category: 1, // RealEstate
         }),
       });
     }
