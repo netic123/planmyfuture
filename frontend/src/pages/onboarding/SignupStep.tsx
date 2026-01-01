@@ -57,6 +57,7 @@ export default function SignupStep() {
           password: data.password,
           firstName: '',
           lastName: '',
+          birthYear: data.birthYear > 0 ? data.birthYear : null,
         }),
       });
 

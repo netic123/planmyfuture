@@ -4,7 +4,8 @@ public record RegisterRequest(
     string Email,
     string Password,
     string FirstName,
-    string LastName
+    string LastName,
+    int? BirthYear = null
 );
 
 public record LoginRequest(
@@ -18,7 +19,8 @@ public record AuthResponse(
     string FirstName,
     string LastName,
     string Token,
-    string PreferredLanguage
+    string PreferredLanguage,
+    int? BirthYear = null
 );
 
 public record UserDto(
@@ -27,7 +29,8 @@ public record UserDto(
     string FirstName,
     string LastName,
     DateTime CreatedAt,
-    string PreferredLanguage
+    string PreferredLanguage,
+    int? BirthYear = null
 );
 
 public record UpdateLanguageRequest(

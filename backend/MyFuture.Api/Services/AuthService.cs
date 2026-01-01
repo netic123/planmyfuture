@@ -41,6 +41,7 @@ public class AuthService : IAuthService
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             FirstName = request.FirstName,
             LastName = request.LastName,
+            BirthYear = request.BirthYear,
             CreatedAt = DateTime.UtcNow,
             RegistrationIp = ipAddress
         };
@@ -74,7 +75,8 @@ public class AuthService : IAuthService
             user.FirstName,
             user.LastName,
             token,
-            user.PreferredLanguage
+            user.PreferredLanguage,
+            user.BirthYear
         );
     }
 
@@ -114,7 +116,8 @@ public class AuthService : IAuthService
             user.FirstName,
             user.LastName,
             token,
-            user.PreferredLanguage
+            user.PreferredLanguage,
+            user.BirthYear
         );
     }
 
@@ -129,7 +132,8 @@ public class AuthService : IAuthService
             user.FirstName,
             user.LastName,
             user.CreatedAt,
-            user.PreferredLanguage
+            user.PreferredLanguage,
+            user.BirthYear
         );
     }
 

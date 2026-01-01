@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '../utils/formatters';
 import {
   TrendingUp,
@@ -17,6 +18,7 @@ import {
   X,
   CreditCard,
   Building,
+  Wallet,
 } from 'lucide-react';
 import {
   XAxis,
@@ -69,8 +71,10 @@ interface Asset {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [birthYear, setBirthYear] = useState<number | null>(null);
   
   // Data for editing
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
@@ -98,12 +102,29 @@ export default function Dashboard() {
     'Content-Type': 'application/json',
   });
 
+  // Calculate current age
+  const currentYear = new Date().getFullYear();
+  const currentAge = birthYear ? currentYear - birthYear : null;
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     
     if (!token) {
       navigate('/');
       return;
+    }
+
+    // Get birthYear from localStorage user data
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user.birthYear) {
+          setBirthYear(user.birthYear);
+        }
+      } catch (e) {
+        console.error('Failed to parse user data:', e);
+      }
     }
 
     loadAllData(token);
@@ -326,11 +347,45 @@ export default function Dashboard() {
   const incomeItems = budgetItems.filter(item => item.type === 0);
   const expenseItems = budgetItems.filter(item => item.type === 1);
 
-  // Chart data
-  const chartData = summary?.projections?.slice(0, 10).map(p => ({
-    year: `${p.years} år`,
+  // Calculate how many years until age 100
+  const yearsUntil100 = currentAge ? Math.max(0, 100 - currentAge) : 60;
+  
+  // Chart data - use age if available
+  const chartData = summary?.projections?.slice(0, Math.min(10, yearsUntil100)).map(p => ({
+    year: currentAge ? `${currentAge + p.years} ${t('dashboard.yr')}` : `${p.years} ${t('dashboard.yr')}`,
+    age: currentAge ? currentAge + p.years : null,
     netWorth: Math.round(p.projectedNetWorth),
   })) || [];
+
+  // Generate age-based milestones (every 5 or 10 years until 100)
+  const generateAgeMilestones = () => {
+    if (!currentAge || !summary?.projections) return [];
+    
+    const milestones: number[] = [];
+    // Target ages: round up to next 5, then every 10 years until 100
+    let nextMilestone = Math.ceil(currentAge / 5) * 5;
+    if (nextMilestone === currentAge) nextMilestone += 5;
+    
+    while (nextMilestone <= 100) {
+      milestones.push(nextMilestone);
+      nextMilestone += 10;
+    }
+    
+    // Always include 100
+    if (!milestones.includes(100)) {
+      milestones.push(100);
+    }
+    
+    return milestones.slice(0, 6); // Max 6 milestones
+  };
+
+  const ageMilestones = generateAgeMilestones();
+
+  // Cost of living calculation (monthly expenses * 12 * years)
+  const calculateCostOfLiving = (years: number) => {
+    const monthlyExpenses = summary?.totalMonthlyExpenses || 0;
+    return monthlyExpenses * 12 * years;
+  };
 
   if (loading) {
     return (
@@ -629,7 +684,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl p-6 border border-neutral-200">
             <h2 className="text-sm font-medium text-neutral-900 mb-4 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-neutral-400" />
-              Prognos
+              {t('dashboard.forecast')}
             </h2>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -663,7 +718,7 @@ export default function Dashboard() {
                   <Area 
                     type="monotone" 
                     dataKey="netWorth" 
-                    name="Nettoförmögenhet"
+                    name={t('dashboard.netWorth')}
                     stroke="#171717" 
                     strokeWidth={2}
                     fillOpacity={1}
@@ -675,21 +730,86 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Future Projections */}
+        {/* Future Projections - Age Based */}
         {summary?.projections && summary.projections.length > 0 && (
           <div className="bg-white rounded-xl p-6 border border-neutral-200">
-            <h2 className="text-sm font-medium text-neutral-900 mb-4">Din framtid</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {summary.projections
-                .filter(p => [5, 10, 20, 30].includes(p.years))
-                .map((proj, idx) => (
-                  <div key={idx} className="text-center p-4 bg-neutral-50 rounded-xl">
-                    <p className="text-xs text-neutral-500 mb-1">Om {proj.years} år</p>
-                    <p className="text-xl font-semibold text-neutral-900">
-                      {formatCurrency(proj.projectedNetWorth)}
+            <h2 className="text-sm font-medium text-neutral-900 mb-4">{t('dashboard.yourFuture')}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {currentAge && ageMilestones.length > 0 ? (
+                // Age-based projections
+                ageMilestones.map((targetAge) => {
+                  const yearsFromNow = targetAge - currentAge;
+                  const projection = summary.projections.find(p => p.years === yearsFromNow) 
+                    || summary.projections.find(p => p.years >= yearsFromNow);
+                  
+                  if (!projection) return null;
+                  
+                  // Linear interpolation if exact year not found
+                  const exactProjection = summary.projections.find(p => p.years === yearsFromNow);
+                  const netWorth = exactProjection 
+                    ? exactProjection.projectedNetWorth
+                    : projection.projectedNetWorth * (yearsFromNow / projection.years);
+                  
+                  return (
+                    <div key={targetAge} className="text-center p-4 bg-neutral-50 rounded-xl">
+                      <p className="text-xs text-neutral-500 mb-1">{t('dashboard.atAge', { age: targetAge })}</p>
+                      <p className="text-xl font-semibold text-neutral-900">
+                        {formatCurrency(netWorth)}
+                      </p>
+                    </div>
+                  );
+                })
+              ) : (
+                // Fallback to years-based
+                summary.projections
+                  .filter(p => [5, 10, 20, 30].includes(p.years))
+                  .map((proj, idx) => (
+                    <div key={idx} className="text-center p-4 bg-neutral-50 rounded-xl">
+                      <p className="text-xs text-neutral-500 mb-1">{t('dashboard.inYears', { years: proj.years })}</p>
+                      <p className="text-xl font-semibold text-neutral-900">
+                        {formatCurrency(proj.projectedNetWorth)}
+                      </p>
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Cost of Living Projections */}
+        {summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && (
+          <div className="bg-white rounded-xl p-6 border border-neutral-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Wallet className="h-4 w-4 text-neutral-400" />
+              <h2 className="text-sm font-medium text-neutral-900">{t('dashboard.costOfLiving')}</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {currentAge && ageMilestones.length > 0 ? (
+                // Age-based cost of living
+                ageMilestones.slice(0, 6).map((targetAge) => {
+                  const yearsFromNow = targetAge - currentAge;
+                  const totalCost = calculateCostOfLiving(yearsFromNow);
+                  
+                  return (
+                    <div key={targetAge} className="text-center p-4 bg-red-50 rounded-xl">
+                      <p className="text-xs text-neutral-500 mb-1">{t('dashboard.totalCostUntil', { age: targetAge })}</p>
+                      <p className="text-lg font-semibold text-red-600">
+                        {formatCurrency(totalCost)}
+                      </p>
+                    </div>
+                  );
+                })
+              ) : (
+                // Fallback to years-based
+                [5, 10, 20, 30, 40, 50].map((years) => (
+                  <div key={years} className="text-center p-4 bg-red-50 rounded-xl">
+                    <p className="text-xs text-neutral-500 mb-1">{t('dashboard.inYears', { years })}</p>
+                    <p className="text-lg font-semibold text-red-600">
+                      {formatCurrency(calculateCostOfLiving(years))}
                     </p>
                   </div>
-                ))}
+                ))
+              )}
             </div>
           </div>
         )}
