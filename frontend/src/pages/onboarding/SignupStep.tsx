@@ -17,7 +17,12 @@ export default function SignupStep() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Calculate summary
-  const totalExpenses = data.expenses.reduce((sum, e) => sum + e.amount, 0);
+  const monthlyMortgageInterest = data.mortgageAmount > 0 && data.mortgageInterestRate > 0
+    ? Math.round((data.mortgageAmount * data.mortgageInterestRate / 100) / 12)
+    : 0;
+  const totalExpenses = data.expenses.reduce((sum, e) => sum + e.amount, 0) 
+    + monthlyMortgageInterest 
+    + data.mortgageAmortization;
   const totalAssets = data.assets.reduce((sum, a) => sum + a.amount, 0) + 
     (data.propertyValue > 0 ? data.propertyValue : 0);
   const totalDebts = data.mortgageAmount + data.debts.reduce((sum, d) => sum + d.amount, 0);
