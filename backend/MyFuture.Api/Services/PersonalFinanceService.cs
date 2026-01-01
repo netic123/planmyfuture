@@ -428,8 +428,8 @@ public class PersonalFinanceService : IPersonalFinanceService
         var debtsWithAssets = debts.Where(d => d.AssetValue.HasValue).Sum(d => d.CurrentBalance);
         var debtsWithoutAssets = allDebts - debtsWithAssets;
         
-        // Tydlig modell:
-        // Tillgångar = finansiella tillgångar + marknadsvärde på fastigheter
+        // Enkel och tydlig modell:
+        // Tillgångar = finansiella tillgångar + marknadsvärde på fastigheter/tillgångar
         // Skulder = ALLA skulder (inklusive bolån)
         // Netto = Tillgångar - Skulder
         var totalAssets = financialAssets + assetValuesFromDebts;
