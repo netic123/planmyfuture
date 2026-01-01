@@ -309,6 +309,49 @@
       "passwordPlaceholder": "Minst 6 tecken",
       "createAccount": "Skapa konto"
     }
+  },
+  "settings": {
+    "title": "Mina uppgifter",
+    "income": "Inkomst",
+    "expenses": "Utgifter",
+    "debts": "Skulder",
+    "assets": "Tillgångar",
+    "incomeLabel": "Månadsvis inkomst",
+    "expenseLabel": "Månadsvis utgift",
+    "interest": "ränta",
+    "noIncome": "Inga inkomster tillagda",
+    "noExpenses": "Inga utgifter tillagda",
+    "noDebts": "Inga skulder registrerade",
+    "noAssets": "Inga tillgångar registrerade",
+    "addIncome": "Lägg till inkomst",
+    "addExpense": "Lägg till utgift",
+    "addDebt": "Lägg till skuld",
+    "addAsset": "Lägg till tillgång",
+    "namePlaceholder": "Namn",
+    "amountPlaceholder": "Belopp",
+    "descriptionPlaceholder": "Beskrivning",
+    "interestRatePlaceholder": "Ränta %",
+    "debtTypes": {
+      "mortgage": "Bolån",
+      "studentLoan": "Studielån",
+      "carLoan": "Billån",
+      "personalLoan": "Privatlån",
+      "creditCard": "Kreditkort",
+      "taxDebt": "Skatteskuld",
+      "businessLoan": "Företagslån",
+      "other": "Övrigt"
+    },
+    "assetTypes": {
+      "cash": "Kontanter",
+      "bankAccount": "Bankkonto",
+      "savings": "Sparkonto",
+      "investments": "Investeringar",
+      "pension": "Pension",
+      "property": "Fastighet",
+      "business": "Företag",
+      "crypto": "Krypto",
+      "other": "Övrigt"
+    }
   }
 }
 
