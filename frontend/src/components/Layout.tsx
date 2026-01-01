@@ -95,24 +95,24 @@ export default function Layout() {
               <div className="px-3 py-2 text-xs font-medium text-neutral-500 uppercase tracking-wider">
                 {t('nav.myFinance')}
               </div>
-              <div className="space-y-0.5">
-                {personalNavigation.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.href}
-                      to={item.href}
+                <div className="space-y-0.5">
+                  {personalNavigation.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
                       className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'bg-white text-neutral-900'
-                          : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
-                      }`}
-                    >
-                      {item.name}
-                    </Link>
-                  );
-                })}
-              </div>
+                          isActive
+                            ? 'bg-white text-neutral-900'
+                            : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
+                        }`}
+                      >
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                </div>
             </div>
           </nav>
 

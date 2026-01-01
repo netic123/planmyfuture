@@ -63,7 +63,7 @@ function HomeRedirect() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+          <AppRoutes />
     </BrowserRouter>
   );
 }
