@@ -85,19 +85,17 @@ export default function ForgotPasswordPage() {
                 <CheckCircle className="h-7 w-7 text-neutral-600" />
               </div>
               <h2 className="text-lg font-medium text-neutral-900 mb-2">
-                {i18n.language === 'sv' ? 'Kolla din email!' : 'Check your email!'}
+                {t('forgotPassword.checkEmail')}
               </h2>
               <p className="text-sm text-neutral-500 mb-6">
-                {i18n.language === 'sv' 
-                  ? 'Om ett konto finns med den emailen har vi skickat en länk för att återställa ditt lösenord.'
-                  : 'If an account exists with that email, we\'ve sent a link to reset your password.'}
+                {t('forgotPassword.emailSentDescription')}
               </p>
               <Link
                 to="/login"
                 className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-medium text-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
-                {i18n.language === 'sv' ? 'Tillbaka till inloggning' : 'Back to login'}
+                {t('forgotPassword.backToLogin')}
               </Link>
             </div>
           ) : (
@@ -107,12 +105,10 @@ export default function ForgotPasswordPage() {
                   <Mail className="h-5 w-5 text-neutral-600" />
                 </div>
                 <h2 className="text-lg font-medium text-neutral-900">
-                  {i18n.language === 'sv' ? 'Glömt lösenord?' : 'Forgot password?'}
+                  {t('forgotPassword.title')}
                 </h2>
                 <p className="text-neutral-500 text-sm mt-1">
-                  {i18n.language === 'sv' 
-                    ? 'Ange din email så skickar vi en återställningslänk'
-                    : 'Enter your email and we\'ll send you a reset link'}
+                  {t('forgotPassword.description')}
                 </p>
               </div>
 
@@ -125,7 +121,7 @@ export default function ForgotPasswordPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="input"
-                    placeholder={i18n.language === 'sv' ? 'din@email.se' : 'your@email.com'}
+                    placeholder={t('placeholders.email')}
                     required
                   />
                 </div>
@@ -138,7 +134,7 @@ export default function ForgotPasswordPage() {
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin mx-auto" />
                   ) : (
-                    i18n.language === 'sv' ? 'Skicka återställningslänk' : 'Send reset link'
+                    t('forgotPassword.sendResetLink')
                   )}
                 </button>
               </form>
@@ -149,7 +145,7 @@ export default function ForgotPasswordPage() {
                   className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-900 text-sm"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  {i18n.language === 'sv' ? 'Tillbaka till inloggning' : 'Back to login'}
+                  {t('forgotPassword.backToLogin')}
                 </Link>
               </div>
             </>

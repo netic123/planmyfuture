@@ -64,7 +64,18 @@
     "myBusiness": "MittBolag",
     "businessDescription": "Starta och hantera ditt företag med enkel bokföring",
     "goToMyBusiness": "Gå till MittBolag →",
-    "morePosts": "fler poster"
+    "morePosts": "fler poster",
+    "savingsNext24Months": "Sparande kommande 24 månader",
+    "netWorthOverTime": "Nettoförmögenhet över tid",
+    "costsVsSavings": "Kostnader vs sparande per period",
+    "yourFuture": "Din framtid",
+    "inYears": "Om {{years}} år",
+    "remaining": "Kvar",
+    "saved": "Sparat",
+    "totalSaved": "Totalt sparat",
+    "totalCostsLabel": "Totala kostnader",
+    "remainingDebt": "Kvarvarande skuld",
+    "yr": "år"
   },
   "auth": {
     "login": "Logga in",
@@ -114,6 +125,47 @@
   "language": {
     "en": "English",
     "sv": "Svenska"
+  },
+  "gig": {
+    "findGigs": "Hitta uppdrag",
+    "postGig": "Publicera uppdrag",
+    "myGigs": "Mina uppdrag",
+    "myProfile": "Min profil"
+  },
+  "login": {
+    "signInToAccount": "Logga in på ditt konto",
+    "invalidCredentials": "Fel email eller lösenord",
+    "forgotPassword": "Glömt lösenord?",
+    "signingIn": "Loggar in..."
+  },
+  "register": {
+    "createNewAccount": "Skapa ett nytt konto",
+    "couldNotCreate": "Kunde inte skapa konto. Email kanske redan finns."
+  },
+  "forgotPassword": {
+    "title": "Glömt lösenord?",
+    "description": "Ange din email så skickar vi en återställningslänk",
+    "sendResetLink": "Skicka återställningslänk",
+    "backToLogin": "Tillbaka till inloggning",
+    "checkEmail": "Kolla din email!",
+    "emailSentDescription": "Om ett konto finns med den emailen har vi skickat en länk för att återställa ditt lösenord."
+  },
+  "resetPassword": {
+    "title": "Ange nytt lösenord",
+    "success": "Lösenord ändrat!",
+    "successDescription": "Ditt lösenord har ändrats. Du kommer att omdirigeras till inloggningen...",
+    "description": "Välj ett starkt lösenord för ditt konto",
+    "newPassword": "Nytt lösenord",
+    "confirmPassword": "Bekräfta lösenord",
+    "setPassword": "Ändra lösenord",
+    "resetting": "Återställer...",
+    "invalidToken": "Ogiltig eller utgången återställningslänk. Vänligen begär en ny.",
+    "passwordTooShort": "Lösenordet måste vara minst 6 tecken"
+  },
+  "placeholders": {
+    "email": "din@email.se",
+    "firstName": "Johan",
+    "lastName": "Svensson"
   }
 }
 

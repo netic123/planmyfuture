@@ -49,10 +49,10 @@ export default function Layout() {
   ];
 
   const gigNavigation = [
-    { name: i18n.language === 'sv' ? 'Hitta uppdrag' : 'Find gigs', href: '/gig' },
-    { name: i18n.language === 'sv' ? 'Publicera uppdrag' : 'Post gig', href: '/gig/post' },
-    { name: i18n.language === 'sv' ? 'Mina uppdrag' : 'My gigs', href: '/gig/my-gigs' },
-    { name: i18n.language === 'sv' ? 'Min profil' : 'My profile', href: '/gig/profile' },
+    { name: t('gig.findGigs'), href: '/gig' },
+    { name: t('gig.postGig'), href: '/gig/post' },
+    { name: t('gig.myGigs'), href: '/gig/my-gigs' },
+    { name: t('gig.myProfile'), href: '/gig/profile' },
   ];
 
   const handleLogout = () => {

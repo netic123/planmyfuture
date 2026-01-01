@@ -23,12 +23,12 @@ export default function ResetPasswordPage() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError(i18n.language === 'sv' ? 'Lösenorden matchar inte' : 'Passwords do not match');
+      setError(t('auth.passwordsDoNotMatch'));
       return;
     }
 
     if (password.length < 6) {
-      setError(i18n.language === 'sv' ? 'Lösenordet måste vara minst 6 tecken' : 'Password must be at least 6 characters');
+      setError(t('resetPassword.passwordTooShort'));
       return;
     }
 
@@ -39,9 +39,7 @@ export default function ResetPasswordPage() {
       setSuccess(true);
       setTimeout(() => navigate('/login'), 3000);
     } catch {
-      setError(i18n.language === 'sv' 
-        ? 'Ogiltig eller utgången återställningslänk'
-        : 'Invalid or expired reset link');
+      setError(t('resetPassword.invalidToken'));
     } finally {
       setLoading(false);
     }
@@ -61,15 +59,13 @@ export default function ResetPasswordPage() {
             <XCircle className="h-7 w-7 text-neutral-600" />
           </div>
           <h2 className="text-lg font-medium text-neutral-900 mb-2">
-            {i18n.language === 'sv' ? 'Ogiltig länk' : 'Invalid link'}
+            {t('resetPassword.invalidToken')}
           </h2>
           <p className="text-sm text-neutral-500 mb-6">
-            {i18n.language === 'sv' 
-              ? 'Återställningslänken saknas eller är ogiltig.'
-              : 'The reset link is missing or invalid.'}
+            {t('resetPassword.invalidToken')}
           </p>
           <Link to="/forgot-password" className="btn-primary inline-block">
-            {i18n.language === 'sv' ? 'Begär ny länk' : 'Request new link'}
+            {t('forgotPassword.sendResetLink')}
           </Link>
         </div>
       </div>
@@ -129,12 +125,10 @@ export default function ResetPasswordPage() {
                 <CheckCircle className="h-7 w-7 text-neutral-600" />
               </div>
               <h2 className="text-lg font-medium text-neutral-900 mb-2">
-                {i18n.language === 'sv' ? 'Lösenord ändrat!' : 'Password changed!'}
+                {t('resetPassword.title')}
               </h2>
               <p className="text-sm text-neutral-500 mb-6">
-                {i18n.language === 'sv' 
-                  ? 'Ditt lösenord har ändrats. Du kommer att omdirigeras till inloggningen...'
-                  : 'Your password has been changed. Redirecting to login...'}
+                {t('resetPassword.successDescription')}
               </p>
               <Loader2 className="h-5 w-5 animate-spin mx-auto text-neutral-400" />
             </div>
@@ -145,12 +139,10 @@ export default function ResetPasswordPage() {
                   <Lock className="h-5 w-5 text-neutral-600" />
                 </div>
                 <h2 className="text-lg font-medium text-neutral-900">
-                  {i18n.language === 'sv' ? 'Ange nytt lösenord' : 'Set new password'}
+                  {t('resetPassword.title')}
                 </h2>
                 <p className="text-neutral-500 text-sm mt-1">
-                  {i18n.language === 'sv' 
-                    ? 'Välj ett starkt lösenord för ditt konto'
-                    : 'Choose a strong password for your account'}
+                  {t('resetPassword.description')}
                 </p>
               </div>
 
@@ -163,7 +155,7 @@ export default function ResetPasswordPage() {
 
                 <div>
                   <label htmlFor="password" className="label">
-                    {i18n.language === 'sv' ? 'Nytt lösenord' : 'New password'}
+                    {t('resetPassword.newPassword')}
                   </label>
                   <input
                     id="password"
@@ -179,7 +171,7 @@ export default function ResetPasswordPage() {
 
                 <div>
                   <label htmlFor="confirmPassword" className="label">
-                    {i18n.language === 'sv' ? 'Bekräfta lösenord' : 'Confirm password'}
+                    {t('resetPassword.confirmPassword')}
                   </label>
                   <input
                     id="confirmPassword"
@@ -200,7 +192,7 @@ export default function ResetPasswordPage() {
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin mx-auto" />
                   ) : (
-                    i18n.language === 'sv' ? 'Ändra lösenord' : 'Change password'
+                    t('resetPassword.setPassword')
                   )}
                 </button>
               </form>
@@ -211,7 +203,7 @@ export default function ResetPasswordPage() {
                   className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-900 text-sm"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  {i18n.language === 'sv' ? 'Tillbaka till inloggning' : 'Back to login'}
+                  {t('forgotPassword.backToLogin')}
                 </Link>
               </div>
             </>

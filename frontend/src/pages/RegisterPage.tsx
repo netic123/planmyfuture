@@ -35,9 +35,7 @@ export default function RegisterPage() {
       login(data);
       navigate('/');
     } catch {
-      setError(i18n.language === 'sv' 
-        ? 'Kunde inte skapa konto. Email kanske redan finns.' 
-        : 'Could not create account. Email might already exist.');
+      setError(t('register.couldNotCreate'));
     } finally {
       setLoading(false);
     }
@@ -94,7 +92,7 @@ export default function RegisterPage() {
             Plan My Future
           </h1>
           <p className="mt-2 text-sm text-neutral-500">
-            {i18n.language === 'sv' ? 'Skapa ett nytt konto' : 'Create a new account'}
+            {t('register.createNewAccount')}
           </p>
         </div>
 
@@ -115,7 +113,7 @@ export default function RegisterPage() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="input"
-                  placeholder={i18n.language === 'sv' ? 'Johan' : 'John'}
+                  placeholder={t('placeholders.firstName')}
                   required
                 />
               </div>
@@ -127,7 +125,7 @@ export default function RegisterPage() {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="input"
-                  placeholder={i18n.language === 'sv' ? 'Svensson' : 'Smith'}
+                  placeholder={t('placeholders.lastName')}
                   required
                 />
               </div>
@@ -141,7 +139,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="input"
-                placeholder={i18n.language === 'sv' ? 'din@email.se' : 'your@email.com'}
+                placeholder={t('placeholders.email')}
                 required
               />
             </div>
@@ -189,7 +187,7 @@ export default function RegisterPage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  {i18n.language === 'sv' ? 'Skapar konto...' : 'Creating account...'}
+                  {t('common.loading')}
                 </>
               ) : (
                 t('auth.createAccount')
