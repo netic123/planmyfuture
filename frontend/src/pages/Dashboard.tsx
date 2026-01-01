@@ -358,22 +358,49 @@ export default function Dashboard() {
   const incomeItems = budgetItems.filter(item => item.type === 0);
   const expenseItems = budgetItems.filter(item => item.type === 1);
 
-  // Calculate how many years until age 100
-  const yearsUntil100 = currentAge ? Math.max(0, 100 - currentAge) : 60;
+  // Calculate how many years until age 70
+  const yearsUntil70 = currentAge ? Math.max(0, 70 - currentAge) : 36;
   
-  // Chart data - show age on x-axis, covering from now until 100
-  const chartData = summary?.projections
-    ?.filter(p => p.years <= yearsUntil100)
-    ?.filter((_, i, arr) => {
-      // Show approximately 8-10 points for a clean chart
-      const step = Math.max(1, Math.floor(arr.length / 8));
-      return i % step === 0 || i === arr.length - 1;
-    })
-    ?.map(p => ({
-      year: currentAge ? `${currentAge + p.years}` : `${p.years}`,
-      age: currentAge ? currentAge + p.years : p.years,
-      netWorth: Math.round(p.projectedNetWorth),
-    })) || [];
+  // Chart data - show age on x-axis, covering from now until 70 (every year)
+  const chartData = summary?.projections && currentAge
+    ? Array.from({ length: yearsUntil70 + 1 }, (_, i) => {
+        const yearsFromNow = i;
+        const targetAge = currentAge + yearsFromNow;
+        
+        // Find exact projection or interpolate
+        const exactProjection = summary.projections.find(p => p.years === yearsFromNow);
+        let netWorth: number;
+        
+        if (yearsFromNow === 0) {
+          netWorth = summary.netWorth || 0;
+        } else if (exactProjection) {
+          netWorth = exactProjection.projectedNetWorth;
+        } else {
+          // Interpolate
+          const sortedProjections = [...summary.projections].sort((a, b) => a.years - b.years);
+          const before = sortedProjections.filter(p => p.years < yearsFromNow).pop();
+          const after = sortedProjections.find(p => p.years > yearsFromNow);
+          
+          if (before && after) {
+            const ratio = (yearsFromNow - before.years) / (after.years - before.years);
+            netWorth = before.projectedNetWorth + ratio * (after.projectedNetWorth - before.projectedNetWorth);
+          } else if (after) {
+            netWorth = (summary.netWorth || 0) + (after.projectedNetWorth - (summary.netWorth || 0)) * (yearsFromNow / after.years);
+          } else if (before) {
+            const yearlyGrowth = (before.projectedNetWorth - (summary.netWorth || 0)) / before.years;
+            netWorth = before.projectedNetWorth + yearlyGrowth * (yearsFromNow - before.years);
+          } else {
+            netWorth = summary.netWorth || 0;
+          }
+        }
+        
+        return {
+          year: `${targetAge}`,
+          age: targetAge,
+          netWorth: Math.round(netWorth),
+        };
+      })
+    : [];
 
   // Generate age-based milestones (every year from current age to 70)
   const generateAgeMilestones = () => {
