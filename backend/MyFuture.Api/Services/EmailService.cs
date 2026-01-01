@@ -106,7 +106,7 @@ public class EmailService : IEmailService
             var htmlBody = $@"
                 <html>
                 <body style='font-family: Arial, sans-serif; padding: 20px;'>
-                    <h2 style='color: #171717;'>Nytt konto har skapats på Plan My Future</h2>
+                    <h2 style='color: #171717;'>Nytt konto har skapats på Min Ekonomi</h2>
                     {duplicateWarningHtml}
                     <div style='background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;'>
                         <p><strong>👤 Namn:</strong> {firstName} {lastName}</p>
@@ -118,7 +118,7 @@ public class EmailService : IEmailService
                     <div style='background: #171717; color: white; padding: 15px; border-radius: 8px; text-align: center;'>
                         <p style='margin: 0; font-size: 18px;'>📊 Totalt antal användare: <strong>{totalUsers}</strong></p>
                     </div>
-                    <p style='color: #6b7280; font-size: 12px; margin-top: 20px;'>Detta meddelande skickades automatiskt från Plan My Future.</p>
+                    <p style='color: #6b7280; font-size: 12px; margin-top: 20px;'>Detta meddelande skickades automatiskt från Min Ekonomi.</p>
                 </body>
                 </html>";
 
@@ -126,7 +126,7 @@ public class EmailService : IEmailService
             {
                 From = GetFromEmail(),
                 To = notifyEmail,
-                Subject = $"{subjectWarning}🆕 Nytt konto #{totalUsers} - {firstName} {lastName}",
+                Subject = $"{subjectWarning}🆕 Min Ekonomi - Nytt konto #{totalUsers} - {firstName} {lastName}",
                 HtmlBody = htmlBody
             };
 
@@ -156,25 +156,25 @@ public class EmailService : IEmailService
                 <body style='font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc;'>
                     <div style='max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
                         <div style='text-align: center; margin-bottom: 30px;'>
-                            <h1 style='color: #171717; margin: 0;'>Plan My Future</h1>
-                            <p style='color: #737373; margin-top: 5px;'>Din ekonomiska framtid börjar här</p>
+                            <h1 style='color: #171717; margin: 0;'>Min Ekonomi</h1>
+                            <p style='color: #737373; margin-top: 5px;'>Få koll på din privatekonomi</p>
                         </div>
                         
                         <h2 style='color: #171717; margin-bottom: 20px;'>Välkommen, {firstName}! 🎉</h2>
                         
                         <p style='color: #525252; font-size: 16px; line-height: 1.6;'>
-                            Tack för att du skapade ett konto på Plan My Future! Vi är glada att ha dig med oss.
+                            Tack för att du skapade ett konto på Min Ekonomi! Vi är glada att ha dig med oss.
                         </p>
                         
                         <p style='color: #525252; font-size: 16px; line-height: 1.6;'>
-                            Med Plan My Future kan du:
+                            Med Min Ekonomi kan du:
                         </p>
                         
                         <ul style='color: #525252; font-size: 16px; line-height: 1.8;'>
-                            <li>📊 Planera din privatekonomi</li>
-                            <li>💰 Hantera budget och sparande</li>
+                            <li>📊 Se din nettoförmögenhet</li>
+                            <li>💰 Hålla koll på inkomster och utgifter</li>
                             <li>🏠 Spåra tillgångar och skulder</li>
-                            <li>📈 Se din ekonomiska framtid</li>
+                            <li>📈 Få prognoser för din ekonomiska framtid</li>
                         </ul>
                         
                         <div style='text-align: center; margin: 30px 0;'>
@@ -186,7 +186,7 @@ public class EmailService : IEmailService
                         <hr style='border: none; border-top: 1px solid #e5e5e5; margin: 30px 0;' />
                         
                         <p style='color: #a3a3a3; font-size: 12px; text-align: center;'>
-                            Detta meddelande skickades till {userEmail} eftersom du skapade ett konto på Plan My Future.<br/>
+                            Detta meddelande skickades till {userEmail} eftersom du skapade ett konto på Min Ekonomi.<br/>
                             Om du inte skapade detta konto, vänligen ignorera detta meddelande.
                         </p>
                     </div>
@@ -197,7 +197,7 @@ public class EmailService : IEmailService
             {
                 From = GetFromEmail(),
                 To = userEmail,
-                Subject = "🎉 Välkommen till Plan My Future!",
+                Subject = "🎉 Välkommen till Min Ekonomi!",
                 HtmlBody = htmlBody
             };
 
@@ -228,7 +228,7 @@ public class EmailService : IEmailService
                 <body style='font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc;'>
                     <div style='max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
                         <div style='text-align: center; margin-bottom: 30px;'>
-                            <h1 style='color: #171717; margin: 0;'>Plan My Future</h1>
+                            <h1 style='color: #171717; margin: 0;'>Min Ekonomi</h1>
                         </div>
                         
                         <h2 style='color: #171717; margin-bottom: 20px;'>Återställ ditt lösenord</h2>
@@ -265,7 +265,7 @@ public class EmailService : IEmailService
             {
                 From = GetFromEmail(),
                 To = userEmail,
-                Subject = "🔐 Återställ ditt Plan My Future-lösenord",
+                Subject = "🔐 Återställ ditt lösenord - Min Ekonomi",
                 HtmlBody = htmlBody
             };
 
@@ -299,7 +299,7 @@ public class EmailService : IEmailService
             var htmlBody = $@"
                 <html>
                 <body style='font-family: Arial, sans-serif; padding: 20px;'>
-                    <h2 style='color: #171717;'>🔑 Användare loggade in på Plan My Future</h2>
+                    <h2 style='color: #171717;'>🔑 Användare loggade in på Min Ekonomi</h2>
                     <div style='background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;'>
                         <p><strong>👤 Namn:</strong> {firstName} {lastName}</p>
                         <p><strong>📧 Email:</strong> {userEmail}</p>
@@ -313,7 +313,7 @@ public class EmailService : IEmailService
                     <div style='background: #f5f5f5; border: 1px solid #e5e5e5; padding: 15px; border-radius: 8px;'>
                         <p style='margin: 0; color: #525252;'><strong>📅 Senaste inloggning:</strong> {lastLoginText}</p>
                     </div>
-                    <p style='color: #6b7280; font-size: 12px; margin-top: 20px;'>Detta meddelande skickades automatiskt från Plan My Future.</p>
+                    <p style='color: #6b7280; font-size: 12px; margin-top: 20px;'>Detta meddelande skickades automatiskt från Min Ekonomi.</p>
                 </body>
                 </html>";
 
@@ -321,7 +321,7 @@ public class EmailService : IEmailService
             {
                 From = GetFromEmail(),
                 To = notifyEmail,
-                Subject = $"🔑 Inloggning #{loginCount} - {firstName} {lastName}",
+                Subject = $"🔑 Min Ekonomi - Inloggning #{loginCount} - {firstName} {lastName}",
                 HtmlBody = htmlBody
             };
 
