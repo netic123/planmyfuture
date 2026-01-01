@@ -50,12 +50,12 @@ export default function ExpensesStep() {
   const handleNext = () => {
     updateData({ expenses: expenses.filter(e => e.amount > 0) });
     setCurrentStep(3);
-    navigate('/onboarding/mortgage');
+    navigate('/mortgage');
   };
 
   const handleBack = () => {
     setCurrentStep(1);
-    navigate('/onboarding/salary');
+    navigate('/');
   };
 
   return (
@@ -67,7 +67,7 @@ export default function ExpensesStep() {
         {expenses.map((expense, index) => (
           <div key={index} className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="text-sm text-neutral-600 mb-1 block">{expense.name}</label>
+              <label className="text-sm text-white/70 mb-1 block">{expense.name}</label>
               <FormattedNumberInput
                 value={expense.amount}
                 onChange={(value) => handleExpenseChange(index, value)}
@@ -78,7 +78,7 @@ export default function ExpensesStep() {
             {index >= 4 && (
               <button
                 onClick={() => removeExpense(index)}
-                className="mt-6 p-2 text-neutral-400 hover:text-neutral-600"
+                className="mt-6 p-2 text-white/40 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -93,13 +93,13 @@ export default function ExpensesStep() {
             value={newExpenseName}
             onChange={(e) => setNewExpenseName(e.target.value)}
             placeholder={t('onboarding.expenses.addExpense')}
-            className="flex-1 px-4 py-2.5 border border-neutral-200 rounded-xl text-sm"
+            className="flex-1 px-4 py-2.5 bg-black border border-neutral-700 text-white rounded-xl text-sm placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-white"
             onKeyDown={(e) => e.key === 'Enter' && addExpense()}
           />
           <button
             onClick={addExpense}
             disabled={!newExpenseName.trim()}
-            className="p-2.5 bg-neutral-100 rounded-xl text-neutral-600 hover:bg-neutral-200 disabled:opacity-40"
+            className="p-2.5 bg-neutral-800 border border-neutral-700 rounded-xl text-white/60 hover:bg-neutral-700 hover:text-white disabled:opacity-40"
           >
             <Plus className="h-5 w-5" />
           </button>
@@ -109,13 +109,13 @@ export default function ExpensesStep() {
       <div className="flex gap-3 pt-4">
         <button
           onClick={handleBack}
-          className="flex items-center justify-center gap-2 py-4 px-6 border border-neutral-200 rounded-xl font-medium hover:bg-neutral-50 transition-colors"
+          className="flex items-center justify-center gap-2 py-4 px-6 border border-neutral-700 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
         <button
           onClick={handleNext}
-          className="flex-1 flex items-center justify-center gap-2 py-4 bg-neutral-900 text-white rounded-xl font-medium text-lg hover:bg-neutral-800 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 py-4 bg-white text-black rounded-xl font-medium text-lg hover:bg-neutral-200 transition-colors"
         >
           {t('onboarding.expenses.continue')}
           <ArrowRight className="h-5 w-5" />

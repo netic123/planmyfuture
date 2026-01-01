@@ -86,12 +86,12 @@ export default function FormattedNumberInput({
         onBlur={handleBlur}
         placeholder={placeholder}
         disabled={disabled}
-        className={`w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all ${
-          suffix ? 'pr-12' : ''
+        className={`w-full px-4 py-2.5 bg-black border border-neutral-700 text-white placeholder:text-neutral-500 rounded-xl focus:ring-2 focus:ring-white focus:border-transparent transition-all ${
+          suffix ? 'pr-16' : ''
         } ${className}`}
       />
       {suffix && (
-        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 text-sm pointer-events-none">
           {suffix}
         </span>
       )}
