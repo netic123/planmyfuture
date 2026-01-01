@@ -15,11 +15,11 @@ export default function Tooltip({ text, children }: TooltipProps) {
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
     >
-      {children || <HelpCircle className="h-4 w-4 text-slate-400 hover:text-slate-600 cursor-help" />}
+      {children || <HelpCircle className="h-4 w-4 text-neutral-400 hover:text-neutral-600 cursor-help" />}
       {show && (
-        <span className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-slate-800 rounded-lg shadow-lg whitespace-nowrap max-w-xs">
+        <span className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-neutral-800 rounded-lg shadow-lg max-w-sm text-center">
           {text}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></span>
+          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-800"></span>
         </span>
       )}
     </span>
@@ -34,7 +34,7 @@ interface LabelWithTooltipProps {
 
 export function LabelWithTooltip({ label, tooltip, required }: LabelWithTooltipProps) {
   return (
-    <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 mb-1">
+    <label className="flex items-center gap-1.5 text-sm font-medium text-neutral-700 mb-1">
       {label}{required && ' *'}
       <Tooltip text={tooltip} />
     </label>
