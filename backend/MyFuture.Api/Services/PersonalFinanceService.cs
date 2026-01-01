@@ -418,17 +418,26 @@ public class PersonalFinanceService : IPersonalFinanceService
             .ToListAsync();
 
         // Beräkna summor
-        var totalAssets = accounts.Sum(a => a.Balance);
-        var totalDebts = debts.Sum(d => d.CurrentBalance);
+        var financialAssets = accounts.Sum(a => a.Balance);
+        var allDebts = debts.Sum(d => d.CurrentBalance);
         
         // Inkludera equity från skulder med tillgångsvärde (t.ex. bostadslån)
         // Equity = AssetValue - CurrentBalance för varje skuld med tillgång
         var totalEquityFromDebts = debts.Where(d => d.AssetValue.HasValue).Sum(d => d.EquityInAsset);
         
-        // NetWorth = Tillgångar + Equity i tillgångar - Skulder utan tillgångsvärde
-        // Alternativt: NetWorth = Tillgångar + Tillgångsvärden från skulder - Alla skulder
-        // Vilket ger: NetWorth = totalAssets + totalEquityFromDebts
-        var netWorth = totalAssets + totalEquityFromDebts;
+        // För display: Inkludera eget kapital i tillgångar, exkludera bolån från skulder
+        // Detta gör att Tillgångar - Skulder = Nettoförmögenhet (logiskt för användaren)
+        var debtsWithAssets = debts.Where(d => d.AssetValue.HasValue).Sum(d => d.CurrentBalance);
+        var debtsWithoutAssets = allDebts - debtsWithAssets;
+        
+        // Display-vänliga värden:
+        // Tillgångar = finansiella tillgångar + eget kapital i fastighet
+        // Skulder = bara skulder utan kopplad tillgång (studielån, kreditkort etc.)
+        var totalAssets = financialAssets + totalEquityFromDebts;
+        var totalDebts = debtsWithoutAssets;
+        
+        // NetWorth = totalAssets - totalDebts (nu logiskt!)
+        var netWorth = totalAssets - totalDebts;
 
         var totalIncome = budgetItems.Where(b => b.Type == BudgetItemType.Income).Sum(b => b.Amount);
         var totalExpenses = budgetItems.Where(b => b.Type == BudgetItemType.Expense).Sum(b => b.Amount);
@@ -481,7 +490,7 @@ public class PersonalFinanceService : IPersonalFinanceService
         
         // Total skuld procent
         var totalOriginalDebt = debts.Sum(d => d.OriginalAmount);
-        var totalDebtPercentage = totalOriginalDebt > 0 ? (totalDebts / totalOriginalDebt) * 100 : 0;
+        var totalDebtPercentage = totalOriginalDebt > 0 ? (allDebts / totalOriginalDebt) * 100 : 0;
 
         // Beräkna månatliga betalningar
         var monthlyInterest = debts.Sum(d => (d.CurrentBalance * d.InterestRate / 100) / 12);
@@ -491,9 +500,6 @@ public class PersonalFinanceService : IPersonalFinanceService
         var projections = new List<FinancialProjection>();
         var projectionYears = new[] { 1, 5, 10, 20, 30, 40, 50, 60 };
         
-        // Ingen antagen avkastning på sparande (realistisk beräkning)
-        const decimal annualReturnRate = 0m;
-        
         foreach (var years in projectionYears)
         {
             var months = years * 12;
@@ -501,17 +507,17 @@ public class PersonalFinanceService : IPersonalFinanceService
             // Totala kostnader (utgifter × månader)
             var totalCosts = totalExpenses * months;
             
-            // Beräkna skuld efter amortering (förenklad modell)
+            // Beräkna skuld efter amortering (förenklad modell) - använd alla skulder
             var totalAmortizationPaid = monthlyAmortization * months;
-            var remainingDebt = Math.Max(0, totalDebts - totalAmortizationPaid);
+            var remainingAllDebt = Math.Max(0, allDebts - totalAmortizationPaid);
             
             // Beräkna total ränta betald (förenklad modell med minskande skuld)
             decimal totalInterestPaid = 0;
-            var debtBalance = totalDebts;
+            var debtBalance = allDebts;
             for (int year = 0; year < years; year++)
             {
                 var yearlyInterest = debts.Sum(d => {
-                    var ratio = totalDebts > 0 ? d.CurrentBalance / totalDebts : 0;
+                    var ratio = allDebts > 0 ? d.CurrentBalance / allDebts : 0;
                     return (debtBalance * ratio * d.InterestRate / 100);
                 });
                 totalInterestPaid += yearlyInterest;
@@ -521,13 +527,12 @@ public class PersonalFinanceService : IPersonalFinanceService
             // Enkelt sparande utan ränta
             var totalSavedSimple = monthlyBalance * months;
             
-            // Sparande (ingen ränta-på-ränta beräkning - realistisk modell)
-            decimal projectedSavingsWithInterest = totalSavedSimple;
-            
-            // Projicerad nettoförmögenhet (inkludera equity från tillgångar kopplade till skulder)
-            // När skulden minskar ökar equity i tillgången
-            var projectedEquity = debts.Where(d => d.AssetValue.HasValue).Sum(d => d.AssetValue!.Value) - remainingDebt;
-            var projectedNetWorth = totalAssets + projectedSavingsWithInterest + projectedEquity;
+            // Projicerad nettoförmögenhet
+            // Finansiella tillgångar + sparande + eget kapital i fastighet (som ökar när bolånet minskar)
+            var mortgageRemaining = Math.Max(0, debtsWithAssets - totalAmortizationPaid);
+            var projectedEquity = debts.Where(d => d.AssetValue.HasValue).Sum(d => d.AssetValue!.Value) - mortgageRemaining;
+            var otherDebtsRemaining = Math.Max(0, debtsWithoutAssets - (totalAmortizationPaid - (debtsWithAssets - mortgageRemaining)));
+            var projectedNetWorth = financialAssets + totalSavedSimple + projectedEquity - Math.Max(0, otherDebtsRemaining);
             
             projections.Add(new FinancialProjection(
                 years, 
@@ -536,8 +541,8 @@ public class PersonalFinanceService : IPersonalFinanceService
                 projectedNetWorth,
                 totalInterestPaid,
                 totalAmortizationPaid,
-                remainingDebt,
-                projectedSavingsWithInterest
+                remainingAllDebt,
+                totalSavedSimple
             ));
         }
 
@@ -548,7 +553,7 @@ public class PersonalFinanceService : IPersonalFinanceService
             totalIncome,
             totalExpenses,
             monthlyBalance,
-            totalDebts,
+            allDebts, // TotalDebtRemaining - alla skulder för detaljer
             (decimal)(debts.Any() ? debts.Average(d => (double)d.RemainingPercentage) : 0),
             housingDebtPercentage,
             personalDebtPercentage,
