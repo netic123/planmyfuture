@@ -423,8 +423,8 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-white" />
       </div>
     );
   }
@@ -443,12 +443,12 @@ export default function Dashboard() {
     
     if (isEditing) {
       return (
-        <div key={id} className="flex items-center justify-between py-2 px-3 bg-blue-50 rounded-lg border border-blue-200">
+        <div key={id} className="flex items-center justify-between py-2 px-3 bg-neutral-800 rounded-lg border border-neutral-600">
           <input
             type="text"
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
-            className="flex-1 min-w-0 px-2 py-1 border border-neutral-300 rounded text-sm mr-2"
+            className="flex-1 min-w-0 px-2 py-1 bg-neutral-900 border border-neutral-600 rounded text-sm mr-2 text-white placeholder-neutral-500"
             placeholder="Namn"
           />
           <div className="flex items-center gap-2">
@@ -456,18 +456,18 @@ export default function Dashboard() {
               type="number"
               value={editValue}
               onChange={(e) => setEditValue(parseFloat(e.target.value) || 0)}
-              className="w-28 px-2 py-1 border border-neutral-300 rounded text-right text-sm"
+              className="w-28 px-2 py-1 bg-neutral-900 border border-neutral-600 rounded text-right text-sm text-white"
             />
             <button 
               onClick={() => onSave(id, editName, editValue)} 
               disabled={saving}
-              className="p-1 text-green-600 hover:bg-green-100 rounded"
+              className="p-1 text-green-400 hover:bg-neutral-700 rounded"
             >
               <Check className="h-4 w-4" />
             </button>
             <button 
               onClick={cancelEdit} 
-              className="p-1 text-neutral-400 hover:bg-neutral-100 rounded"
+              className="p-1 text-neutral-500 hover:bg-neutral-700 rounded"
             >
               <X className="h-4 w-4" />
             </button>
@@ -477,9 +477,9 @@ export default function Dashboard() {
     }
     
     return (
-      <div key={id} className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
+      <div key={id} className="flex items-center justify-between py-2 px-3 bg-neutral-800 rounded-lg">
         <div className="flex items-center">
-          <span className="text-sm text-neutral-700">{currentName}</span>
+          <span className="text-sm text-neutral-300">{currentName}</span>
           {extraInfo}
         </div>
         <div className="flex items-center gap-2">
@@ -487,10 +487,10 @@ export default function Dashboard() {
             onClick={() => startEdit(id, currentName, currentValue, section)}
             className="flex items-center gap-1.5 group text-sm"
           >
-            <span className="font-medium">{formatCurrency(currentValue)}</span>
-            <Pencil className="h-3 w-3 text-neutral-300 group-hover:text-neutral-600" />
+            <span className="font-medium text-white">{formatCurrency(currentValue)}</span>
+            <Pencil className="h-3 w-3 text-neutral-600 group-hover:text-neutral-400" />
           </button>
-          <button onClick={() => onDelete(id)} className="p-1 text-neutral-300 hover:text-red-500">
+          <button onClick={() => onDelete(id)} className="p-1 text-neutral-600 hover:text-red-400">
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -511,50 +511,50 @@ export default function Dashboard() {
     const isExpanded = expandedSections.has(section);
     
     return (
-      <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+      <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
         <button
           onClick={() => toggleSection(section)}
-          className="w-full p-5 flex items-center justify-between hover:bg-neutral-50 transition-colors"
+          className="w-full p-5 flex items-center justify-between hover:bg-neutral-800 transition-colors"
         >
           <div className="flex items-center gap-2">
             {icon}
-            <span className="text-sm text-neutral-600">{label}</span>
+            <span className="text-sm text-neutral-400">{label}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-semibold text-neutral-900">
+            <span className="text-2xl font-semibold text-white">
               {formatCurrency(value)}
             </span>
             {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-neutral-400" />
+              <ChevronUp className="h-5 w-5 text-neutral-500" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-neutral-400" />
+              <ChevronDown className="h-5 w-5 text-neutral-500" />
             )}
           </div>
         </button>
         
         {isExpanded && (
-          <div className="border-t border-neutral-100 p-4 space-y-2">
+          <div className="border-t border-neutral-800 p-4 space-y-2">
             {items.length === 0 ? (
-              <p className="text-sm text-neutral-400 text-center py-2">Inga poster</p>
+              <p className="text-sm text-neutral-500 text-center py-2">Inga poster</p>
             ) : (
               items.map(renderItem)
             )}
             
             {showAddFormFor === section ? (
-              <div className="mt-3 p-3 bg-neutral-50 rounded-lg space-y-2">
+              <div className="mt-3 p-3 bg-neutral-800 rounded-lg space-y-2">
                 <input
                   type="text"
                   placeholder={t('dashboard.namePlaceholder')}
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm"
+                  className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-lg text-sm text-white placeholder-neutral-500"
                 />
                 <input
                   type="number"
                   placeholder={t('dashboard.amountPlaceholder')}
                   value={newItemAmount || ''}
                   onChange={(e) => setNewItemAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm"
+                  className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-lg text-sm text-white placeholder-neutral-500"
                 />
                 {section === 'debts' && (
                   <input
@@ -562,20 +562,20 @@ export default function Dashboard() {
                     placeholder="Ränta %"
                     value={newItemRate || ''}
                     onChange={(e) => setNewItemRate(parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-lg text-sm text-white placeholder-neutral-500"
                   />
                 )}
                 <div className="flex gap-2">
                   <button
                     onClick={resetAddForm}
-                    className="flex-1 py-2 text-sm text-neutral-600 hover:bg-neutral-100 rounded-lg"
+                    className="flex-1 py-2 text-sm text-neutral-400 hover:bg-neutral-700 rounded-lg"
                   >
                     {t('dashboard.cancel')}
                   </button>
                   <button
                     onClick={onAdd}
                     disabled={saving || !newItemName || newItemAmount <= 0}
-                    className="flex-1 py-2 text-sm bg-neutral-900 text-white rounded-lg disabled:opacity-50"
+                    className="flex-1 py-2 text-sm bg-white text-black rounded-lg disabled:opacity-50 hover:bg-neutral-200"
                   >
                     {saving ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t('dashboard.add')}
                   </button>
@@ -584,7 +584,7 @@ export default function Dashboard() {
             ) : (
               <button
                 onClick={() => setShowAddFormFor(section)}
-                className="w-full py-2 mt-2 text-sm text-neutral-500 hover:text-neutral-700 flex items-center justify-center gap-1 border border-dashed border-neutral-200 rounded-lg hover:border-neutral-400"
+                className="w-full py-2 mt-2 text-sm text-neutral-500 hover:text-white flex items-center justify-center gap-1 border border-dashed border-neutral-700 rounded-lg hover:border-neutral-500"
               >
                 <Plus className="h-4 w-4" />
                 {addLabel}
@@ -602,18 +602,18 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 relative">
+    <div className="min-h-screen bg-black relative">
       {/* Header with language switcher and logout */}
       <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
         <button
           onClick={toggleLanguage}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-600 hover:text-neutral-900 bg-white border border-neutral-200 rounded-lg hover:border-neutral-300 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-neutral-500 transition-colors"
         >
           {i18n.language === 'sv' ? 'EN' : 'SV'}
         </button>
         <button
           onClick={handleLogout}
-          className="p-2 text-neutral-400 hover:text-neutral-600 transition-colors"
+          className="p-2 text-neutral-500 hover:text-white transition-colors"
           title={t('dashboard.logout')}
         >
           <LogOut className="h-5 w-5" />
@@ -726,13 +726,13 @@ export default function Dashboard() {
         </div>
 
         {/* Monthly Balance */}
-        <div className="bg-white rounded-xl p-5 border border-neutral-200">
+        <div className="bg-neutral-900 rounded-xl p-5 border border-neutral-800">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <PiggyBank className="h-5 w-5 text-neutral-400" />
-              <span className="text-neutral-600">{t('dashboard.savingsPerMonth')}</span>
+              <PiggyBank className="h-5 w-5 text-neutral-500" />
+              <span className="text-neutral-400">{t('dashboard.savingsPerMonth')}</span>
             </div>
-            <span className={`text-2xl font-semibold ${(summary?.monthlyBalance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`text-2xl font-semibold ${(summary?.monthlyBalance || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {formatCurrency(summary?.monthlyBalance || 0)}
             </span>
           </div>
@@ -740,9 +740,9 @@ export default function Dashboard() {
 
         {/* Forecast Chart */}
         {chartData.length > 0 && (
-          <div className="bg-white rounded-xl p-6 border border-neutral-200">
-            <h2 className="text-sm font-medium text-neutral-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-neutral-400" />
+          <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+            <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-neutral-500" />
               {t('dashboard.forecast')}
             </h2>
             <div className="h-64">
@@ -750,11 +750,11 @@ export default function Dashboard() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#171717" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#171717" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#ffffff" stopOpacity={0.15}/>
+                      <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
                   <XAxis 
                     dataKey="year" 
                     tick={{ fontSize: 12, fill: '#737373' }}
@@ -770,7 +770,9 @@ export default function Dashboard() {
                     formatter={(value) => formatCurrency(Number(value) || 0)}
                     contentStyle={{ 
                       borderRadius: '8px', 
-                      border: '1px solid #e5e5e5',
+                      border: '1px solid #333333',
+                      backgroundColor: '#171717',
+                      color: '#ffffff',
                       fontSize: '14px'
                     }}
                   />
@@ -778,7 +780,7 @@ export default function Dashboard() {
                     type="monotone" 
                     dataKey="netWorth" 
                     name={t('dashboard.netWorth')}
-                    stroke="#171717" 
+                    stroke="#ffffff" 
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#colorNetWorth)" 
@@ -791,9 +793,9 @@ export default function Dashboard() {
 
         {/* Cost of Living Chart */}
         {chartData.length > 0 && summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && (
-          <div className="bg-white rounded-xl p-6 border border-neutral-200">
-            <h2 className="text-sm font-medium text-neutral-900 mb-4 flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-neutral-400" />
+          <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+            <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+              <Wallet className="h-4 w-4 text-neutral-500" />
               {t('dashboard.costOfLiving')}
             </h2>
             <div className="h-64">
@@ -804,11 +806,11 @@ export default function Dashboard() {
                 }))}>
                   <defs>
                     <linearGradient id="colorCostOfLiving" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2}/>
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
                       <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
                   <XAxis 
                     dataKey="year" 
                     tick={{ fontSize: 12, fill: '#737373' }}
@@ -824,7 +826,9 @@ export default function Dashboard() {
                     formatter={(value) => formatCurrency(Number(value) || 0)}
                     contentStyle={{ 
                       borderRadius: '8px', 
-                      border: '1px solid #e5e5e5',
+                      border: '1px solid #333333',
+                      backgroundColor: '#171717',
+                      color: '#ffffff',
                       fontSize: '14px'
                     }}
                   />
