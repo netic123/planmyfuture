@@ -1,63 +1,63 @@
-# Plan My Future
+# Min Ekonomi
 
-A comprehensive personal finance and business management application.
+En personlig ekonomiapp som hjälper dig att få koll på din ekonomi.
 
-## 🌐 Live Demo
+## 🌐 Live
 
 **https://planmyfuture.org**
 
-## Features
+## ✨ Funktioner
 
-### Personal Finance (My Finances)
-- **Dashboard** - Track your net worth over time
-- **Assets** - Manage bank accounts and investments
-- **Debts** - Track loans and mortgages with equity calculations
-- **Budget** - Plan and monitor your monthly spending
-- **Tax & Pension** - Swedish tax calculations and pension projections
+### Steg-för-steg onboarding
+- 📊 Ange din lön efter skatt
+- 🏠 Lägg till bostadslån, ränta och amortering
+- 💳 Registrera övriga skulder (studielån, billån, kreditkort, etc.)
+- 💰 Lägg till tillgångar (sparkonton, investeringar, pension)
+- ✅ Skapa konto och se din översikt direkt
 
-### Business Management (My Business)
-- **Company Profile** - Manage company details
-- **Invoicing** - Create and manage customer invoices
-- **Expenses** - Track business expenses
-- **Employees** - Manage employees and payroll
-- **VAT Reports** - Generate VAT reports
-- **Year-End** - Annual accounting reports
+### Dashboard
+- **Nettoförmögenhet** - Se dina totala tillgångar minus skulder
+- **Månadsöversikt** - Inkomster, utgifter och vad som blir kvar
+- **Skulder** - Alla lån med räntor och amortering
+- **Tillgångar** - Sparkonton, investeringar och pension
+- **Framtidsprognos** - Se hur din ekonomi utvecklas över tid
 
-### Gig Economy (My Gig)
-- **Browse Gigs** - Find freelance opportunities
-- **Post Gigs** - Create gig listings
-- **Profile** - Manage your consultant profile
+### Flerspråksstöd
+- 🇬🇧 Engelska (standard)
+- 🇸🇪 Svenska
+- Språkvalet sparas i din profil
 
-## Tech Stack
+## 🛠 Teknikstack
 
-| Component | Technology |
-|-----------|------------|
+| Komponent | Teknologi |
+|-----------|-----------|
 | Frontend | React 18 + TypeScript + Vite |
 | UI | Tailwind CSS |
 | Backend | .NET 8 Web API |
-| Database | SQLite |
+| Databas | PostgreSQL (Neon) |
 | ORM | Entity Framework Core |
 | Auth | JWT Bearer tokens |
-| Hosting | Render (Free tier) |
+| Email | Resend |
+| Hosting | Render |
 
-## Local Development
+## 🚀 Lokal utveckling
 
-### Prerequisites
+### Förutsättningar
 
 - .NET 8 SDK
 - Node.js 18+
 - npm
 
-### Start Backend
+### Starta Backend
 
 ```bash
 cd backend/MyFuture.Api
 dotnet run
 ```
 
-Backend runs on http://localhost:5157
+Backend körs på http://localhost:5157
 
-### Start Frontend
+### Starta Frontend
 
 ```bash
 cd frontend
@@ -65,24 +65,24 @@ npm install
 npm run dev
 ```
 
-Frontend runs on http://localhost:5173
+Frontend körs på http://localhost:5173
 
-## Deployment
+## 📦 Deployment
 
-The app is deployed on Render using Docker. Push to `main` branch triggers automatic deployment.
-
-### Manual Deployment
+Appen är deployad på Render med Docker. Push till `main`-branchen triggar automatisk deployment.
 
 ```bash
 git add .
-git commit -m "Your changes"
+git commit -m "Dina ändringar"
 git push origin main
 ```
 
-## API Documentation
+## 📧 Email-notifieringar
 
-Swagger UI available at http://localhost:5157/swagger (development mode only).
+- **Välkomstmail** - Skickas vid registrering
+- **Lösenordsåterställning** - Säker länk för att byta lösenord
+- **Admin-notis** - Vid nya konton och inloggningar
 
-## License
+## 📄 Licens
 
-Private project - all rights reserved.
+Privat projekt - alla rättigheter förbehållna.
