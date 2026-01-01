@@ -759,8 +759,9 @@ export default function Dashboard() {
                   netWorth = exactProjection.projectedNetWorth;
                 } else {
                   // Find projections before and after to interpolate
-                  const before = summary.projections.filter(p => p.years < yearsFromNow).pop();
-                  const after = summary.projections.find(p => p.years > yearsFromNow);
+                  const sortedProjections = [...summary.projections].sort((a, b) => a.years - b.years);
+                  const before = sortedProjections.filter(p => p.years < yearsFromNow).pop();
+                  const after = sortedProjections.find(p => p.years > yearsFromNow);
                   
                   if (before && after) {
                     // Linear interpolation
@@ -769,9 +770,17 @@ export default function Dashboard() {
                   } else if (after) {
                     netWorth = (summary.netWorth || 0) + (after.projectedNetWorth - (summary.netWorth || 0)) * (yearsFromNow / after.years);
                   } else if (before) {
-                    // Extrapolate from last known
-                    const growthRate = before.projectedNetWorth / (summary.netWorth || 1);
-                    netWorth = before.projectedNetWorth * Math.pow(growthRate, yearsFromNow / before.years);
+                    // Linear extrapolation from the last two known projections
+                    const secondToLast = sortedProjections.filter(p => p.years < before.years).pop();
+                    if (secondToLast) {
+                      // Use the growth rate between last two data points
+                      const yearlyGrowth = (before.projectedNetWorth - secondToLast.projectedNetWorth) / (before.years - secondToLast.years);
+                      netWorth = before.projectedNetWorth + yearlyGrowth * (yearsFromNow - before.years);
+                    } else {
+                      // Fallback: simple linear projection from current net worth
+                      const yearlyGrowth = (before.projectedNetWorth - (summary.netWorth || 0)) / before.years;
+                      netWorth = before.projectedNetWorth + yearlyGrowth * (yearsFromNow - before.years);
+                    }
                   } else {
                     netWorth = summary.netWorth || 0;
                   }
