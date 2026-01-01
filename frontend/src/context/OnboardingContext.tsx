@@ -19,8 +19,9 @@ export interface AssetItem {
 }
 
 export interface OnboardingData {
-  // Step 1: Salary
+  // Step 1: Salary & Age
   salary: number;
+  birthYear: number;
   
   // Step 2: Expenses
   expenses: ExpenseItem[];
@@ -53,6 +54,7 @@ interface OnboardingContextType {
 
 const defaultData: OnboardingData = {
   salary: 0,
+  birthYear: 0,
   expenses: [],
   hasMortgage: false,
   mortgageAmount: 0,

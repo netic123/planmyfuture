@@ -54,6 +54,9 @@
     "costsVsSavings": "Costs vs savings per period",
     "yourFuture": "Your future",
     "inYears": "In {{years}} years",
+    "atAge": "At age {{age}}",
+    "costOfLiving": "Cost of living",
+    "totalCostUntil": "Total cost until age {{age}}",
     "remaining": "Remaining",
     "totalSaved": "Total saved",
     "totalCostsLabel": "Total costs",
@@ -222,8 +225,13 @@
       "account": "Account"
     },
     "salary": {
-      "title": "What is your salary?",
-      "subtitle": "After tax, per month",
+      "title": "A little about you",
+      "subtitle": "Let's start with the basics",
+      "birthYear": "What year were you born?",
+      "birthYearPlaceholder": "1990",
+      "currentAge": "Your age",
+      "years": "years",
+      "monthlyIncome": "What is your salary after tax?",
       "placeholder": "35,000",
       "continue": "Continue"
     },

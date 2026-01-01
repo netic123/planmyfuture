@@ -54,6 +54,9 @@
     "costsVsSavings": "Kostnader vs sparande per period",
     "yourFuture": "Din framtid",
     "inYears": "Om {{years}} år",
+    "atAge": "Vid {{age}} år",
+    "costOfLiving": "Kostnad att leva",
+    "totalCostUntil": "Total kostnad till {{age}} år",
     "remaining": "Kvar",
     "totalSaved": "Totalt sparat",
     "totalCostsLabel": "Totala kostnader",
@@ -222,8 +225,13 @@
       "account": "Konto"
     },
     "salary": {
-      "title": "Vad är din lön?",
-      "subtitle": "Efter skatt, per månad",
+      "title": "Lite om dig",
+      "subtitle": "Vi börjar med grunderna",
+      "birthYear": "Vilket år är du född?",
+      "birthYearPlaceholder": "1990",
+      "currentAge": "Din ålder",
+      "years": "år",
+      "monthlyIncome": "Vad är din lön efter skatt?",
       "placeholder": "35 000",
       "continue": "Fortsätt"
     },

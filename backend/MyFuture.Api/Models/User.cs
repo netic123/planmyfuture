@@ -13,6 +13,7 @@ public class User
     public string? LastLoginIp { get; set; }
     public int LoginCount { get; set; } = 0;
     public string PreferredLanguage { get; set; } = "en";
+    public int? BirthYear { get; set; }
     
     // Password Reset
     public string? PasswordResetToken { get; set; }
