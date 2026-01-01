@@ -107,18 +107,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ICompanyService, CompanyService>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-builder.Services.AddScoped<IVoucherService, VoucherService>();
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped<IExpenseService, ExpenseService>();
-builder.Services.AddScoped<IYearEndService, YearEndService>();
-builder.Services.AddScoped<IVatService, VatService>();
 builder.Services.AddScoped<IPersonalFinanceService, PersonalFinanceService>();
-builder.Services.AddScoped<IGigService, GigService>();
 
 var app = builder.Build();
 
