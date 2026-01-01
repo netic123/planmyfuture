@@ -1,63 +1,68 @@
-# Min Ekonomi
+# Plan My Future
 
-En personlig ekonomiapp som hjälper dig att få koll på din ekonomi.
+A personal finance app that helps you take control of your economy.
 
 ## 🌐 Live
 
 **https://planmyfuture.org**
 
-## ✨ Funktioner
+## ✨ Features
 
-### Steg-för-steg onboarding
-- 📊 Ange din lön efter skatt
-- 🏠 Lägg till bostadslån, ränta och amortering
-- 💳 Registrera övriga skulder (studielån, billån, kreditkort, etc.)
-- 💰 Lägg till tillgångar (sparkonton, investeringar, pension)
-- ✅ Skapa konto och se din översikt direkt
+### Step-by-step Onboarding
+- 📊 Enter your salary after tax
+- 🏠 Add mortgage, interest rate, and amortization
+- 💳 Register other debts (student loans, car loans, credit cards, etc.)
+- 💰 Add assets (savings accounts, investments, pension)
+- ✅ Create account and see your overview immediately
 
 ### Dashboard
-- **Nettoförmögenhet** - Se dina totala tillgångar minus skulder
-- **Månadsöversikt** - Inkomster, utgifter och vad som blir kvar
-- **Skulder** - Alla lån med räntor och amortering
-- **Tillgångar** - Sparkonton, investeringar och pension
-- **Framtidsprognos** - Se hur din ekonomi utvecklas över tid
+- **Net Worth** - View your total assets minus debts
+- **Monthly Overview** - Income, expenses, and what's left over
+- **Debts** - All loans with interest rates and amortization
+- **Assets** - Savings accounts, investments, and pension
+- **Future Forecast** - See how your finances develop over time
 
-### Flerspråksstöd
-- 🇬🇧 Engelska (standard)
-- 🇸🇪 Svenska
-- Språkvalet sparas i din profil
+### Multi-language Support
+- 🇬🇧 English (default)
+- 🇸🇪 Swedish
+- Language preference is saved to your profile
 
-## 🛠 Teknikstack
+### GDPR Compliance
+- 🔒 Full data deletion support
+- Delete your account and all associated data at any time
+- Confirmation email sent upon deletion
 
-| Komponent | Teknologi |
-|-----------|-----------|
+## 🛠 Tech Stack
+
+| Component | Technology |
+|-----------|------------|
 | Frontend | React 18 + TypeScript + Vite |
 | UI | Tailwind CSS |
 | Backend | .NET 8 Web API |
-| Databas | PostgreSQL (Neon) |
+| Database | PostgreSQL (Neon) |
 | ORM | Entity Framework Core |
 | Auth | JWT Bearer tokens |
 | Email | Resend |
 | Hosting | Render |
 
-## 🚀 Lokal utveckling
+## 🚀 Local Development
 
-### Förutsättningar
+### Prerequisites
 
 - .NET 8 SDK
 - Node.js 18+
 - npm
 
-### Starta Backend
+### Start Backend
 
 ```bash
 cd backend/MyFuture.Api
 dotnet run
 ```
 
-Backend körs på http://localhost:5157
+Backend runs on http://localhost:5157
 
-### Starta Frontend
+### Start Frontend
 
 ```bash
 cd frontend
@@ -65,24 +70,32 @@ npm install
 npm run dev
 ```
 
-Frontend körs på http://localhost:5173
+Frontend runs on http://localhost:5173
 
 ## 📦 Deployment
 
-Appen är deployad på Render med Docker. Push till `main`-branchen triggar automatisk deployment.
+The app is deployed on Render with Docker. Push to the `main` branch triggers automatic deployment.
 
 ```bash
 git add .
-git commit -m "Dina ändringar"
+git commit -m "Your changes"
 git push origin main
 ```
 
-## 📧 Email-notifieringar
+## 📧 Email Notifications
 
-- **Välkomstmail** - Skickas vid registrering
-- **Lösenordsåterställning** - Säker länk för att byta lösenord
-- **Admin-notis** - Vid nya konton och inloggningar
+- **Welcome email** - Sent upon registration
+- **Password reset** - Secure link to change password
+- **Admin notifications** - On new accounts and logins
+- **GDPR deletion confirmation** - Sent when account is deleted
 
-## 📄 Licens
+## 🔐 Security
 
-Privat projekt - alla rättigheter förbehållna.
+- Protected routes require authentication
+- JWT tokens for secure API access
+- Passwords hashed with BCrypt
+- HTTPS enforced in production
+
+## 📄 License
+
+Private project - all rights reserved.
