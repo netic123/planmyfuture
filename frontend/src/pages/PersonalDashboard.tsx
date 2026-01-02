@@ -177,7 +177,7 @@ export default function PersonalDashboard() {
       </div>
 
       {/* Monthly Budget Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card p-5">
           <div className="flex items-center gap-3 mb-3">
             <ArrowUpRight className="h-4 w-4 text-neutral-400" />
@@ -201,6 +201,16 @@ export default function PersonalDashboard() {
           </div>
           <p className={`text-2xl font-semibold text-neutral-900`}>
             {formatCurrency(summary.monthlyBalance)}
+          </p>
+        </div>
+
+        <div className="card p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <Calendar className="h-4 w-4 text-neutral-400" />
+            <span className="text-sm text-neutral-600">{t('dashboard.yearlyBalance')}</span>
+          </div>
+          <p className={`text-2xl font-semibold text-neutral-900`}>
+            {formatCurrency(summary.monthlyBalance * 12)}
           </p>
         </div>
       </div>
