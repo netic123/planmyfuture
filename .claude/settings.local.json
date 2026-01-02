@@ -11,7 +11,8 @@
       "Bash(claude mcp remove:*)",
       "Bash(claude mcp add:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
