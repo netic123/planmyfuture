@@ -1029,8 +1029,8 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Monthly Balance, Yearly Balance & Home Ownership */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Monthly Balance & Yearly Balance */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
               <div className="flex items-center gap-2">
@@ -1051,6 +1051,21 @@ export default function Dashboard() {
               </div>
               <span className={`text-xl sm:text-2xl font-semibold ${(summary?.monthlyBalance || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {formatCurrency((summary?.monthlyBalance || 0) * 12)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Debt to Assets & Mortgage Left */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-neutral-500" />
+                <span className="text-neutral-400">{t('dashboard.debtToAssetsRatio')}</span>
+              </div>
+              <span className="text-xl sm:text-2xl font-semibold text-white">
+                {summary?.totalAssets ? ((summary.totalDebts / summary.totalAssets) * 100).toFixed(1) : 0}%
               </span>
             </div>
           </div>
