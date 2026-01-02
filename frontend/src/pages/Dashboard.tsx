@@ -950,6 +950,118 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Charts Grid */}
+        {chartData.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Forecast Chart */}
+            <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+              <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-neutral-500" />
+                {t('dashboard.forecast')}
+              </h2>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ffffff" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
+                    <XAxis
+                      dataKey="year"
+                      tick={{ fontSize: 12, fill: '#737373' }}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 12, fill: '#737373' }}
+                      tickFormatter={(value) => {
+                        if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                        return `${(value / 1000).toFixed(0)}k`;
+                      }}
+                    />
+                    <Tooltip
+                      formatter={(value) => formatCurrency(Number(value) || 0)}
+                      contentStyle={{
+                        borderRadius: '8px',
+                        border: '1px solid #333333',
+                        backgroundColor: '#171717',
+                        color: '#ffffff',
+                        fontSize: '14px'
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="netWorth"
+                      name={t('dashboard.netWorth')}
+                      stroke="#ffffff"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorNetWorth)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Cost of Living Chart */}
+            {summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && (
+              <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+                <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-neutral-500" />
+                  {t('dashboard.costOfLiving')}
+                </h2>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData.map(d => ({
+                      ...d,
+                      costOfLiving: calculateCostOfLiving(d.age - (currentAge || 0))
+                    }))}>
+                      <defs>
+                        <linearGradient id="colorCostOfLiving" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
+                      <XAxis
+                        dataKey="year"
+                        tick={{ fontSize: 12, fill: '#737373' }}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: '#737373' }}
+                        tickFormatter={(value) => {
+                          if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                          return `${(value / 1000).toFixed(0)}k`;
+                        }}
+                      />
+                      <Tooltip
+                        formatter={(value) => formatCurrency(Number(value) || 0)}
+                        contentStyle={{
+                          borderRadius: '8px',
+                          border: '1px solid #333333',
+                          backgroundColor: '#171717',
+                          color: '#ffffff',
+                          fontSize: '14px'
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="costOfLiving"
+                        name={t('dashboard.costOfLiving')}
+                        stroke="#ef4444"
+                        strokeWidth={2}
+                        fillOpacity={1}
+                        fill="url(#colorCostOfLiving)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Expandable Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
           {/* Income */}
@@ -1089,7 +1201,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Savings Rate & Emergency Fund */}
+        {/* Savings Rate & Debt-Free Age */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
@@ -1103,21 +1215,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-              <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-neutral-500" />
-                <span className="text-neutral-400">{t('dashboard.emergencyFund')}</span>
-              </div>
-              <span className={`text-xl sm:text-2xl font-semibold ${(summary?.totalAssets || 0) / (summary?.totalMonthlyExpenses || 1) >= 6 ? 'text-green-400' : (summary?.totalAssets || 0) / (summary?.totalMonthlyExpenses || 1) >= 3 ? 'text-yellow-400' : 'text-red-400'}`}>
-                {summary?.totalMonthlyExpenses ? ((summary.totalAssets || 0) / summary.totalMonthlyExpenses).toFixed(1) : 0} {t('dashboard.emergencyFundMonths')}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Time to Debt-Free & FIRE Age */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
               <div className="flex items-center gap-2">
@@ -1138,138 +1235,7 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-
-          <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-neutral-500" />
-                <span className="text-neutral-400">{t('dashboard.fireAge')}</span>
-              </div>
-              <span className="text-xl sm:text-2xl font-semibold text-white">
-                {(() => {
-                  if (!summary?.totalMonthlyExpenses || !summary.monthlyBalance || summary.monthlyBalance <= 0) return '∞';
-                  const annualExpenses = summary.totalMonthlyExpenses * 12;
-                  const fireNumber = annualExpenses * 25;
-                  const yearsToFire = (fireNumber - (summary.totalAssets || 0)) / (summary.monthlyBalance * 12);
-                  if (yearsToFire <= 0) return currentAge || '?';
-                  return Math.round((currentAge || 30) + yearsToFire);
-                })()}
-              </span>
-            </div>
-          </div>
         </div>
-
-        {/* Charts Grid */}
-        {chartData.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Forecast Chart */}
-            <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
-              <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-neutral-500" />
-                {t('dashboard.forecast')}
-              </h2>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ffffff" stopOpacity={0.15}/>
-                        <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
-                    <XAxis 
-                      dataKey="year" 
-                      tick={{ fontSize: 12, fill: '#737373' }}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 12, fill: '#737373' }}
-                      tickFormatter={(value) => {
-                        if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                        return `${(value / 1000).toFixed(0)}k`;
-                      }}
-                    />
-                    <Tooltip 
-                      formatter={(value) => formatCurrency(Number(value) || 0)}
-                      contentStyle={{ 
-                        borderRadius: '8px', 
-                        border: '1px solid #333333',
-                        backgroundColor: '#171717',
-                        color: '#ffffff',
-                        fontSize: '14px'
-                      }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="netWorth" 
-                      name={t('dashboard.netWorth')}
-                      stroke="#ffffff" 
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorNetWorth)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Cost of Living Chart */}
-            {summary?.totalMonthlyExpenses && summary.totalMonthlyExpenses > 0 && (
-              <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
-                <h2 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                  <Wallet className="h-4 w-4 text-neutral-500" />
-                  {t('dashboard.costOfLiving')}
-                </h2>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData.map(d => ({
-                      ...d,
-                      costOfLiving: calculateCostOfLiving(d.age - (currentAge || 0))
-                    }))}>
-                      <defs>
-                        <linearGradient id="colorCostOfLiving" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
-                      <XAxis 
-                        dataKey="year" 
-                        tick={{ fontSize: 12, fill: '#737373' }}
-                      />
-                      <YAxis 
-                        tick={{ fontSize: 12, fill: '#737373' }}
-                        tickFormatter={(value) => {
-                          if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                          return `${(value / 1000).toFixed(0)}k`;
-                        }}
-                      />
-                      <Tooltip 
-                        formatter={(value) => formatCurrency(Number(value) || 0)}
-                        contentStyle={{ 
-                          borderRadius: '8px', 
-                          border: '1px solid #333333',
-                          backgroundColor: '#171717',
-                          color: '#ffffff',
-                          fontSize: '14px'
-                        }}
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey="costOfLiving" 
-                        name={t('dashboard.costOfLiving')}
-                        stroke="#ef4444" 
-                        strokeWidth={2}
-                        fillOpacity={1}
-                        fill="url(#colorCostOfLiving)" 
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </main>
     </div>
   );
