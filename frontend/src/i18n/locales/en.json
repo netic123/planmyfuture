@@ -25,6 +25,7 @@
     "monthlyIncome": "Income/month",
     "monthlyExpenses": "Expenses/month",
     "monthlyBalance": "Left over/month",
+    "yearlyBalance": "Savings per year",
     "savingsPerMonth": "Savings per month",
     "debtRemaining": "Mortgage left",
     "addIncome": "Add income",
