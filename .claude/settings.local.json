@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet run)",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(wmic process where \"name like ''%MyFuture%''\" get processid,name,commandline)",
+      "Bash(start http://localhost:5173)",
+      "Bash(claude mcp add --transport stdio playwright -- cmd /c npx -y @playwright/mcp@latest)",
+      "Bash(start:*)",
+      "Bash(claude mcp remove:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
