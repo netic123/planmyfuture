@@ -94,6 +94,7 @@ export default function Dashboard() {
   const [editingSection, setEditingSection] = useState<'income' | 'expenses' | 'debts' | 'assets' | null>(null);
   const [editValue, setEditValue] = useState<number>(0);
   const [editName, setEditName] = useState<string>('');
+  const [editRate, setEditRate] = useState<number>(0);
   const [saving, setSaving] = useState(false);
   
   // Add new item states (tracks which section's form is showing)
@@ -251,10 +252,11 @@ export default function Dashboard() {
     cancelEdit();
   };
 
-  const startEdit = (id: number, name: string, value: number, section: 'income' | 'expenses' | 'debts' | 'assets') => {
+  const startEdit = (id: number, name: string, value: number, section: 'income' | 'expenses' | 'debts' | 'assets', rate?: number) => {
     setEditingId(id);
     setEditName(name);
     setEditValue(value);
+    setEditRate(rate || 0);
     setEditingSection(section);
   };
 
@@ -262,6 +264,7 @@ export default function Dashboard() {
     setEditingId(null);
     setEditName('');
     setEditValue(0);
+    setEditRate(0);
     setEditingSection(null);
   };
 
@@ -333,7 +336,7 @@ export default function Dashboard() {
   };
 
   // Debt operations
-  const updateDebt = async (id: number, name: string, currentBalance: number) => {
+  const updateDebt = async (id: number, name: string, currentBalance: number, interestRate?: number) => {
     setSaving(true);
     try {
       const debt = debts.find(d => d.id === id);
@@ -342,12 +345,73 @@ export default function Dashboard() {
         return;
       }
       
+      const newRate = interestRate ?? debt.interestRate;
+      
       await fetch(`${API_URL}/api/personal-finance/debts/${id}`, {
         method: 'PUT',
         headers: getHeaders(),
-        body: JSON.stringify({ ...debt, name, currentBalance }),
+        body: JSON.stringify({ ...debt, name, currentBalance, interestRate: newRate }),
       });
-      setDebts(debts.map(d => d.id === id ? { ...d, name, currentBalance } : d));
+      setDebts(debts.map(d => d.id === id ? { ...d, name, currentBalance, interestRate: newRate } : d));
+      
+      // Hantera räntekostnad som månatlig utgift
+      const interestExpenseName = `Ränta - ${name}`;
+      const monthlyInterest = Math.round((currentBalance * newRate / 100) / 12);
+      
+      // Leta efter befintlig ränteutgift för denna skuld (flexibel matchning)
+      // Matchar: "Ränta - Bolån", "Ränta bolån", "Ränta Bolån", etc.
+      const debtNameLower = debt.name.toLowerCase();
+      const newNameLower = name.toLowerCase();
+      const existingInterestExpense = budgetItems.find(
+        item => item.type === 1 && 
+        item.name.toLowerCase().startsWith('ränta') && 
+        (item.name.toLowerCase().includes(debtNameLower) || item.name.toLowerCase().includes(newNameLower))
+      );
+      
+      if (monthlyInterest > 0) {
+        if (existingInterestExpense) {
+          // Uppdatera befintlig utgift
+          await fetch(`${API_URL}/api/personal-finance/budget/items/${existingInterestExpense.id}`, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify({ 
+              ...existingInterestExpense, 
+              name: interestExpenseName,
+              amount: monthlyInterest 
+            }),
+          });
+          setBudgetItems(budgetItems.map(i => 
+            i.id === existingInterestExpense.id 
+              ? { ...i, name: interestExpenseName, amount: monthlyInterest } 
+              : i
+          ));
+        } else {
+          // Skapa ny utgift för räntan
+          const res = await fetch(`${API_URL}/api/personal-finance/budget/items`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({
+              name: interestExpenseName,
+              amount: monthlyInterest,
+              type: 1, // Expense
+              category: 10, // Other
+              isRecurring: true,
+            }),
+          });
+          if (res.ok) {
+            const newItem = await res.json();
+            setBudgetItems([...budgetItems, newItem]);
+          }
+        }
+      } else if (existingInterestExpense) {
+        // Ta bort utgiften om räntan är 0
+        await fetch(`${API_URL}/api/personal-finance/budget/items/${existingInterestExpense.id}`, {
+          method: 'DELETE',
+          headers: getHeaders(),
+        });
+        setBudgetItems(budgetItems.filter(item => item.id !== existingInterestExpense.id));
+      }
+      
       cancelEdit();
       refreshSummary();
     } catch (error) {
@@ -358,11 +422,31 @@ export default function Dashboard() {
   };
 
   const deleteDebt = async (id: number) => {
+    const debt = debts.find(d => d.id === id);
+    
     await fetch(`${API_URL}/api/personal-finance/debts/${id}`, {
       method: 'DELETE',
       headers: getHeaders(),
     });
     setDebts(debts.filter(d => d.id !== id));
+    
+    // Ta bort kopplad ränteutgift om den finns (flexibel matchning)
+    if (debt) {
+      const debtNameLower = debt.name.toLowerCase();
+      const interestExpense = budgetItems.find(
+        item => item.type === 1 && 
+        item.name.toLowerCase().startsWith('ränta') && 
+        item.name.toLowerCase().includes(debtNameLower)
+      );
+      if (interestExpense) {
+        await fetch(`${API_URL}/api/personal-finance/budget/items/${interestExpense.id}`, {
+          method: 'DELETE',
+          headers: getHeaders(),
+        });
+        setBudgetItems(budgetItems.filter(item => item.id !== interestExpense.id));
+      }
+    }
+    
     refreshSummary();
   };
 
@@ -385,6 +469,28 @@ export default function Dashboard() {
     if (res.ok) {
       const newDebt = await res.json();
       setDebts([...debts, newDebt]);
+      
+      // Skapa ränteutgift om ränta finns
+      if (newItemRate > 0) {
+        const monthlyInterest = Math.round((newItemAmount * newItemRate / 100) / 12);
+        if (monthlyInterest > 0) {
+          const expenseRes = await fetch(`${API_URL}/api/personal-finance/budget/items`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({
+              name: `Ränta - ${newItemName}`,
+              amount: monthlyInterest,
+              type: 1, // Expense
+              category: 10, // Other
+              isRecurring: true,
+            }),
+          });
+          if (expenseRes.ok) {
+            const newExpense = await expenseRes.json();
+            setBudgetItems([...budgetItems, newExpense]);
+          }
+        }
+      }
     }
     resetAddForm();
     setSaving(false);
@@ -516,43 +622,84 @@ export default function Dashboard() {
     currentName: string,
     currentValue: number,
     section: 'income' | 'expenses' | 'debts' | 'assets',
-    onSave: (id: number, name: string, value: number) => void,
+    onSave: (id: number, name: string, value: number, rate?: number) => void,
     onDelete: (id: number) => void,
-    extraInfo?: React.ReactNode
+    extraInfo?: React.ReactNode,
+    currentRate?: number
   ) => {
     const isEditing = editingId === id && editingSection === section;
+    const isDebt = section === 'debts';
     
     if (isEditing) {
       return (
-        <div key={id} className="flex items-center justify-between py-2 px-3 bg-neutral-800 rounded-lg border border-neutral-600">
-          <input
-            type="text"
-            value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-            className="flex-1 min-w-0 px-2 py-1 bg-neutral-900 border border-neutral-600 rounded text-sm mr-2 text-white placeholder-neutral-500"
-            placeholder="Namn"
-          />
+        <div key={id} className="py-2 px-3 bg-neutral-800 rounded-lg border border-neutral-600 space-y-2">
           <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="flex-1 min-w-0 px-2 py-1 bg-neutral-900 border border-neutral-600 rounded text-sm text-white placeholder-neutral-500"
+              placeholder="Namn"
+            />
             <input
               type="number"
               value={editValue}
               onChange={(e) => setEditValue(parseFloat(e.target.value) || 0)}
               className="w-28 px-2 py-1 bg-neutral-900 border border-neutral-600 rounded text-right text-sm text-white"
+              placeholder="Belopp"
             />
-            <button 
-              onClick={() => onSave(id, editName, editValue)} 
-              disabled={saving}
-              className="p-1 text-green-400 hover:bg-neutral-700 rounded"
-            >
-              <Check className="h-4 w-4" />
-            </button>
-            <button 
-              onClick={cancelEdit} 
-              className="p-1 text-neutral-500 hover:bg-neutral-700 rounded"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
+          {isDebt && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-1">
+                <span className="text-xs text-neutral-400">Ränta:</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editRate}
+                  onChange={(e) => setEditRate(parseFloat(e.target.value) || 0)}
+                  className="w-20 px-2 py-1 bg-neutral-900 border border-neutral-600 rounded text-right text-sm text-white"
+                  placeholder="0"
+                />
+                <span className="text-xs text-neutral-400">%</span>
+                {editRate > 0 && editValue > 0 && (
+                  <span className="text-xs text-neutral-500 ml-2">
+                    ({formatCurrency(Math.round((editValue * editRate / 100) / 12))}/mån)
+                  </span>
+                )}
+              </div>
+              <button 
+                onClick={() => onSave(id, editName, editValue, editRate)} 
+                disabled={saving}
+                className="p-1 text-green-400 hover:bg-neutral-700 rounded"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={cancelEdit} 
+                className="p-1 text-neutral-500 hover:bg-neutral-700 rounded"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          {!isDebt && (
+            <div className="flex justify-end gap-2">
+              <button 
+                onClick={() => onSave(id, editName, editValue)} 
+                disabled={saving}
+                className="p-1 text-green-400 hover:bg-neutral-700 rounded"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={cancelEdit} 
+                className="p-1 text-neutral-500 hover:bg-neutral-700 rounded"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       );
     }
@@ -565,7 +712,7 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-2">
           <button 
-            onClick={() => startEdit(id, currentName, currentValue, section)}
+            onClick={() => startEdit(id, currentName, currentValue, section, currentRate)}
             className="flex items-center gap-1.5 group text-sm"
           >
             <span className="font-medium text-white">{formatCurrency(currentValue)}</span>
@@ -874,7 +1021,8 @@ export default function Dashboard() {
               deleteDebt,
               debt.interestRate > 0 ? (
                 <span className="text-xs text-neutral-400 ml-2">{debt.interestRate}%</span>
-              ) : undefined
+              ) : undefined,
+              debt.interestRate
             ),
             addDebt,
             t('dashboard.addDebt')
