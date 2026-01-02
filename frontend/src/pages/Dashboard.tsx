@@ -23,6 +23,10 @@ import {
   UserX,
   AlertTriangle,
   Home,
+  Percent,
+  Shield,
+  Clock,
+  Target,
 } from 'lucide-react';
 import {
   XAxis,
@@ -1083,6 +1087,76 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Savings Rate & Emergency Fund */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+              <div className="flex items-center gap-2">
+                <Percent className="h-5 w-5 text-neutral-500" />
+                <span className="text-neutral-400">{t('dashboard.savingsRate')}</span>
+              </div>
+              <span className={`text-xl sm:text-2xl font-semibold ${((summary?.monthlyBalance || 0) / (summary?.totalMonthlyIncome || 1)) * 100 >= 20 ? 'text-green-400' : 'text-yellow-400'}`}>
+                {summary?.totalMonthlyIncome ? (((summary.monthlyBalance || 0) / summary.totalMonthlyIncome) * 100).toFixed(1) : 0}%
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+              <div className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-neutral-500" />
+                <span className="text-neutral-400">{t('dashboard.emergencyFund')}</span>
+              </div>
+              <span className={`text-xl sm:text-2xl font-semibold ${(summary?.totalAssets || 0) / (summary?.totalMonthlyExpenses || 1) >= 6 ? 'text-green-400' : (summary?.totalAssets || 0) / (summary?.totalMonthlyExpenses || 1) >= 3 ? 'text-yellow-400' : 'text-red-400'}`}>
+                {summary?.totalMonthlyExpenses ? ((summary.totalAssets || 0) / summary.totalMonthlyExpenses).toFixed(1) : 0} {t('dashboard.emergencyFundMonths')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Time to Debt-Free & FIRE Age */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-neutral-500" />
+                <span className="text-neutral-400">{t('dashboard.debtFreeAge')}</span>
+              </div>
+              <span className="text-xl sm:text-2xl font-semibold text-white">
+                {(() => {
+                  if (!summary?.totalDebts || summary.totalDebts === 0) return t('dashboard.alreadyDebtFree');
+                  if (!summary.monthlyBalance || summary.monthlyBalance <= 0) return '∞';
+                  const yearsToDebtFree = summary.totalDebts / (summary.monthlyBalance * 12);
+                  const currentAge = birthYear ? new Date().getFullYear() - birthYear : null;
+                  if (currentAge) {
+                    return `${Math.ceil(currentAge + yearsToDebtFree)} ${t('dashboard.yr')}`;
+                  }
+                  return `${yearsToDebtFree.toFixed(1)} ${t('dashboard.timeToDebtFreeYears')}`;
+                })()}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-neutral-900 rounded-xl p-4 sm:p-5 border border-neutral-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+              <div className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-neutral-500" />
+                <span className="text-neutral-400">{t('dashboard.fireAge')}</span>
+              </div>
+              <span className="text-xl sm:text-2xl font-semibold text-white">
+                {(() => {
+                  if (!summary?.totalMonthlyExpenses || !summary.monthlyBalance || summary.monthlyBalance <= 0) return '∞';
+                  const annualExpenses = summary.totalMonthlyExpenses * 12;
+                  const fireNumber = annualExpenses * 25;
+                  const yearsToFire = (fireNumber - (summary.totalAssets || 0)) / (summary.monthlyBalance * 12);
+                  if (yearsToFire <= 0) return currentAge || '?';
+                  return Math.round((currentAge || 30) + yearsToFire);
+                })()}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Charts Grid */}
