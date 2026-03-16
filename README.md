@@ -36,8 +36,8 @@ A personal finance app that helps you take control of your economy.
 
 | Component | Technology |
 |-----------|------------|
-| Frontend | React 18 + TypeScript + Vite |
-| UI | Tailwind CSS |
+| Frontend | React 19 + TypeScript + Vite |
+| UI | Tailwind CSS 4 |
 | Backend | .NET 8 Web API |
 | Database | PostgreSQL (Neon) |
 | ORM | Entity Framework Core |
